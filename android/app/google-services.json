@@ -1,0 +1,91 @@
+{
+  "project_info": {
+    "project_number": "97788329241",
+    "firebase_url": "https://brim-3e707.firebaseio.com",
+    "project_id": "brim-3e707",
+    "storage_bucket": "brim-3e707.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:97788329241:android:a4ce1a587e275663f8d988",
+        "android_client_info": {
+          "package_name": "com.example.brim"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "97788329241-m9nc6roe0p3jjf0m580hhdt1umsqte3m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.brim",
+            "certificate_hash": "31f5e6192cbc4146aa664b711e1c08628ca54fa5"
+          }
+        },
+        {
+          "client_id": "97788329241-c9iprji1e14vv09djr7bok1rc3ivradq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC08lRLuBuImOkC-tnjHK16m8Im-vh94sE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "97788329241-c9iprji1e14vv09djr7bok1rc3ivradq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "97788329241-4s41b97k3ulc4q952q4uhuoqhqgi2i18.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.brim"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:97788329241:android:1ee7e519b3b4280bf8d988",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "97788329241-c9iprji1e14vv09djr7bok1rc3ivradq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC08lRLuBuImOkC-tnjHK16m8Im-vh94sE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "97788329241-c9iprji1e14vv09djr7bok1rc3ivradq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "97788329241-4s41b97k3ulc4q952q4uhuoqhqgi2i18.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.brim"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
