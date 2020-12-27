@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:myapp/Models/brim.dart';
 import 'package:myapp/Models/status.dart';
 import 'package:myapp/Models/users.dart';
+import 'package:myapp/pages/navBarPages/Chats/chat_details.dart';
 import 'package:myapp/services/brimService.dart';
 import 'package:myapp/services/database.dart';
 import 'package:myapp/widgets/loading.dart';
@@ -74,15 +76,17 @@ class _SendBrimsState extends State<SendBrims> {
                           onPressed: () async {
                             if (_formKey.currentState.validate()) {
                               Brim b = new Brim();
-                              b.date = DateTime.now();
+                              b.date = DateTime.now().toUtc();
                               b.message = message;
-                              b.userId = user.uid;
+                              b.userId1 = user.uid;
+                              b.userId2 = widget.userId;
+                              b.sender = user.uid;
                               setState(() {
                                 print("here");
                                 loading = true;
                               });
                               dynamic result = await db.sendBrim(b);
-                              
+
                               if (result == null) {
                                 db.retrieveBrims();
                                 setState(() {
@@ -98,10 +102,29 @@ class _SendBrimsState extends State<SendBrims> {
                                     backgroundColor: Colors.blue,
                                     textColor: Colors.white,
                                     fontSize: 16.0);
-
-                              } else {
+                             
+                                Navigator.push(
+                                  context,
+                                  CupertinoPageRoute(
+                                    builder: (context) => ChatDetails(),
+                                  ),
+                                );
+                              } else if( result is String) {
                                 setState(() {
-                                 loading= false; 
+                                  loading = false;
+                                });
+                                Fluttertoast.showToast(
+                                    msg:
+                                        "$result",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.CENTER,
+                                    timeInSecForIosWeb: 3,
+                                    backgroundColor: Colors.red,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0);
+                              }else{
+                                 setState(() {
+                                  loading = false;
                                 });
                                 Fluttertoast.showToast(
                                     msg:

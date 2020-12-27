@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:form_field_validator/form_field_validator.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:myapp/Models/message.dart';
@@ -16,17 +15,15 @@ import 'package:myapp/Models/users.dart';
 import 'package:myapp/services/chatService.dart';
 import 'package:provider/provider.dart';
 
-class ChatDetails extends StatefulWidget {
+class ChatDetailsBrim extends StatefulWidget {
   final String messageId;
   final bool isParticipant1;
-  ChatDetails({this.messageId, this.isParticipant1});
+  ChatDetailsBrim({this.messageId, this.isParticipant1});
   @override
-  _ChatDetailsState createState() => _ChatDetailsState();
+  _ChatDetailsBrimState createState() => _ChatDetailsBrimState();
 }
 
-class _ChatDetailsState extends State<ChatDetails> {
-  int length;
-  bool lastMessageMe;
+class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
   Users u;
   User user;
   bool isMe;
@@ -56,30 +53,6 @@ class _ChatDetailsState extends State<ChatDetails> {
     // print(u.currentUser.userName);
     // TODO: implement initState
     super.initState();
-  }
-
-  Stream getYourChats(String messageId) {
-    var snapshot = FirebaseFirestore.instance
-        .collection("chats")
-        .doc(messageId)
-        .collection("messages")
-        .orderBy("time", descending: false)
-        .snapshots();
-    snapshot.length.then((onValue) {
-      length = onValue;
-      print(length);
-    });
-    print("okay");
-    print(length);
-    snapshot.last.then((onValue) {
-      print(onValue);
-    });
-    // snapshot.forEach((value){
-    // print("from chats");
-    //  print( value.docs);
-    // });
-    // snapshot.docs[index].data()["from"]
-    return snapshot;
   }
 
   void detectKeyBoard() {
@@ -136,10 +109,6 @@ class _ChatDetailsState extends State<ChatDetails> {
 
   @override
   Widget build(BuildContext context) {
-    Timer(
-        Duration(milliseconds: 500),
-        () => _scrollController
-            .jumpTo(_scrollController.position.maxScrollExtent));
     return Scaffold(
       appBar: AppBar(
         elevation: 0.4,
@@ -151,10 +120,11 @@ class _ChatDetailsState extends State<ChatDetails> {
               width: 40,
               height: 40,
               margin: EdgeInsets.fromLTRB(0, 5, 10, 0),
-              child: Image(
-                  image: AssetImage(
-                'lib/images/brim0.png',
-              )),
+              child: CircleAvatar(
+                backgroundImage: NetworkImage('${u.currentUser.picture}'),
+                backgroundColor: Colors.grey[200],
+                minRadius: 30,
+              ),
             ),
             Container(
               margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -180,17 +150,16 @@ class _ChatDetailsState extends State<ChatDetails> {
                           onTap: () async {
                             var result = await ChatService().permit(
                                 widget.messageId, widget.isParticipant1);
-
+                            
                             if (result == true) {
                               print("eii pemit");
-                              var permit = await ChatService()
-                                  .checkPermit(widget.messageId);
+                             var permit =  await ChatService().checkPermit(widget.messageId);
 
-                              if (permit == true) {
-                                print("yesss");
-                              } else {
-                                Navigator.of(context).pop();
-                              }
+                               if(permit == true){
+                                  print("yesss");
+                               }else{
+                                   Navigator.of(context).pop();
+                               }
                               //  Navigator.of(context).pop();
                             } else if (result is String) {
                               Fluttertoast.showToast(
@@ -201,16 +170,18 @@ class _ChatDetailsState extends State<ChatDetails> {
                                   backgroundColor: Colors.red,
                                   textColor: Colors.white,
                                   fontSize: 16.0);
-                              Navigator.of(context).pop();
+                                   Navigator.of(context).pop();
                             }
-
+                         
+                           
                             // print(permit);
-
+                            
                             //  if(permit==true){
                             //    print("ookkkaayay");
                             //  }else{
                             //       print(" not  ookkkaayay");
                             //  }
+                           
                           },
                         ),
                         // usually buttons at the bottom of the dialog
@@ -244,7 +215,7 @@ class _ChatDetailsState extends State<ChatDetails> {
             // height: 540,
             margin: EdgeInsets.fromLTRB(0, 0, 0, 60),
             child: StreamBuilder<QuerySnapshot>(
-                stream: getYourChats(widget.messageId),
+                stream: ChatService().getYourChats(widget.messageId),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     return ListView.builder(
@@ -286,9 +257,6 @@ class _ChatDetailsState extends State<ChatDetails> {
                   return CircularProgressIndicator();
                 }),
           ),
-          Expanded(
-            child: Container(),
-          ),
           Positioned(
             bottom: 0,
             left: 0,
@@ -312,7 +280,7 @@ class _ChatDetailsState extends State<ChatDetails> {
                   //   ),
                   // ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: chooseFile,
                     icon: Icon(
                       Icons.image,
                       color: Colors.purple,
@@ -337,59 +305,26 @@ class _ChatDetailsState extends State<ChatDetails> {
                   ),
                   IconButton(
                     onPressed: () async {
-                      ChatService().getChatlength(widget.messageId);
-                      if (_textController.text != "") {
-                        length =
-                            await ChatService().getChatlength(widget.messageId);
-                        if (length < 100) {
-                          Message m = new Message();
+                      if (_formKey.currentState.validate()) {
+                        Message m = new Message();
+                        m.message = _textController.text;
+                        m.from = user.uid;
+                        m.read = false;
+                        m.date = DateTime.now().toUtc();
 
-                          if (isMe == true) {
-                            m.message = _textController.text;
-                            m.from = user.uid;
-                            m.read = false;
-                            m.date = DateTime.now().toUtc();
-
-                            var result = await ChatService()
-                                .sendChatsText(m, widget.messageId);
-                            if (result is String) {
-                              Fluttertoast.showToast(
-                                  msg: "Unable to send message",
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  gravity: ToastGravity.CENTER,
-                                  timeInSecForIosWeb: 3,
-                                  backgroundColor: Colors.red,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0);
-                            } else {
-                              _textController.clear();
-                              Timer(
-                                  Duration(milliseconds: 500),
-                                  () => _scrollController.jumpTo(
-                                      _scrollController
-                                          .position.maxScrollExtent));
-                            }
-                          } else {
-                            Fluttertoast.showToast(
-                                msg:
-                                    "You need to be friends to send back to back messages",
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.CENTER,
-                                timeInSecForIosWeb: 3,
-                                backgroundColor: Colors.red,
-                                textColor: Colors.white,
-                                fontSize: 16.0);
-                          }
-                        } else {
+                        var result = await ChatService()
+                            .sendChatsText(m, widget.messageId);
+                        if (result is String) {
                           Fluttertoast.showToast(
-                              msg:
-                                  "Text Limit Reached :( You need to be friends to keep on messaging each other",
+                              msg: "Unable to send message",
                               toastLength: Toast.LENGTH_SHORT,
                               gravity: ToastGravity.CENTER,
                               timeInSecForIosWeb: 3,
                               backgroundColor: Colors.red,
                               textColor: Colors.white,
                               fontSize: 16.0);
+                        } else {
+                          _formKey.currentState.reset();
                         }
                       }
                     },

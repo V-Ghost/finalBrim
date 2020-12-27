@@ -24,7 +24,7 @@ class DatabaseService {
 
   Future<dynamic> updateUserData(Users u) async {
     try {
-      return await userCollection.doc(uid).set({
+      await userCollection.doc(uid).set({
         'username': u.userName,
         'bio': u.bio,
         'picture': u.picture,
@@ -41,16 +41,27 @@ class DatabaseService {
 
   Future<dynamic> uploadFile(File _image) async {
     try {
-      String _uploadedFileURL;
-      firebase_storage.Reference storageReference =
-          FirebaseStorage.instance.ref().child('avatar/$uid');
-      firebase_storage.UploadTask uploadTask = storageReference.putFile(_image);
-
+      // String _uploadedFileURL;
+      // firebase_storage.Reference storageReference =
+      //     FirebaseStorage.instance.ref().child('avatar/$uid');
+      // firebase_storage.UploadTask uploadTask = storageReference.putFile(_image);
+      
+      // _uploadedFileURL = await storageReference.getDownloadURL();
+   
+     String _uploadedFileURL;
+    firebase_storage.Reference storageReference =
+        FirebaseStorage.instance.ref().child('avatar/$uid');
+   
+        storageReference.putFile(_image).whenComplete(() async {
       _uploadedFileURL = await storageReference.getDownloadURL();
-      print('File Upppppppppppppppppppppppppppppppppppppppppppppppploaded');
-
+    }).catchError((onError) {
+      print(onError.toString());
+      return onError.toString();
+    });
+       print('File Upppppppppppppppppppppppppppppppppppppppppppppppploaded');
       return _uploadedFileURL;
     } catch (error) {
+
       return error;
     }
   }
@@ -61,9 +72,10 @@ class DatabaseService {
     final databaseReference =
         FirebaseDatabase.instance.reference().child("userInfo");
     final coordinates = new Coordinates(position.latitude, position.longitude);
-    var addresses = await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    var addresses =
+        await Geocoder.local.findAddressesFromCoordinates(coordinates);
     var first = addresses.first;
-    
+
     print(first.locality);
     await databaseReference.child("userStatus").child(uid).update({
       'latitiude': '${position.latitude.toString()}',
@@ -154,7 +166,32 @@ class DatabaseService {
     });
   }
 
-  Future<Map<dynamic, dynamic> > getNearbyUsers() async {
+  Future<bool> doesBrimMessageExistAlready(String user) async {
+    QuerySnapshot query = await FirebaseFirestore.instance
+        .collection("chats")
+        .where('participant2', isEqualTo: user)
+        .get();
+
+    QuerySnapshot query2 = await FirebaseFirestore.instance
+        .collection("chats")
+        .where('participant1', isEqualTo: user)
+        .get();
+    // query.docs.forEach((value) {
+    //   print("query");
+    //   print(value.data());
+    // });
+    // query2.docs.forEach((value) {
+    //   print("query2");
+    //   print(value.data());
+    // });
+    if (query.docs.isEmpty && query2.docs.isEmpty) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  Future<Map<dynamic, dynamic>> getNearbyUsers() async {
     final databaseReference = FirebaseDatabase.instance
         .reference()
         .child("userInfo")
@@ -166,8 +203,6 @@ class DatabaseService {
 
     Map<dynamic, dynamic> users = new Map();
 
-   
-    
     Map<dynamic, dynamic> values = snapshot.value;
 
     final nearYou = databaseReference
@@ -175,35 +210,55 @@ class DatabaseService {
         .equalTo(values['AdminArea']);
     DataSnapshot snapshot1 = await nearYou.once();
     Map<dynamic, dynamic> nearYouValues = snapshot1.value;
+
+    nearYouValues = await removeUsersAlreadyTexted(nearYouValues);
     // print(values['adminArea']);
     // print(nearYouValues);
-    nearYouValues.forEach((key, values) {
-       CoOrdinates u = new CoOrdinates();
-       Users x = new Users();
-      double latitiude = double.parse(values["latitiude"]);
-      
-      double longitude = double.parse(values["longitude"]);
-      u.latitiude = latitiude;
-    
-      u.longitude = longitude;
-      x.position = u;
-      users[key] = x;
-        
+    nearYouValues.forEach((key, values) async {
+      // var check =  doesBrimMessageExistAlready(key);
+
+      print(key != uid);
+      //  print(check);
+      if (key != uid) {
+        CoOrdinates u = new CoOrdinates();
+        Users x = new Users();
+        double latitiude = double.parse(values["latitiude"]);
+
+        double longitude = double.parse(values["longitude"]);
+        u.latitiude = latitiude;
+
+        u.longitude = longitude;
+        x.position = u;
+        users[key] = x;
+      }
     });
-   
+
     //  print(users);
-  //   print(" 1st");
-   
-  //  print(users["t3MYcrmwZ9VemLCSOPRI2bOxD9s2"].bio);
-  //   print(users["t3MYcrmwZ9VemLCSOPRI2bOxD9s2"].position.longitude);
-  //   print("eii");
+    print(" 1st");
+
+    //  print(users["t3MYcrmwZ9VemLCSOPRI2bOxD9s2"].bio);
+    //   print(users["t3MYcrmwZ9VemLCSOPRI2bOxD9s2"].position.longitude);
+    //   print("eii");
     return users;
   }
 
-   Future<Map<dynamic, dynamic>>retrieveOtherInfo(Map<dynamic, dynamic> users ) async {
+  Future<Map<dynamic, dynamic>> removeUsersAlreadyTexted(
+      Map<dynamic, dynamic> users) async {
+    users.forEach((key, values) async {
+      var check = await doesBrimMessageExistAlready(key);
+      // print("it's true");
+      //  print(check);
+      if (check == true) {
+        users.remove(key);
+      }
+    });
+    return users;
+  }
+
+  Future<Map<dynamic, dynamic>> retrieveOtherInfo(
+      Map<dynamic, dynamic> users) async {
     Users temp;
     users.forEach((key, value) async {
-      
       DocumentSnapshot documentSnapshot =
           await FirebaseFirestore.instance.collection('users').doc(key).get();
       temp = Users.fromMap(documentSnapshot.data());
@@ -219,7 +274,23 @@ class DatabaseService {
       // print(documentSnapshot.data());
       // print("2nd");
     });
-   // print("ah");
+    // print("ah");
     return users;
+  }
+
+  Future<Users> getUserInfo(String user) async {
+    DocumentSnapshot documentSnapshot =
+        await FirebaseFirestore.instance.collection('users').doc(user).get();
+
+    Users u = new Users();
+    Users temp = new Users();
+
+    temp = Users.fromMap(documentSnapshot.data());
+    u.picture = temp.picture;
+    u.userName = temp.userName;
+    u.bio = temp.bio;
+
+    u.gender = temp.gender;
+    return u;
   }
 }

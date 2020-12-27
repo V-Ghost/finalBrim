@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:myapp/Models/setting.dart';
 import 'package:myapp/Models/users.dart';
 import 'package:myapp/pages/landingPages/homepage.dart';
@@ -73,6 +74,7 @@ class MyApp extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.done) {
               print("done");
               print(loggedIn);
+              
               return MaterialApp(
                
                 initialRoute: '/',

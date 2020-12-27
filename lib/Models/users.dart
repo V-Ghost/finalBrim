@@ -16,6 +16,7 @@ class Users extends ChangeNotifier {
   String _gender;
   String _uid;
   User _user;
+  Users _currentUser;
    CoOrdinates _position;
   Users get instance => this;
    
@@ -39,6 +40,14 @@ Users();
 
   set user(User value) {
     _user = value;
+    notifyListeners();
+  }
+
+  
+  Users get currentUser => _currentUser;
+
+  set currentUser(Users value) {
+    _currentUser = value;
     notifyListeners();
   }
 

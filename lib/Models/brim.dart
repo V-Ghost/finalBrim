@@ -2,20 +2,40 @@ import 'package:flutter/material.dart';
 
 class Brim extends ChangeNotifier {
   String _message;
-  String _userId;
+  String _userId1;
+   String _userId2;
+   String _sender;
   DateTime _date;
 
-  String get message => _message;
+
   Brim();
+
+  
+  String get message => _message;
+ 
   set message(String value) {
     _message = value;
     notifyListeners();
   }
 
-  String get userId => _userId;
+  String get userId1 => _userId1;
 
-  set userId(String value) {
-    _userId = value;
+  set userId1(String value) {
+    _userId1 = value;
+    notifyListeners();
+  }
+
+  String get sender => _sender;
+
+  set sender(String value) {
+    _sender = value;
+    notifyListeners();
+  }
+
+  String get userId2 => _userId2;
+
+  set userId2(String value) {
+    _userId2 = value;
     notifyListeners();
   }
 
@@ -29,7 +49,8 @@ class Brim extends ChangeNotifier {
   Brim.fromMap(Map<String, dynamic> data) {
     //sets all private values to values of the input map
     _message = data['message'];
-    _userId = data['userId'];
+    _userId1 = data['participant1'];
+    _userId2 = data['participant2'];
     _date = data['date'];
     notifyListeners();
   }

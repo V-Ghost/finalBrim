@@ -287,7 +287,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
               ),
               BottomNavigationBarItem(
                 icon: Icon(
-                  Icons.chat_bubble,
+                  Icons.chat_bubble_outline,
                   size: 30,
                 ),
                 title: Text('Chat'),

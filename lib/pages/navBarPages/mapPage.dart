@@ -42,6 +42,7 @@ class _MapPageState extends State<MapPage> {
   bool details;
   String name;
   String bio;
+  String user2;
   @override
   void initState() {
     u = Provider.of<Users>(context, listen: false);
@@ -52,6 +53,7 @@ class _MapPageState extends State<MapPage> {
     opacity = 0;
     details = false;
     hide = true;
+    user2 = "";
     print("eii1");
     print(u.phoneNumber);
     user = FirebaseAuth.instance.currentUser;
@@ -106,12 +108,22 @@ class _MapPageState extends State<MapPage> {
     _mapController = controller;
 
     users = await DatabaseService(uid: user.uid).getNearbyUsers();
+    //   users.forEach((key,values) async {
+    //  var check =  await DatabaseService(uid: user.uid).doesBrimMessageExistAlready(key);
+    //   print("it's true");
+    //    print(check);
+    //  if(check == true){
+    //    print("it's true");
+    //    print(check);
+    //    users.remove(key);
+    //  }
+    //   });
     print("noo");
     final Uint8List markerIcon =
         await getBytesFromAsset('lib/images/brim0.png', 100);
     users.forEach((key, value) async {
       var u = await DatabaseService().retrieveOtherInfo(users);
-
+      //  var check =  await DatabaseService(uid: user.uid).doesBrimMessageExistAlready(key);
       print(u[key].userName);
       //  String name = u[key].userName.toString();
       //  String bio = u[key].bio.toString();
@@ -121,8 +133,8 @@ class _MapPageState extends State<MapPage> {
         Marker(
             markerId: MarkerId(key),
             onTap: () async {
-              print(value.userName.toString());
-              print(value.bio.toString());
+              // print(value.userName.toString());
+              // print(value.bio.toString());
               _mapController.animateCamera(CameraUpdate.newLatLngZoom(
                   LatLng(value.position.latitiude, value.position.longitude),
                   15));
@@ -130,6 +142,7 @@ class _MapPageState extends State<MapPage> {
                 name = value.userName.toString();
                 bio = value.bio.toString();
                 details = true;
+                user2 = key.toString();
               });
               // _mapController.moveCamera(CameraUpdate.newLatLngZoom(LatLng(value.position.latitiude, value.position.longitude),15));
             },
@@ -157,10 +170,16 @@ class _MapPageState extends State<MapPage> {
         ImageConfiguration(size: Size(1, 1)), 'lib/images/brim0.png');
   }
 
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
+
   void _getUserLocation() async {
     print("get");
     isLocationServiceEnabled = await Geolocator.isLocationServiceEnabled();
-   
+
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     if (isLocationServiceEnabled) {
@@ -171,11 +190,9 @@ class _MapPageState extends State<MapPage> {
         );
         //print('${placemark[0].name}');
       });
-    }else{
-       permission = await Geolocator.requestPermission();
-       setState(() {
-         
-       });
+    } else {
+      permission = await Geolocator.requestPermission();
+      setState(() {});
     }
     //List<Placemark> placemark = await Geolocator.placemarkFromCoordinates(position.latitude, position.longitude);
   }
@@ -300,27 +317,39 @@ class _MapPageState extends State<MapPage> {
                                           duration:
                                               Duration(milliseconds: 6000),
                                           opacity: opacity,
-                                          child: RaisedGradientButton(
-                                              height: 30,
-                                              width: 100,
+                                          child: OutlineButton(
+                                              borderSide: BorderSide(color: Colors.blue),
+                                              shape: new RoundedRectangleBorder(
+                                                   
+                                                  borderRadius:
+                                                      new BorderRadius.circular(
+                                                          30.0)),
+                                              color: Colors.blue,
+                                              // height: 30,
+                                              // width: 100,
                                               child: Text(
                                                 'Send Brim',
                                                 style: TextStyle(
-                                                    color: Colors.white),
+                                                    color: Colors.blue),
                                               ),
-                                              gradient: LinearGradient(
-                                                colors: <Color>[
-                                                  Colors.purple[800],
-                                                  Colors.purple
-                                                ],
-                                              ),
+                                              // gradient: LinearGradient(
+                                              //   colors: <Color>[
+                                              //     Colors.purple[800],
+                                              //     Colors.purple
+                                              //   ],
+                                              // ),
                                               onPressed: () {
+                                                print("h");
+                                                print(user2);
+
                                                 Navigator.of(context)
                                                     .push(PageRouteBuilder(
                                                   pageBuilder: (context,
                                                           animation,
                                                           secondaryAnimation) =>
-                                                      SendBrims(),
+                                                      SendBrims(
+                                                    userId: user2,
+                                                  ),
                                                   transitionsBuilder: (context,
                                                       animation,
                                                       secondaryAnimation,
