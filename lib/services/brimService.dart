@@ -49,7 +49,9 @@ class BrimService {
     }
   }
 
-  Future<dynamic> startChat(Brim b) {
+  
+
+  Future<dynamic> startChat(Brim b) async {
     var uuid = Uuid();
 
     CollectionReference userCollection =
@@ -76,11 +78,7 @@ class BrimService {
           FirebaseDatabase.instance.reference().child("brims");
       await databaseReference.child(id).set({
         'message': '${b.message}',
-        'country': '${first.countryName}',
-        'AdminArea': '${first.adminArea}',
-        'subadminArea': '${first.adminArea}',
-        'thoroughfare': '${first.thoroughfare}',
-        'date': ServerValue.timestamp,
+        'date': DateTime.now().toUtc(),
         'user': '${b.userId1}'
       }).then((_) {
         return null;
@@ -90,10 +88,12 @@ class BrimService {
     }
   }
 
-  Future<void> retrieveBrims() async {
+  Future<void> getBroadcasts() async {
     Brim d1;
     final databaseReference =
         FirebaseDatabase.instance.reference().child("brims");
-    databaseReference.once().then((DataSnapshot snapshot) {});
+    databaseReference.once().then((DataSnapshot snapshot) {
+      print(snapshot.value);
+    });
   }
 }

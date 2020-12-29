@@ -126,8 +126,11 @@ class ChatService {
      var query= await  FirebaseFirestore.instance
         .collection("chats")
         .doc(messageId)
-        .collection("messages").get();
-        print(query.size);
-        return query.size;
+        .collection("messages").snapshots();
+      query.length.then((onValue){
+        print(onValue);
+        return onValue;
+      });
+       
   }
 }

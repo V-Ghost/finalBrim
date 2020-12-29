@@ -203,23 +203,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
         },
         child: Scaffold(
           key: _scaffoldKey,
-          appBar: AppBar(
-            leading: GestureDetector(
-              onTap: () {
-                _scaffoldKey.currentState.openDrawer();
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: CircleAvatar(
-                  radius: 2,
-                  backgroundImage: NetworkImage("${u.picture}"),
-                  backgroundColor: Colors.purple,
-                ),
-              ),
-            ),
-            backgroundColor: Colors.white,
-            title: const Text('Brim', style: TextStyle(color: Colors.black)),
-          ),
+         
           drawer: Drawer(
             child: ListView(
               padding: EdgeInsets.zero,
@@ -251,6 +235,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                       Navigator.push(
                               context,
                               CupertinoPageRoute(
+                                  settings: RouteSettings(name: "Foo"),
                                   builder: (context) => LoginUI()),
                             );
                     

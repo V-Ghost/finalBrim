@@ -220,6 +220,23 @@ class _MapPageState extends State<MapPage> {
     width = MediaQuery.of(context).size.width;
 
     return Scaffold(
+       appBar: AppBar(
+            leading: GestureDetector(
+              // onTap: () {
+              //   _scaffoldKey.currentState.openDrawer();
+              // },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CircleAvatar(
+                  radius: 2,
+                  backgroundImage: NetworkImage("${u.picture}"),
+                  backgroundColor: Colors.purple,
+                ),
+              ),
+            ),
+            backgroundColor: Colors.white,
+            title: const Text('Brim', style: TextStyle(color: Colors.black)),
+          ),
       body: _initialPosition == null
           ? Container(
               child: Center(
@@ -339,8 +356,7 @@ class _MapPageState extends State<MapPage> {
                                               //   ],
                                               // ),
                                               onPressed: () {
-                                                print("h");
-                                                print(user2);
+                                             
 
                                                 Navigator.of(context)
                                                     .push(PageRouteBuilder(

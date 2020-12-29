@@ -3,6 +3,7 @@ import 'package:myapp/Models/setting.dart';
 import 'package:myapp/Models/users.dart';
 import 'package:myapp/pages/landingPages/homepage.dart';
 import 'package:myapp/pages/login.dart';
+import 'package:myapp/pages/navBarPages/chats.dart';
 import 'package:myapp/pages/register/loginUi.dart';
 import 'package:myapp/pages/signup.dart';
 
@@ -77,7 +78,7 @@ class MyApp extends StatelessWidget {
               
               return MaterialApp(
                
-                initialRoute: '/',
+                // initialRoute: '/',
                 routes: {
                   // When navigating to the "/" route, build the FirstScreen widget.
                   '/login': (context) => Login(),
@@ -85,6 +86,7 @@ class MyApp extends StatelessWidget {
                   '/start': (context) => MyApp(),
                   // When navigating to the "/second" route, build the SecondScreen widget.
                   '/signup': (context) => UserDetails(),
+                  '/chats': (context) => Chats(),
                 },
                 debugShowCheckedModeBanner: false,
                 title: 'Flutter Demo',

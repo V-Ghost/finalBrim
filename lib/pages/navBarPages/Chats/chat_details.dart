@@ -13,7 +13,11 @@ import 'package:image_picker/image_picker.dart';
 
 import 'package:myapp/Models/message.dart';
 import 'package:myapp/Models/users.dart';
+import 'package:myapp/pages/navBarPages/Chats/chat_details_brim.dart';
+import 'package:myapp/pages/navBarPages/chats.dart';
+import 'package:myapp/services/ChatStream.dart';
 import 'package:myapp/services/chatService.dart';
+
 import 'package:provider/provider.dart';
 
 class ChatDetails extends StatefulWidget {
@@ -24,14 +28,19 @@ class ChatDetails extends StatefulWidget {
   _ChatDetailsState createState() => _ChatDetailsState();
 }
 
+
 class _ChatDetailsState extends State<ChatDetails> {
+  
+  ChatStream c ;
   int length;
   bool lastMessageMe;
   Users u;
   User user;
   bool isMe;
   bool isImage;
+  String test;
   double h;
+  var lastDocument;
   // String messageId = widget.messageId;
   final TextEditingController _textController = TextEditingController();
   ScrollController _scrollController = new ScrollController();
@@ -41,18 +50,31 @@ class _ChatDetailsState extends State<ChatDetails> {
   void initState() {
     h = 540;
     u = Provider.of<Users>(context, listen: false);
-    Timer(
-        Duration(milliseconds: 500),
-        () => _scrollController
-            .jumpTo(_scrollController.position.maxScrollExtent));
+    c = new ChatStream(messageId: widget.messageId);
     user = FirebaseAuth.instance.currentUser;
     keyboardVisibilityController = KeyboardVisibilityController();
     detectKeyBoard();
 
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //  scrollToBottom();
-    //  print("finish");
-    // });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+    Timer(
+        Duration(milliseconds: 500),
+        () => _scrollController
+            .jumpTo(_scrollController.position.maxScrollExtent));
+     print("finish");
+    });
+     _scrollController.addListener(() {
+      double maxScroll = _scrollController.position.minScrollExtent;
+      double currentScroll = _scrollController.position.pixels;
+      double delta = MediaQuery.of(context).size.height * 0.20;
+      if (maxScroll == currentScroll) {
+      //  print("load messages");
+      //  print(lastDocument);
+      //  print(test);
+      c.getChats(lastDocument);
+      }
+
+
+    });
     // print(u.currentUser.userName);
     // TODO: implement initState
     super.initState();
@@ -113,6 +135,7 @@ class _ChatDetailsState extends State<ChatDetails> {
         m.from = user.uid;
         m.read = false;
         m.date = DateTime.now().toUtc();
+        print(u.currentUser.picture);
         var result = await ChatService().sendChatsText(m, widget.messageId);
         if (result is String) {
           Fluttertoast.showToast(
@@ -136,14 +159,12 @@ class _ChatDetailsState extends State<ChatDetails> {
 
   @override
   Widget build(BuildContext context) {
-    Timer(
-        Duration(milliseconds: 500),
-        () => _scrollController
-            .jumpTo(_scrollController.position.maxScrollExtent));
+  
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 0.4,
-        iconTheme: IconThemeData(color: Colors.black),
+        iconTheme: IconThemeData(color: Colors.grey),
         backgroundColor: Colors.white,
         title: Row(
           children: <Widget>[
@@ -152,9 +173,10 @@ class _ChatDetailsState extends State<ChatDetails> {
               height: 40,
               margin: EdgeInsets.fromLTRB(0, 5, 10, 0),
               child: Image(
-                  image: AssetImage(
-                'lib/images/brim0.png',
-              )),
+                    // color: Colors.purple,
+                    image: AssetImage(
+                  'lib/images/brim0.png',
+                )),
             ),
             Container(
               margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -185,8 +207,15 @@ class _ChatDetailsState extends State<ChatDetails> {
                               print("eii pemit");
                               var permit = await ChatService()
                                   .checkPermit(widget.messageId);
+                             
 
                               if (permit == true) {
+                                  Navigator.of(context).pop();
+                                 Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                    builder: (context) => ChatDetailsBrim(messageId: widget.messageId,isParticipant1: widget.isParticipant1,)),
+                              );
                                 print("yesss");
                               } else {
                                 Navigator.of(context).pop();
@@ -228,7 +257,8 @@ class _ChatDetailsState extends State<ChatDetails> {
               child: Container(
                 margin: EdgeInsets.fromLTRB(0, 0, 15, 0),
                 child: Icon(
-                  CupertinoIcons.lock,
+                  CupertinoIcons.person_add_solid,
+                  size: 40,
                   color: Colors.grey,
                   semanticLabel: 'Add user',
                 ),
@@ -244,7 +274,7 @@ class _ChatDetailsState extends State<ChatDetails> {
             // height: 540,
             margin: EdgeInsets.fromLTRB(0, 0, 0, 60),
             child: StreamBuilder<QuerySnapshot>(
-                stream: getYourChats(widget.messageId),
+                stream:c.stream,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     return ListView.builder(
@@ -253,6 +283,8 @@ class _ChatDetailsState extends State<ChatDetails> {
                       shrinkWrap: true,
                       itemCount: snapshot.data.docs.length,
                       itemBuilder: (BuildContext context, int index) {
+                        length = snapshot.data.docs.length;
+                        print(snapshot.data.docs.length);
                         if (snapshot.data.docs[index].data()["type"] ==
                             "image") {
                           isImage = true;
@@ -262,6 +294,12 @@ class _ChatDetailsState extends State<ChatDetails> {
                           isMe = true;
                         } else {
                           isMe = false;
+                        }
+
+                        if(index == 0){
+                          print("we reach");
+                          lastDocument = snapshot.data.docs[index];
+                          test = snapshot.data.docs[index].data()["message"];
                         }
 
                         return Padding(
@@ -339,8 +377,8 @@ class _ChatDetailsState extends State<ChatDetails> {
                     onPressed: () async {
                       ChatService().getChatlength(widget.messageId);
                       if (_textController.text != "") {
-                        length =
-                            await ChatService().getChatlength(widget.messageId);
+                        // length =
+                        //     await ChatService().getChatlength(widget.messageId);
                         if (length < 100) {
                           Message m = new Message();
 

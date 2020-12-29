@@ -37,6 +37,23 @@ class _ChatsState extends State<Chats> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+       appBar: AppBar(
+            leading: GestureDetector(
+              // onTap: () {
+              //   _scaffoldKey.currentState.openDrawer();
+              // },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CircleAvatar(
+                  radius: 2,
+                  backgroundImage: NetworkImage("${u.picture}"),
+                  backgroundColor: Colors.purple,
+                ),
+              ),
+            ),
+            backgroundColor: Colors.white,
+            title: const Text('Brim', style: TextStyle(color: Colors.black)),
+          ),
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
@@ -210,6 +227,7 @@ class _ChatsState extends State<Chats> {
                     Navigator.push(
                       context,
                       CupertinoPageRoute(
+                      
                         builder: (context) => ChatDetails(
                           messageId: messageId,
                           isParticipant1: isParticipant1,

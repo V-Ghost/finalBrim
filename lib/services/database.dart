@@ -45,23 +45,22 @@ class DatabaseService {
       // firebase_storage.Reference storageReference =
       //     FirebaseStorage.instance.ref().child('avatar/$uid');
       // firebase_storage.UploadTask uploadTask = storageReference.putFile(_image);
-      
+
       // _uploadedFileURL = await storageReference.getDownloadURL();
-   
-     String _uploadedFileURL;
-    firebase_storage.Reference storageReference =
-        FirebaseStorage.instance.ref().child('avatar/$uid');
-   
-        storageReference.putFile(_image).whenComplete(() async {
-      _uploadedFileURL = await storageReference.getDownloadURL();
-    }).catchError((onError) {
-      print(onError.toString());
-      return onError.toString();
-    });
-       print('File Upppppppppppppppppppppppppppppppppppppppppppppppploaded');
+
+      String _uploadedFileURL;
+      firebase_storage.Reference storageReference =
+          FirebaseStorage.instance.ref().child('avatar/$uid');
+
+      storageReference.putFile(_image).whenComplete(() async {
+        _uploadedFileURL = await storageReference.getDownloadURL();
+      }).catchError((onError) {
+        print(onError.toString());
+        return onError.toString();
+      });
+      print('File Upppppppppppppppppppppppppppppppppppppppppppppppploaded');
       return _uploadedFileURL;
     } catch (error) {
-
       return error;
     }
   }
@@ -71,22 +70,27 @@ class DatabaseService {
     SharedPreferences myPrefs = await SharedPreferences.getInstance();
     final databaseReference =
         FirebaseDatabase.instance.reference().child("userInfo");
-    final coordinates = new Coordinates(position.latitude, position.longitude);
-    var addresses =
-        await Geocoder.local.findAddressesFromCoordinates(coordinates);
-    var first = addresses.first;
+    //final coordinates = new Coordinates(position.latitude, position.longitude);
+    // var addresses =
+    //     await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    //var first = addresses.first;
 
-    print(first.locality);
-    await databaseReference.child("userStatus").child(uid).update({
+   // print(first.locality);
+    // await databaseReference.child("userStatus").child(uid).update({
+    //   'latitiude': '${position.latitude.toString()}',
+    //   'longitude': '${position.longitude.toString()}',
+    //   'country': '${first.countryName}',
+    //   'AdminArea': '${first.adminArea}',
+    //   'subadminArea': '${first.adminArea}',
+    //   'thoroughfare': '${first.thoroughfare}',
+    //   'feature': '${first.featureName}',
+    //   'locality': '${first.locality}',
+    //   'sublocality': '${first.subLocality}',
+    //   'lastChanged': DateTime.now().toUtc().toString(),
+    // });
+      await databaseReference.child("userStatus").child(uid).update({
       'latitiude': '${position.latitude.toString()}',
       'longitude': '${position.longitude.toString()}',
-      'country': '${first.countryName}',
-      'AdminArea': '${first.adminArea}',
-      'subadminArea': '${first.adminArea}',
-      'thoroughfare': '${first.thoroughfare}',
-      'feature': '${first.featureName}',
-      'locality': '${first.locality}',
-      'sublocality': '${first.subLocality}',
       'lastChanged': DateTime.now().toUtc().toString(),
     });
     // if (first.featureName == null) {
@@ -205,12 +209,19 @@ class DatabaseService {
 
     Map<dynamic, dynamic> values = snapshot.value;
 
-    final nearYou = databaseReference
-        .orderByChild("AdminArea")
-        .equalTo(values['AdminArea']);
+    //print(values['latitiude']);
+    // await databaseReference.once().then((onValue){
+    //   print("okay");
+    //   print(onValue.value);
+    // });
+
+    final nearYou = databaseReference;
+
     DataSnapshot snapshot1 = await nearYou.once();
     Map<dynamic, dynamic> nearYouValues = snapshot1.value;
-
+    print(nearYouValues);
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
     nearYouValues = await removeUsersAlreadyTexted(nearYouValues);
     // print(values['adminArea']);
     // print(nearYouValues);
@@ -220,7 +231,13 @@ class DatabaseService {
       print(key != uid);
       //  print(check);
       if (key != uid) {
-        CoOrdinates u = new CoOrdinates();
+        double distanceInMeters = Geolocator.distanceBetween(position.latitude,
+            position.longitude, double.parse(values["latitiude"]), double.parse(values["latitiude"]));
+        print(key);
+        print("okay");
+        print(distanceInMeters);
+        if (distanceInMeters < 5000000000) {
+         CoOrdinates u = new CoOrdinates();
         Users x = new Users();
         double latitiude = double.parse(values["latitiude"]);
 
@@ -230,6 +247,8 @@ class DatabaseService {
         u.longitude = longitude;
         x.position = u;
         users[key] = x;
+        }
+        
       }
     });
 

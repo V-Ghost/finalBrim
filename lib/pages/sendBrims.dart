@@ -88,7 +88,7 @@ class _SendBrimsState extends State<SendBrims> {
                               dynamic result = await db.sendBrim(b);
 
                               if (result == null) {
-                                db.retrieveBrims();
+                                // db.retrieveBrims();
                                 setState(() {
                                   print("here");
                                   loading = false;
