@@ -13,6 +13,7 @@ import 'package:image_picker/image_picker.dart';
 
 import 'package:myapp/Models/message.dart';
 import 'package:myapp/Models/users.dart';
+import 'package:myapp/pages/navBarPages/Chats/chat_details.dart';
 import 'package:myapp/services/chatService.dart';
 import 'package:provider/provider.dart';
 
@@ -48,7 +49,7 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
     user = FirebaseAuth.instance.currentUser;
     keyboardVisibilityController = KeyboardVisibilityController();
     detectKeyBoard();
-
+    //ChatService().changeBrimtoFriend(widget.messageId);
     // WidgetsBinding.instance.addPostFrameCallback((_) {
     //  scrollToBottom();
     //  print("finish");
@@ -151,11 +152,11 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
               width: 40,
               height: 40,
               margin: EdgeInsets.fromLTRB(0, 5, 10, 0),
-              child: CircleAvatar(
-                radius: 2,
-                backgroundImage: NetworkImage("${u.currentUser.picture}"),
-                backgroundColor: Colors.purple,
-              ),
+              child: Image(
+                  // color: Colors.purple,
+                  image: AssetImage(
+                'lib/images/brim0.png',
+              )),
             ),
             Container(
               margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -186,11 +187,47 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                               print("eii pemit");
                               var permit = await ChatService()
                                   .checkPermit(widget.messageId);
-
+                                 
+                                // print(permit);
                               if (permit == true) {
-                                print("yesss");
+                                
+                                var change = await ChatService()
+                                    .changeBrimtoFriend(widget.messageId);
+                                  print("heeerrree");
+                                if (change == true) {
+                                  print("heeerrree aggaainn");
+                                  Navigator.of(context).pop();
+                                  Navigator.push(
+                                    context,
+                                     CupertinoPageRoute(
+                                    builder: (context) => ChatDetails(
+                                      messageId: widget.messageId,
+                                      isParticipant1: widget.isParticipant1,
+                                    ),
+                                  )
+                                  );
+                                 
+                                } else {
+                                  Navigator.of(context).pop();
+                                  Fluttertoast.showToast(
+                                      msg: "Sorry :( an error was encountered",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.BOTTOM,
+                                      timeInSecForIosWeb: 3,
+                                      backgroundColor: Colors.red,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
+                                }
                               } else {
                                 Navigator.of(context).pop();
+                                Fluttertoast.showToast(
+                                    msg: "Waiting for this user to add you",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.BOTTOM,
+                                    timeInSecForIosWeb: 3,
+                                    backgroundColor: Colors.red,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0);
                               }
                               //  Navigator.of(context).pop();
                             } else if (result is String) {
@@ -273,8 +310,8 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                           child: Column(
                             children: <Widget>[
                               Bubble(
-                                message: snapshot.data.docs[index]
-                                    .data()["message"],
+                                message:
+                                    snapshot.data.docs[index].data()["message"],
                                 isMe: isMe,
                               ),
                             ],

@@ -70,6 +70,7 @@ flutter:
    - lib/images/brim.svg
    - lib/images/icon.jpg
    - lib/images/brim0.png
+   - lib/images/brimPointer.png
    - assets/json_assets/map_style.txt
   fonts:
    

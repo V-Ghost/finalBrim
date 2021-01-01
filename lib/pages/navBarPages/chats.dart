@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/Models/users.dart';
 import 'package:myapp/pages/navBarPages/Chats/chat_details.dart';
+import 'package:myapp/pages/navBarPages/Chats/chat_details_brim.dart';
 import 'package:myapp/services/chatService.dart';
 import 'package:myapp/services/database.dart';
 import 'package:myapp/widgets/custom_heading.dart';
@@ -37,23 +38,23 @@ class _ChatsState extends State<Chats> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       appBar: AppBar(
-            leading: GestureDetector(
-              // onTap: () {
-              //   _scaffoldKey.currentState.openDrawer();
-              // },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: CircleAvatar(
-                  radius: 2,
-                  backgroundImage: NetworkImage("${u.picture}"),
-                  backgroundColor: Colors.purple,
-                ),
-              ),
+      appBar: AppBar(
+        leading: GestureDetector(
+          // onTap: () {
+          //   _scaffoldKey.currentState.openDrawer();
+          // },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CircleAvatar(
+              radius: 2,
+              backgroundImage: NetworkImage("${u.picture}"),
+              backgroundColor: Colors.purple,
             ),
-            backgroundColor: Colors.white,
-            title: const Text('Brim', style: TextStyle(color: Colors.black)),
           ),
+        ),
+        backgroundColor: Colors.white,
+        title: const Text('Brim', style: TextStyle(color: Colors.black)),
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
@@ -63,7 +64,7 @@ class _ChatsState extends State<Chats> {
             Container(
               height: 150,
               child: StreamBuilder<QuerySnapshot>(
-                  stream: ChatService().chatsStream(),
+                  stream: ChatService().brimStream(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       return ListView.builder(
@@ -83,115 +84,184 @@ class _ChatsState extends State<Chats> {
                         child: Icon(Icons.error),
                       );
                     }
-                    return CircularProgressIndicator();
+                    return Padding(
+                      padding: const EdgeInsets.all(30.0),
+                      child: CircularProgressIndicator(),
+                    );
                   }),
             ),
             CustomHeading(
-              title: 'Direct Messages',
+              title: 'Friends',
             ),
-            ListView.builder(
-              itemCount: 3,
-              shrinkWrap: true,
-              physics: BouncingScrollPhysics(),
-              scrollDirection: Axis.vertical,
-              itemBuilder: (BuildContext context, int index) {
-                return Material(
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (context) => ChatDetails(),
+            StreamBuilder<QuerySnapshot>(
+                stream: ChatService().chatsStream(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return ListView.builder(
+                      itemCount: snapshot.data.docs.length,
+                      shrinkWrap: true,
+                      physics: BouncingScrollPhysics(),
+                      scrollDirection: Axis.vertical,
+                      itemBuilder: (BuildContext context, int index) {
+                        return yourChats(
+                            snapshot.data.docs[index].data(), index);
+                      },
+                    );
+                  } else if (snapshot.hasError) {
+                    print(snapshot.error.toString());
+                    return Center(
+                      child: Icon(Icons.error),
+                    );
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: CircularProgressIndicator(),
+                  );
+                }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget yourChats(Map<dynamic, dynamic> data, int index) {
+    String otherUser;
+    String messageId;
+    bool isParticipant1;
+    messageId =
+        data["participant1"].toString() + data["participant2"].toString();
+    int i = index % color.length;
+    print(data);
+    if (data["participant1"] == user.uid) {
+      otherUser = data["participant2"].toString();
+      isParticipant1 = true;
+    }
+    if (data["participant2"] == user.uid) {
+      otherUser = data["participant1"].toString();
+      isParticipant1 = false;
+    }
+    return FutureBuilder(
+      future: DatabaseService().getUserInfo(otherUser),
+      builder: (context, snapshotfuture) {
+        if (snapshotfuture.hasData) {
+          return Material(
+            child: InkWell(
+              onTap: () {
+                 u.currentUser = snapshotfuture.data;
+                Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (context) => ChatDetails(
+                          messageId: messageId,
+                          isParticipant1: isParticipant1,
                         ),
-                      );
-                    },
-                    child: Container(
-                      margin: EdgeInsets.fromLTRB(15, 5, 15, 5),
-                      padding: EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withAlpha(50),
-                            offset: Offset(0, 0),
-                            blurRadius: 5,
-                          ),
-                        ],
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.white,
                       ),
-                      child: Row(
+                    );
+              },
+              child: Container(
+                margin: EdgeInsets.fromLTRB(15, 5, 15, 5),
+                padding: EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black38,
+                      offset: Offset(-1, 1),
+                      blurRadius: 10,
+                    )
+                  ],
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white,
+                ),
+                child: Row(
+                  children: <Widget>[
+                    Stack(
+                      children: <Widget>[
+                        Container(
+                          child: CircleAvatar(
+                            backgroundImage:
+                                NetworkImage('${snapshotfuture.data.picture}'),
+                            minRadius: 35,
+                            backgroundColor: Colors.grey[200],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 10),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Stack(
-                            children: <Widget>[
+                          Text(
+                            snapshotfuture.data.userName,
+                            style: TextStyle(
+                              color: Colors.black,
+                              // fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(top: 5),
+                          ),
+                          Row(
+                            children: [
                               Container(
-                                child: CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                      'https://i.pravatar.cc/11$index'),
-                                  minRadius: 35,
-                                  backgroundColor: Colors.grey[200],
+                                child: Icon(
+                                  Icons.messenger,
+                                  color: Colors.purple,
+                                  size: 15,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 8,
+                              ),
+                              Text(
+                                'New Message',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.purple,
+                                  fontSize: 14,
                                 ),
                               ),
                             ],
                           ),
                           Padding(
-                            padding: EdgeInsets.only(left: 10),
+                            padding: EdgeInsets.only(top: 5),
                           ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  'Jocelyn',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(top: 5),
-                                ),
-                                Text(
-                                  'Hi How are you ?',
-                                  style: TextStyle(
-                                    color: Color(0xff8C68EC),
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(top: 5),
-                                ),
-                                Text(
-                                  '11:00 AM',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 12,
-                                  ),
-                                )
-                              ],
+                          Text(
+                            ChatService().convertUTCToLocalTime(data["latestMessage"].toDate()),
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
                             ),
-                          ),
-                          Column(
-                            children: <Widget>[
-                              Padding(
-                                padding: EdgeInsets.only(right: 15),
-                                child: Icon(
-                                  Icons.chevron_right,
-                                  size: 18,
-                                ),
-                              )
-                            ],
                           )
                         ],
                       ),
                     ),
-                  ),
-                );
-              },
+                    Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.only(right: 15),
+                          child: Icon(
+                            Icons.chevron_right,
+                            size: 18,
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              ),
             ),
-          ],
-        ),
-      ),
+          );
+        } else if (snapshotfuture.hasError) {
+          return Center(
+            child: Icon(Icons.error),
+          );
+        }
+        return CircularProgressIndicator();
+      },
     );
   }
 
@@ -227,8 +297,7 @@ class _ChatsState extends State<Chats> {
                     Navigator.push(
                       context,
                       CupertinoPageRoute(
-                      
-                        builder: (context) => ChatDetails(
+                        builder: (context) => ChatDetailsBrim(
                           messageId: messageId,
                           isParticipant1: isParticipant1,
                         ),

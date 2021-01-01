@@ -70,7 +70,7 @@ class _ChatDetailsState extends State<ChatDetails> {
       //  print("load messages");
       //  print(lastDocument);
       //  print(test);
-      c.getChats(lastDocument);
+     // c.getChats(lastDocument);
       }
 
 
@@ -172,11 +172,11 @@ class _ChatDetailsState extends State<ChatDetails> {
               width: 40,
               height: 40,
               margin: EdgeInsets.fromLTRB(0, 5, 10, 0),
-              child: Image(
-                    // color: Colors.purple,
-                    image: AssetImage(
-                  'lib/images/brim0.png',
-                )),
+              child: CircleAvatar(
+                radius: 2,
+                backgroundImage: NetworkImage("${u.currentUser.picture}"),
+                backgroundColor: Colors.purple,
+              ),
             ),
             Container(
               margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -185,85 +185,8 @@ class _ChatDetailsState extends State<ChatDetails> {
                 style: TextStyle(color: Colors.black),
               ),
             ),
-            Expanded(child: Container()),
-            InkWell(
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    // return object of type Dialog
-                    return AlertDialog(
-                      title: new Text("Add This User"),
-                      content: new Text(
-                          "This user would be able to see your profile picture"),
-                      actions: <Widget>[
-                        new InkWell(
-                          child: new Text("Add User"),
-                          onTap: () async {
-                            var result = await ChatService().permit(
-                                widget.messageId, widget.isParticipant1);
-
-                            if (result == true) {
-                              print("eii pemit");
-                              var permit = await ChatService()
-                                  .checkPermit(widget.messageId);
-                             
-
-                              if (permit == true) {
-                                  Navigator.of(context).pop();
-                                 Navigator.push(
-                                context,
-                                CupertinoPageRoute(
-                                    builder: (context) => ChatDetailsBrim(messageId: widget.messageId,isParticipant1: widget.isParticipant1,)),
-                              );
-                                print("yesss");
-                              } else {
-                                Navigator.of(context).pop();
-                              }
-                              //  Navigator.of(context).pop();
-                            } else if (result is String) {
-                              Fluttertoast.showToast(
-                                  msg: "Unable to add user",
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  gravity: ToastGravity.BOTTOM,
-                                  timeInSecForIosWeb: 3,
-                                  backgroundColor: Colors.red,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0);
-                              Navigator.of(context).pop();
-                            }
-
-                            // print(permit);
-
-                            //  if(permit==true){
-                            //    print("ookkkaayay");
-                            //  }else{
-                            //       print(" not  ookkkaayay");
-                            //  }
-                          },
-                        ),
-                        // usually buttons at the bottom of the dialog
-                        new FlatButton(
-                          child: new Text("Close"),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-              child: Container(
-                margin: EdgeInsets.fromLTRB(0, 0, 15, 0),
-                child: Icon(
-                  CupertinoIcons.person_add_solid,
-                  size: 40,
-                  color: Colors.grey,
-                  semanticLabel: 'Add user',
-                ),
-              ),
-            )
+           
+           
           ],
         ),
       ),
@@ -271,10 +194,10 @@ class _ChatDetailsState extends State<ChatDetails> {
         children: <Widget>[
           Container(
             color: Colors.white,
-            // height: 540,
+            height: 540,
             margin: EdgeInsets.fromLTRB(0, 0, 0, 60),
             child: StreamBuilder<QuerySnapshot>(
-                stream:c.stream,
+                stream:ChatService().getYourChats(widget.messageId),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     return ListView.builder(
@@ -324,9 +247,10 @@ class _ChatDetailsState extends State<ChatDetails> {
                   return CircularProgressIndicator();
                 }),
           ),
-          Expanded(
-            child: Container(),
-          ),
+
+          // Expanded(
+          //   child: Container(),
+          // ),
           Positioned(
             bottom: 0,
             left: 0,
@@ -375,21 +299,21 @@ class _ChatDetailsState extends State<ChatDetails> {
                   ),
                   IconButton(
                     onPressed: () async {
-                      ChatService().getChatlength(widget.messageId);
+                      // ChatService().getChatlength(widget.messageId);
                       if (_textController.text != "") {
                         // length =
                         //     await ChatService().getChatlength(widget.messageId);
-                        if (length < 100) {
+                       
                           Message m = new Message();
 
-                          if (isMe == true) {
+                         
                             m.message = _textController.text;
                             m.from = user.uid;
                             m.read = false;
                             m.date = DateTime.now().toUtc();
 
                             var result = await ChatService()
-                                .sendChatsText(m, widget.messageId);
+                                .sendChatsTextFromChats(m, widget.messageId);
                             if (result is String) {
                               Fluttertoast.showToast(
                                   msg: "Unable to send message",
@@ -407,28 +331,8 @@ class _ChatDetailsState extends State<ChatDetails> {
                                       _scrollController
                                           .position.maxScrollExtent));
                             }
-                          } else {
-                            Fluttertoast.showToast(
-                                msg:
-                                    "You need to be friends to send back to back messages",
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.CENTER,
-                                timeInSecForIosWeb: 3,
-                                backgroundColor: Colors.red,
-                                textColor: Colors.white,
-                                fontSize: 16.0);
-                          }
-                        } else {
-                          Fluttertoast.showToast(
-                              msg:
-                                  "Text Limit Reached :( You need to be friends to keep on messaging each other",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.CENTER,
-                              timeInSecForIosWeb: 3,
-                              backgroundColor: Colors.red,
-                              textColor: Colors.white,
-                              fontSize: 16.0);
-                        }
+                         
+                      
                       }
                     },
                     icon: Icon(

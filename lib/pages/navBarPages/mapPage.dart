@@ -43,6 +43,7 @@ class _MapPageState extends State<MapPage> {
   String name;
   String bio;
   String user2;
+  String gender;
   @override
   void initState() {
     u = Provider.of<Users>(context, listen: false);
@@ -120,14 +121,14 @@ class _MapPageState extends State<MapPage> {
     //   });
     print("noo");
     final Uint8List markerIcon =
-        await getBytesFromAsset('lib/images/brim0.png', 100);
+        await getBytesFromAsset('lib/images/brimPointer.png', 100);
     users.forEach((key, value) async {
-      var u = await DatabaseService().retrieveOtherInfo(users);
+     var f=  await DatabaseService().retrieveOtherInfo(users);
       //  var check =  await DatabaseService(uid: user.uid).doesBrimMessageExistAlready(key);
-      print(u[key].userName);
+      print(f[key].userName);
       //  String name = u[key].userName.toString();
       //  String bio = u[key].bio.toString();
-      // print(key);
+     
       // print(value.position.latitiude);
       _markers.add(
         Marker(
@@ -139,11 +140,14 @@ class _MapPageState extends State<MapPage> {
                   LatLng(value.position.latitiude, value.position.longitude),
                   15));
               setState(() {
-                name = value.userName.toString();
-                bio = value.bio.toString();
+                name = f[key].userName.toString();
+                bio =f[key].bio.toString();
                 details = true;
                 user2 = key.toString();
+                gender = f[key].gender.toString();
               });
+              print(f[key].gender.toString());
+               print("key");
               // _mapController.moveCamera(CameraUpdate.newLatLngZoom(LatLng(value.position.latitiude, value.position.longitude),15));
             },
             position:
@@ -167,7 +171,7 @@ class _MapPageState extends State<MapPage> {
 
   void _setMarkerIcon() async {
     _markerIcon = await BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(size: Size(1, 1)), 'lib/images/brim0.png');
+        ImageConfiguration(size: Size(1, 1)), 'lib/images/brimPointer.png');
   }
 
   @override
@@ -309,12 +313,24 @@ class _MapPageState extends State<MapPage> {
                               child: Column(
                                 children: [
                                   Expanded(
-                                    child: Text(
-                                      "$name",
-                                      style: TextStyle(
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(child: Container(),),
+                                        Text(
+                                          "$name",
+                                          style: TextStyle(
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        
+                                       gender == "Male" ? Icon(
+                                         Icons.person
+                                       ):  Icon(
+                                         Icons.pregnant_woman
+                                       ),
+                                        Expanded(child: Container(),),
+                                      ],
                                     ),
                                   ),
                                   Expanded(

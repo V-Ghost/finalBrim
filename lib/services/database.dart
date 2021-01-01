@@ -180,14 +180,7 @@ class DatabaseService {
         .collection("chats")
         .where('participant1', isEqualTo: user)
         .get();
-    // query.docs.forEach((value) {
-    //   print("query");
-    //   print(value.data());
-    // });
-    // query2.docs.forEach((value) {
-    //   print("query2");
-    //   print(value.data());
-    // });
+   
     if (query.docs.isEmpty && query2.docs.isEmpty) {
       return false;
     } else {
@@ -209,11 +202,7 @@ class DatabaseService {
 
     Map<dynamic, dynamic> values = snapshot.value;
 
-    //print(values['latitiude']);
-    // await databaseReference.once().then((onValue){
-    //   print("okay");
-    //   print(onValue.value);
-    // });
+  
 
     final nearYou = databaseReference;
 
@@ -282,9 +271,11 @@ class DatabaseService {
           await FirebaseFirestore.instance.collection('users').doc(key).get();
       temp = Users.fromMap(documentSnapshot.data());
       users[key].bio = temp.bio;
+      //if()
       // print(users[key].bio);
       // print(temp.bio);
-      users[key].picture = temp.picture;
+      //users[key].picture = temp.picture;
+      users[key].gender = temp.gender;
       //  print(value.picture);
       // print(temp.picture);
       value.userName = temp.userName;
@@ -300,7 +291,7 @@ class DatabaseService {
   Future<Users> getUserInfo(String user) async {
     DocumentSnapshot documentSnapshot =
         await FirebaseFirestore.instance.collection('users').doc(user).get();
-
+  
     Users u = new Users();
     Users temp = new Users();
 

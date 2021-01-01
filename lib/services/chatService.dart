@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:myapp/Models/message.dart';
 import 'package:uuid/uuid.dart';
+import 'package:intl/intl.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class ChatService {
@@ -9,6 +10,37 @@ class ChatService {
   ChatService({this.uid});
 
   Future<dynamic> sendChatsText(Message m, String messageId) async {
+    await FirebaseFirestore.instance
+        .collection("chats")
+        .doc(messageId)
+        .update({"latest": m.date});
+
+    var uuid = Uuid();
+    FirebaseFirestore.instance
+        .collection("chats")
+        .doc(messageId)
+        .collection("messages")
+        .doc(uuid.v1())
+        .set({
+      'message': m.message,
+      'from': m.from,
+      'type': "text",
+      'read': false,
+      'time': m.date,
+    }).then((onValue) {
+      return true;
+    }).catchError((onError) {
+      print(onError.toString());
+      return onError.toString();
+    });
+  }
+
+  Future<dynamic> sendChatsTextFromChats(Message m, String messageId) async {
+    await FirebaseFirestore.instance
+        .collection("chats")
+        .doc(messageId)
+        .update({"latestMessage": m.date});
+
     var uuid = Uuid();
     FirebaseFirestore.instance
         .collection("chats")
@@ -57,20 +89,53 @@ class ChatService {
         .collection("chats")
         .doc(messageId)
         .get();
-   // print(query.data()['permit1']);
+    // print(query.data()['permit1']);
 
-   
     //  await query.forEach((value){
     //     print("chats");
     //    print(value.data());
     //    print(value.data()["permit1"]);
     //     print(value.data()["permit2"]);
     if (query.data()['permit1'] == true && query.data()['permit2'] == true) {
-     return true;
+      return true;
     } else {
-     return false;
+      return false;
     }
-   
+  }
+
+  String convertUTCToLocalTime(DateTime dateUtc) {
+    var strToDateTime = DateTime.parse(dateUtc.toString());
+    final convertLocal = strToDateTime.toLocal();
+    var newFormat = DateFormat("yy-MM-dd hh:mm:ss aaa");
+    String updatedDt = newFormat.format(convertLocal);
+    print(dateUtc);
+    print(convertLocal);
+    print(updatedDt);
+    return updatedDt;
+  }
+
+  Future<dynamic> changeBrimtoFriend(String messageId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection("chats")
+          .doc(messageId)
+          .update({
+        "latest": FieldValue.delete(),
+      });
+
+      await FirebaseFirestore.instance
+          .collection("chats")
+          .doc(messageId)
+          .update({
+        "latestMessage": DateTime.now().toUtc(),
+      });
+      // checkPermit(messageId);
+      print("done");
+      return true;
+    } catch (error) {
+      print(error.toString());
+      return error.toString();
+    }
   }
 
   Future<dynamic> sendChatsFile(Message m, String messageId) async {
@@ -106,10 +171,17 @@ class ChatService {
     });
   }
 
+  Stream brimStream() {
+    return FirebaseFirestore.instance
+        .collection("chats")
+        .orderBy("latest", descending: false)
+        .snapshots();
+  }
+
   Stream chatsStream() {
     return FirebaseFirestore.instance
         .collection("chats")
-        .where('type', isEqualTo: "brim")
+        .orderBy("latestMessage", descending: false)
         .snapshots();
   }
 
@@ -123,14 +195,14 @@ class ChatService {
   }
 
   Future<int> getChatlength(String messageId) async {
-     var query= await  FirebaseFirestore.instance
+    var query = await FirebaseFirestore.instance
         .collection("chats")
         .doc(messageId)
-        .collection("messages").snapshots();
-      query.length.then((onValue){
-        print(onValue);
-        return onValue;
-      });
-       
+        .collection("messages")
+        .snapshots();
+    query.length.then((onValue) {
+      print(onValue);
+      return onValue;
+    });
   }
 }
