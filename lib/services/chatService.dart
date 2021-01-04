@@ -9,56 +9,99 @@ class ChatService {
   final String uid;
   ChatService({this.uid});
 
-  Future<dynamic> sendChatsText(Message m, String messageId) async {
-    await FirebaseFirestore.instance
-        .collection("chats")
-        .doc(messageId)
-        .update({"latest": m.date});
+  Future<dynamic> sendChatsText(
+      Message m, String messageId, bool isParticipant1) async {
+    String newMessage;
+    if (isParticipant1 == true) {
+      newMessage = "newMessage1";
+    } else {
+      newMessage = "newMessage2";
+    }
+    try {
+      var uuid = Uuid();
+      await FirebaseFirestore.instance
+          .collection("chats")
+          .doc(messageId)
+          .collection("messages")
+          .doc(uuid.v1())
+          .set({
+        'message': m.message,
+        'from': m.from,
+        'type': "text",
+        
+        'time': m.date,
+      });
 
-    var uuid = Uuid();
-    FirebaseFirestore.instance
-        .collection("chats")
-        .doc(messageId)
-        .collection("messages")
-        .doc(uuid.v1())
-        .set({
-      'message': m.message,
-      'from': m.from,
-      'type': "text",
-      'read': false,
-      'time': m.date,
-    }).then((onValue) {
+      await FirebaseFirestore.instance
+          .collection("chats")
+          .doc(messageId)
+          .update({
+        "latest": m.date,
+        newMessage: true,
+      });
       return true;
-    }).catchError((onError) {
+    } catch (onError) {
       print(onError.toString());
       return onError.toString();
-    });
+    }
   }
 
-  Future<dynamic> sendChatsTextFromChats(Message m, String messageId) async {
-    await FirebaseFirestore.instance
-        .collection("chats")
-        .doc(messageId)
-        .update({"latestMessage": m.date});
-
-    var uuid = Uuid();
-    FirebaseFirestore.instance
-        .collection("chats")
-        .doc(messageId)
-        .collection("messages")
-        .doc(uuid.v1())
-        .set({
-      'message': m.message,
-      'from': m.from,
-      'type': "text",
-      'read': false,
-      'time': m.date,
-    }).then((onValue) {
+  Future<dynamic> readMessage(String messageId, bool isParticipant1) async {
+    String newMessage;
+    if (isParticipant1 == true) {
+      newMessage = "newMessage1";
+    } else {
+      newMessage = "newMessage2";
+    }
+    try {
+      await FirebaseFirestore.instance
+          .collection("chats")
+          .doc(messageId)
+          .update({
+        newMessage: false,
+      });
       return true;
-    }).catchError((onError) {
+    } catch (onError) {
       print(onError.toString());
       return onError.toString();
-    });
+    }
+  }
+
+  Future<dynamic> sendChatsTextFromChats(
+      Message m, String messageId, bool isParticipant1) async {
+    String newMessage;
+    if (isParticipant1 == true) {
+      newMessage = "newMessage1";
+    } else {
+      newMessage = "newMessage2";
+    }
+    try {
+      var uuid = Uuid();
+      await FirebaseFirestore.instance
+          .collection("chats")
+          .doc(messageId)
+          .collection("messages")
+          .doc(uuid.v1())
+          .set({
+        'message': m.message,
+        'from': m.from,
+        'type': "text",
+       
+        'time': m.date,
+      });
+
+      await FirebaseFirestore.instance
+          .collection("chats")
+          .doc(messageId)
+          .update({
+        "latestMessage": m.date,
+        newMessage: true,
+      });
+      return true;
+    } catch (onError) {
+      print(onError.toString());
+      return onError.toString();
+    }
   }
 
   Future<dynamic> permit(String messageId, bool isParticipant1) async {
@@ -138,37 +181,48 @@ class ChatService {
     }
   }
 
-  Future<dynamic> sendChatsFile(Message m, String messageId) async {
-    var uuid = Uuid();
+  Future<dynamic> sendChatsFile(
+      Message m, String messageId, bool isParticipant1) async {
+     try{
+     var uuid = Uuid();
     String _uploadedFileURL;
+    String newMessage;
+    if (isParticipant1 == true) {
+      newMessage = "newMessage1";
+    } else {
+      newMessage = "newMessage2";
+    }
+
     firebase_storage.Reference storageReference =
-        FirebaseStorage.instance.ref().child('chat/${uuid.v1()}');
-
-    storageReference.putFile(m.image).whenComplete(() async {
+        FirebaseStorage.instance.ref().child('chat/$messageId/${uuid.v1()}');
+    print("is it null");
+   await  storageReference.putFile(m.image);
       _uploadedFileURL = await storageReference.getDownloadURL();
-    }).catchError((onError) {
-      print(onError.toString());
-      return onError.toString();
-    });
-
-    FirebaseFirestore.instance
+     print(_uploadedFileURL);
+   await FirebaseFirestore.instance
         .collection("chats")
         .doc(messageId)
         .collection("messages")
         .doc(uuid.v1())
         .set({
       'message': _uploadedFileURL,
-      'image': m.message,
       'from': m.from,
       'type': "image",
-      'read': false,
+      
       'time': m.date,
-    }).then((onValue) {
-      return true;
-    }).catchError((onError) {
+    });
+
+    await FirebaseFirestore.instance.collection("chats").doc(messageId).update({
+      "latestMessage": m.date,
+      newMessage: true,
+    });
+    return true;
+     }catch(onError){
       print(onError.toString());
       return onError.toString();
-    });
+     }
+
+    
   }
 
   Stream brimStream() {
@@ -194,15 +248,15 @@ class ChatService {
         .snapshots();
   }
 
-  Future<int> getChatlength(String messageId) async {
-    var query = await FirebaseFirestore.instance
-        .collection("chats")
-        .doc(messageId)
-        .collection("messages")
-        .snapshots();
-    query.length.then((onValue) {
-      print(onValue);
-      return onValue;
-    });
-  }
+  // Future<int> getChatlength(String messageId) async {
+  //   var query = await FirebaseFirestore.instance
+  //       .collection("chats")
+  //       .doc(messageId)
+  //       .collection("messages")
+  //       .snapshots();
+  //   query.length.then((onValue) {
+  //     print(onValue);
+  //     return onValue;
+  //   });
+  // }
 }

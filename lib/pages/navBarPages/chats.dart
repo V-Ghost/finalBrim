@@ -37,6 +37,7 @@ class _ChatsState extends State<Chats> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       appBar: AppBar(
         leading: GestureDetector(
@@ -67,18 +68,30 @@ class _ChatsState extends State<Chats> {
                   stream: ChatService().brimStream(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
-                      return ListView.builder(
-                        itemCount: snapshot.data.docs.length,
-                        shrinkWrap: true,
-                        physics: BouncingScrollPhysics(),
-                        scrollDirection: Axis.horizontal,
-                        padding: EdgeInsets.all(15),
-                        itemBuilder: (BuildContext context, int index) {
-                          // print(snapshot.data.docs[index].data());
-                          return yourBrims(
-                              snapshot.data.docs[index].data(), index);
-                        },
-                      );
+                      if (snapshot.data.docs.length == 0) {
+                        return Center(
+                          child: Text(
+                            "No Brims here",
+                            style: TextStyle(
+                              color: Colors.grey,
+                            ),
+                          ),
+                        );
+                      }
+                      {
+                        return ListView.builder(
+                          itemCount: snapshot.data.docs.length,
+                          shrinkWrap: true,
+                          physics: BouncingScrollPhysics(),
+                          scrollDirection: Axis.horizontal,
+                          padding: EdgeInsets.all(15),
+                          itemBuilder: (BuildContext context, int index) {
+                            // print(snapshot.data.docs[index].data());
+                            return yourBrims(
+                                snapshot.data.docs[index].data(), index);
+                          },
+                        );
+                      }
                     } else if (snapshot.hasError) {
                       return Center(
                         child: Icon(Icons.error),
@@ -97,16 +110,28 @@ class _ChatsState extends State<Chats> {
                 stream: ChatService().chatsStream(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    return ListView.builder(
-                      itemCount: snapshot.data.docs.length,
-                      shrinkWrap: true,
-                      physics: BouncingScrollPhysics(),
-                      scrollDirection: Axis.vertical,
-                      itemBuilder: (BuildContext context, int index) {
-                        return yourChats(
-                            snapshot.data.docs[index].data(), index);
-                      },
-                    );
+                    if (snapshot.data.docs.length == 0) {
+                      return Center(
+                        child: Text(
+                          "You have no friends yet",
+                          style: TextStyle(
+                            color: Colors.grey,
+                          ),
+                        ),
+                      );
+                    }
+                    {
+                      return ListView.builder(
+                        itemCount: snapshot.data.docs.length,
+                        shrinkWrap: true,
+                        physics: BouncingScrollPhysics(),
+                        scrollDirection: Axis.vertical,
+                        itemBuilder: (BuildContext context, int index) {
+                          return yourChats(
+                              snapshot.data.docs[index].data(), index);
+                        },
+                      );
+                    }
                   } else if (snapshot.hasError) {
                     print(snapshot.error.toString());
                     return Center(
@@ -126,6 +151,7 @@ class _ChatsState extends State<Chats> {
 
   Widget yourChats(Map<dynamic, dynamic> data, int index) {
     String otherUser;
+    String newMessage;
     String messageId;
     bool isParticipant1;
     messageId =
@@ -135,10 +161,12 @@ class _ChatsState extends State<Chats> {
     if (data["participant1"] == user.uid) {
       otherUser = data["participant2"].toString();
       isParticipant1 = true;
+      newMessage = "newMessage1";
     }
     if (data["participant2"] == user.uid) {
       otherUser = data["participant1"].toString();
       isParticipant1 = false;
+      newMessage = "newMessage2";
     }
     return FutureBuilder(
       future: DatabaseService().getUserInfo(otherUser),
@@ -146,17 +174,44 @@ class _ChatsState extends State<Chats> {
         if (snapshotfuture.hasData) {
           return Material(
             child: InkWell(
-              onTap: () {
-                 u.currentUser = snapshotfuture.data;
-                Navigator.push(
-                      context,
-                      CupertinoPageRoute(
-                        builder: (context) => ChatDetails(
-                          messageId: messageId,
-                          isParticipant1: isParticipant1,
+              onLongPress: () {
+                print("okay");
+                
+                  return showCupertinoModalPopup<void>(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return CupertinoActionSheet(
+                        title: Text('Remove friend'),
+                        message: Text(
+                            'Are you sure you want to unfriend this user? NB. All your chats would be lost'),
+                        actions: <Widget>[
+                          CupertinoActionSheetAction(
+                            child: Text('Yes'),
+                            onPressed: () {/** */},
+                          ),
+                         
+                        ],
+                        cancelButton: CupertinoActionSheetAction(
+                          isDefaultAction: true,
+                          child: Text('Cancel'),
+                          onPressed: () { Navigator.of(context).pop();},
                         ),
-                      ),
-                    );
+                      );
+                    },
+                  );
+               
+              },
+              onTap: () {
+                u.currentUser = snapshotfuture.data;
+                Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                    builder: (context) => ChatDetails(
+                      messageId: messageId,
+                      isParticipant1: isParticipant1,
+                    ),
+                  ),
+                );
               },
               child: Container(
                 margin: EdgeInsets.fromLTRB(15, 5, 15, 5),
@@ -204,33 +259,55 @@ class _ChatsState extends State<Chats> {
                           Padding(
                             padding: EdgeInsets.only(top: 5),
                           ),
-                          Row(
-                            children: [
-                              Container(
-                                child: Icon(
-                                  Icons.messenger,
-                                  color: Colors.purple,
-                                  size: 15,
+                          data[newMessage] == true
+                              ? Row(
+                                  children: [
+                                    Container(
+                                      child: Icon(
+                                        Icons.messenger,
+                                        color: Colors.purple,
+                                        size: 15,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 8,
+                                    ),
+                                    Text(
+                                      'New Message',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.purple,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Row(
+                                  children: [
+                                    Text(
+                                      'read',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.blue,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 8,
+                                    ),
+                                    Icon(
+                                      Icons.messenger_outline,
+                                      color: Colors.blue,
+                                      size: 16,
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              SizedBox(
-                                width: 8,
-                              ),
-                              Text(
-                                'New Message',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.purple,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
                           Padding(
                             padding: EdgeInsets.only(top: 5),
                           ),
                           Text(
-                            ChatService().convertUTCToLocalTime(data["latestMessage"].toDate()),
+                            ChatService().convertUTCToLocalTime(
+                                data["latestMessage"].toDate()),
                             style: TextStyle(
                               color: Colors.grey,
                               fontSize: 12,
@@ -269,6 +346,7 @@ class _ChatsState extends State<Chats> {
     String otherUser;
     String messageId;
     bool isParticipant1;
+    String newMessage;
     messageId =
         data["participant1"].toString() + data["participant2"].toString();
     int i = index % color.length;
@@ -276,10 +354,12 @@ class _ChatsState extends State<Chats> {
     if (data["participant1"] == user.uid) {
       otherUser = data["participant2"].toString();
       isParticipant1 = true;
+      newMessage = "newMessage1";
     }
     if (data["participant2"] == user.uid) {
       otherUser = data["participant1"].toString();
       isParticipant1 = false;
+      newMessage = "newMessage2";
     }
     print("okay");
     print(isParticipant1);
@@ -338,16 +418,19 @@ class _ChatsState extends State<Chats> {
                           )),
                         ),
                       ),
-                      Positioned(
-                        left: 13,
-                        top: 7,
-                        child: Container(
-                          width: 15,
-                          height: 15,
-                          decoration: BoxDecoration(
-                              color: Colors.white, shape: BoxShape.circle),
-                        ),
-                      ),
+                      data[newMessage] == true
+                          ? Positioned(
+                              left: 13,
+                              top: 7,
+                              child: Container(
+                                width: 15,
+                                height: 15,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle),
+                              ),
+                            )
+                          : Container()
                     ],
                   ),
                 ),

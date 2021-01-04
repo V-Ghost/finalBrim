@@ -72,6 +72,13 @@ Users();
     notifyListeners();
   }
 
+   String get uid => _uid;
+
+  set uid(String value) {
+    _uid = value;
+    notifyListeners();
+  }
+
   String get picture => _picture;
 
   set picture(String value) {

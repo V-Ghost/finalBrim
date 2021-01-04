@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,6 +15,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:myapp/Models/message.dart';
 import 'package:myapp/Models/users.dart';
 import 'package:myapp/pages/navBarPages/Chats/chat_details_brim.dart';
+import 'package:myapp/pages/navBarPages/Chats/viewImage.dart';
 import 'package:myapp/pages/navBarPages/chats.dart';
 import 'package:myapp/services/ChatStream.dart';
 import 'package:myapp/services/chatService.dart';
@@ -28,16 +30,14 @@ class ChatDetails extends StatefulWidget {
   _ChatDetailsState createState() => _ChatDetailsState();
 }
 
-
 class _ChatDetailsState extends State<ChatDetails> {
-  
-  ChatStream c ;
+  ChatStream c;
   int length;
   bool lastMessageMe;
   Users u;
   User user;
   bool isMe;
-  bool isImage;
+  bool isImage = false;
   String test;
   double h;
   var lastDocument;
@@ -52,68 +52,43 @@ class _ChatDetailsState extends State<ChatDetails> {
     u = Provider.of<Users>(context, listen: false);
     c = new ChatStream(messageId: widget.messageId);
     user = FirebaseAuth.instance.currentUser;
-    keyboardVisibilityController = KeyboardVisibilityController();
-    detectKeyBoard();
+    //keyboardVisibilityController = KeyboardVisibilityController();
 
+    // detectKeyBoard();
+    ChatService().readMessage(widget.messageId, widget.isParticipant1);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    Timer(
-        Duration(milliseconds: 500),
-        () => _scrollController
-            .jumpTo(_scrollController.position.maxScrollExtent));
-     print("finish");
+      Timer(
+          Duration(milliseconds: 500),
+          () => _scrollController
+              .jumpTo(_scrollController.position.maxScrollExtent));
+      print("finish");
     });
-     _scrollController.addListener(() {
+    _scrollController.addListener(() {
       double maxScroll = _scrollController.position.minScrollExtent;
       double currentScroll = _scrollController.position.pixels;
       double delta = MediaQuery.of(context).size.height * 0.20;
       if (maxScroll == currentScroll) {
-      //  print("load messages");
-      //  print(lastDocument);
-      //  print(test);
-     // c.getChats(lastDocument);
+        //  print("load messages");
+        //  print(lastDocument);
+        //  print(test);
+        // c.getChats(lastDocument);
       }
-
-
     });
     // print(u.currentUser.userName);
     // TODO: implement initState
     super.initState();
   }
 
-  Stream getYourChats(String messageId) {
-    var snapshot = FirebaseFirestore.instance
-        .collection("chats")
-        .doc(messageId)
-        .collection("messages")
-        .orderBy("time", descending: false)
-        .snapshots();
-    snapshot.length.then((onValue) {
-      length = onValue;
-      print(length);
-    });
-    print("okay");
-    print(length);
-    snapshot.last.then((onValue) {
-      print(onValue);
-    });
-    // snapshot.forEach((value){
-    // print("from chats");
-    //  print( value.docs);
-    // });
-    // snapshot.docs[index].data()["from"]
-    return snapshot;
-  }
-
-  void detectKeyBoard() {
-    keyboardVisibilityController.onChange.listen((bool visible) {
-      print('Keyboard visibility update. Is visible: ${visible}');
-      Timer(
-          Duration(milliseconds: 500),
-          () => _scrollController
-              .jumpTo(_scrollController.position.maxScrollExtent));
-      setState(() {});
-    });
-  }
+  // void detectKeyBoard() {
+  //   // keyboardVisibilityController.onChange.listen((bool visible) {
+  //   //   print('Keyboard visibility update. Is visible: ${visible}');
+  //   //   // Timer(
+  //   //   //     Duration(milliseconds: 500),
+  //   //   //     () => _scrollController
+  //   //   //         .jumpTo(_scrollController.position.maxScrollExtent));
+  //   //   setState(() {});
+  //   // });
+  // }
 
   @override
   void dispose() {
@@ -136,7 +111,17 @@ class _ChatDetailsState extends State<ChatDetails> {
         m.read = false;
         m.date = DateTime.now().toUtc();
         print(u.currentUser.picture);
-        var result = await ChatService().sendChatsText(m, widget.messageId);
+           Fluttertoast.showToast(
+            msg: "The Image is sending......",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 3,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+        var result = await ChatService()
+            .sendChatsFile(m, widget.messageId, widget.isParticipant1);
+     
         if (result is String) {
           Fluttertoast.showToast(
               msg: "Unable to send message",
@@ -147,7 +132,11 @@ class _ChatDetailsState extends State<ChatDetails> {
               textColor: Colors.white,
               fontSize: 16.0);
         } else {
-          _formKey.currentState.reset();
+          _textController.clear();
+          Timer(
+              Duration(milliseconds: 500),
+              () => _scrollController
+                  .jumpTo(_scrollController.position.maxScrollExtent));
         }
 
         setState(() {
@@ -159,7 +148,7 @@ class _ChatDetailsState extends State<ChatDetails> {
 
   @override
   Widget build(BuildContext context) {
-  
+    ChatService().readMessage(widget.messageId, widget.isParticipant1);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -185,8 +174,6 @@ class _ChatDetailsState extends State<ChatDetails> {
                 style: TextStyle(color: Colors.black),
               ),
             ),
-           
-           
           ],
         ),
       ),
@@ -197,7 +184,7 @@ class _ChatDetailsState extends State<ChatDetails> {
             height: 540,
             margin: EdgeInsets.fromLTRB(0, 0, 0, 60),
             child: StreamBuilder<QuerySnapshot>(
-                stream:ChatService().getYourChats(widget.messageId),
+                stream: ChatService().getYourChats(widget.messageId),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     return ListView.builder(
@@ -208,9 +195,12 @@ class _ChatDetailsState extends State<ChatDetails> {
                       itemBuilder: (BuildContext context, int index) {
                         length = snapshot.data.docs.length;
                         print(snapshot.data.docs.length);
+
                         if (snapshot.data.docs[index].data()["type"] ==
                             "image") {
                           isImage = true;
+                        } else {
+                          isImage = false;
                         }
                         if (snapshot.data.docs[index].data()["from"] ==
                             user.uid) {
@@ -219,10 +209,14 @@ class _ChatDetailsState extends State<ChatDetails> {
                           isMe = false;
                         }
 
-                        if(index == 0){
+                        if (index == 0) {
                           print("we reach");
                           lastDocument = snapshot.data.docs[index];
                           test = snapshot.data.docs[index].data()["message"];
+                          Timer(
+                              Duration(milliseconds: 500),
+                              () => _scrollController.jumpTo(
+                                  _scrollController.position.maxScrollExtent));
                         }
 
                         return Padding(
@@ -233,6 +227,7 @@ class _ChatDetailsState extends State<ChatDetails> {
                                 message:
                                     snapshot.data.docs[index].data()["message"],
                                 isMe: isMe,
+                                isImage: isImage,
                               ),
                             ],
                           ),
@@ -274,7 +269,7 @@ class _ChatDetailsState extends State<ChatDetails> {
                   //   ),
                   // ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: chooseFile,
                     icon: Icon(
                       Icons.image,
                       color: Colors.purple,
@@ -303,36 +298,32 @@ class _ChatDetailsState extends State<ChatDetails> {
                       if (_textController.text != "") {
                         // length =
                         //     await ChatService().getChatlength(widget.messageId);
-                       
-                          Message m = new Message();
 
-                         
-                            m.message = _textController.text;
-                            m.from = user.uid;
-                            m.read = false;
-                            m.date = DateTime.now().toUtc();
+                        Message m = new Message();
 
-                            var result = await ChatService()
-                                .sendChatsTextFromChats(m, widget.messageId);
-                            if (result is String) {
-                              Fluttertoast.showToast(
-                                  msg: "Unable to send message",
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  gravity: ToastGravity.CENTER,
-                                  timeInSecForIosWeb: 3,
-                                  backgroundColor: Colors.red,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0);
-                            } else {
-                              _textController.clear();
-                              Timer(
-                                  Duration(milliseconds: 500),
-                                  () => _scrollController.jumpTo(
-                                      _scrollController
-                                          .position.maxScrollExtent));
-                            }
-                         
-                      
+                        m.message = _textController.text;
+                        m.from = user.uid;
+                        m.read = false;
+                        m.date = DateTime.now().toUtc();
+
+                        var result = await ChatService().sendChatsTextFromChats(
+                            m, widget.messageId, widget.isParticipant1);
+                        if (result is String) {
+                          Fluttertoast.showToast(
+                              msg: "Unable to send message",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.CENTER,
+                              timeInSecForIosWeb: 3,
+                              backgroundColor: Colors.red,
+                              textColor: Colors.white,
+                              fontSize: 16.0);
+                        } else {
+                          _textController.clear();
+                          Timer(
+                              Duration(milliseconds: 500),
+                              () => _scrollController.jumpTo(
+                                  _scrollController.position.maxScrollExtent));
+                        }
                       }
                     },
                     icon: Icon(
@@ -353,12 +344,22 @@ class _ChatDetailsState extends State<ChatDetails> {
 class Bubble extends StatelessWidget {
   final bool isMe;
   final String message;
-
-  Bubble({this.message, this.isMe});
+  final isImage;
+  Bubble({this.message, this.isMe, this.isImage});
 
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () async {},
+      onTap: () async {
+        if (isImage) {
+          Navigator.push(
+            context,
+            CupertinoPageRoute(
+                builder: (context) => ViewImage(
+                      imageUrl: message,
+                    )),
+          );
+        }
+      },
       child: Container(
         margin: EdgeInsets.all(5),
         padding: isMe ? EdgeInsets.only(left: 40) : EdgeInsets.only(right: 40),
@@ -416,13 +417,15 @@ class Bubble extends StatelessWidget {
                         ? CrossAxisAlignment.end
                         : CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(
-                        message,
-                        textAlign: isMe ? TextAlign.end : TextAlign.start,
-                        style: TextStyle(
-                          color: isMe ? Colors.white : Colors.grey,
-                        ),
-                      )
+                      isImage
+                          ? Image.network(message)
+                          : Text(
+                              message,
+                              textAlign: isMe ? TextAlign.end : TextAlign.start,
+                              style: TextStyle(
+                                color: isMe ? Colors.white : Colors.grey,
+                              ),
+                            )
                     ],
                   ),
                 ),

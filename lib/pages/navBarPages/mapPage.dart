@@ -123,12 +123,12 @@ class _MapPageState extends State<MapPage> {
     final Uint8List markerIcon =
         await getBytesFromAsset('lib/images/brimPointer.png', 100);
     users.forEach((key, value) async {
-     var f=  await DatabaseService().retrieveOtherInfo(users);
+      var f = await DatabaseService().retrieveOtherInfo(users);
       //  var check =  await DatabaseService(uid: user.uid).doesBrimMessageExistAlready(key);
       print(f[key].userName);
       //  String name = u[key].userName.toString();
       //  String bio = u[key].bio.toString();
-     
+
       // print(value.position.latitiude);
       _markers.add(
         Marker(
@@ -141,13 +141,13 @@ class _MapPageState extends State<MapPage> {
                   15));
               setState(() {
                 name = f[key].userName.toString();
-                bio =f[key].bio.toString();
+                bio = f[key].bio.toString();
                 details = true;
                 user2 = key.toString();
                 gender = f[key].gender.toString();
               });
               print(f[key].gender.toString());
-               print("key");
+              print("key");
               // _mapController.moveCamera(CameraUpdate.newLatLngZoom(LatLng(value.position.latitiude, value.position.longitude),15));
             },
             position:
@@ -159,8 +159,11 @@ class _MapPageState extends State<MapPage> {
             icon: BitmapDescriptor.fromBytes(markerIcon)),
       );
     });
-
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+      
+    }
+    ;
   }
 
   static final CameraPosition _kLake = CameraPosition(
@@ -187,6 +190,7 @@ class _MapPageState extends State<MapPage> {
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     if (isLocationServiceEnabled) {
+      if(mounted){
       setState(() {
         _initialPosition = CameraPosition(
           target: LatLng(position.latitude, position.longitude),
@@ -194,6 +198,8 @@ class _MapPageState extends State<MapPage> {
         );
         //print('${placemark[0].name}');
       });
+      }
+     
     } else {
       permission = await Geolocator.requestPermission();
       setState(() {});
@@ -224,23 +230,23 @@ class _MapPageState extends State<MapPage> {
     width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-       appBar: AppBar(
-            leading: GestureDetector(
-              // onTap: () {
-              //   _scaffoldKey.currentState.openDrawer();
-              // },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: CircleAvatar(
-                  radius: 2,
-                  backgroundImage: NetworkImage("${u.picture}"),
-                  backgroundColor: Colors.purple,
-                ),
-              ),
+      appBar: AppBar(
+        leading: GestureDetector(
+          // onTap: () {
+          //   _scaffoldKey.currentState.openDrawer();
+          // },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CircleAvatar(
+              radius: 2,
+              backgroundImage: NetworkImage("${u.picture}"),
+              backgroundColor: Colors.purple,
             ),
-            backgroundColor: Colors.white,
-            title: const Text('Brim', style: TextStyle(color: Colors.black)),
           ),
+        ),
+        backgroundColor: Colors.white,
+        title: const Text('Brim', style: TextStyle(color: Colors.black)),
+      ),
       body: _initialPosition == null
           ? Container(
               child: Center(
@@ -315,7 +321,9 @@ class _MapPageState extends State<MapPage> {
                                   Expanded(
                                     child: Row(
                                       children: [
-                                        Expanded(child: Container(),),
+                                        Expanded(
+                                          child: Container(),
+                                        ),
                                         Text(
                                           "$name",
                                           style: TextStyle(
@@ -323,13 +331,12 @@ class _MapPageState extends State<MapPage> {
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        
-                                       gender == "Male" ? Icon(
-                                         Icons.person
-                                       ):  Icon(
-                                         Icons.pregnant_woman
-                                       ),
-                                        Expanded(child: Container(),),
+                                        gender == "Male"
+                                            ? Icon(Icons.person)
+                                            : Icon(Icons.pregnant_woman),
+                                        Expanded(
+                                          child: Container(),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -351,9 +358,9 @@ class _MapPageState extends State<MapPage> {
                                               Duration(milliseconds: 6000),
                                           opacity: opacity,
                                           child: OutlineButton(
-                                              borderSide: BorderSide(color: Colors.blue),
+                                              borderSide: BorderSide(
+                                                  color: Colors.blue),
                                               shape: new RoundedRectangleBorder(
-                                                   
                                                   borderRadius:
                                                       new BorderRadius.circular(
                                                           30.0)),
@@ -372,14 +379,13 @@ class _MapPageState extends State<MapPage> {
                                               //   ],
                                               // ),
                                               onPressed: () {
-                                             
-
                                                 Navigator.of(context)
                                                     .push(PageRouteBuilder(
                                                   pageBuilder: (context,
                                                           animation,
                                                           secondaryAnimation) =>
                                                       SendBrims(
+                                                    broadcast: false,
                                                     userId: user2,
                                                   ),
                                                   transitionsBuilder: (context,

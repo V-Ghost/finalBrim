@@ -27,6 +27,10 @@ class BrimService {
           'participant1': b.userId1,
           'participant2': b.userId2,
           'type': 'brim',
+          'permit1' : true,
+          'permit2' : false,
+          'latest' : b.date,
+          'newMessage1' : true,
         });
         await userCollection
             .doc(unique)
@@ -37,7 +41,7 @@ class BrimService {
           'from': b.sender,
           'type': "text",
           'read': false,
-          'time': DateTime.now().toUtc(),
+          'time': b.date,
         }).then((onValue) {
           return null;
         });
@@ -50,18 +54,18 @@ class BrimService {
     }
   }
 
-  Future<dynamic> startChat(Brim b) async {
-    var uuid = Uuid();
+  // Future<dynamic> startChat(Brim b) async {
+  //   var uuid = Uuid();
 
-    CollectionReference userCollection =
-        FirebaseFirestore.instance.collection('users');
-    userCollection.doc(uid).collection('chats').doc(uuid.v1()).set({
-      'participant1': b.userId1,
-      'participant2': b.userId2,
-    }).then((result) async {
-      return null;
-    });
-  }
+  //   CollectionReference userCollection =
+  //       FirebaseFirestore.instance.collection('users');
+  //   userCollection.doc(uid).collection('chats').doc(uuid.v1()).set({
+  //     'participant1': b.userId1,
+  //     'participant2': b.userId2,
+  //   }).then((result) async {
+  //     return null;
+  //   });
+  // }
   Future<Users> retrieveUserInfo(String user) async {
      Users temp;
    DocumentSnapshot documentSnapshot =
@@ -87,7 +91,7 @@ class BrimService {
         'message': '${b.message}',
         'latitude': position.latitude.toString(),
         'longitude': position.longitude.toString(),
-        'date': DateTime.now().toUtc(),
+        'date':'${b.date}',
         'user': '${b.userId1}'
       }).then((_) {
         return null;

@@ -3,6 +3,7 @@ import 'package:myapp/Models/brim.dart';
 import 'package:myapp/Models/status.dart';
 import 'package:myapp/Models/users.dart';
 import 'package:myapp/pages/navBarPages/Chats/chat_details.dart';
+import 'package:myapp/pages/navBarPages/Chats/chat_details_brim.dart';
 import 'package:myapp/services/brimService.dart';
 import 'package:myapp/services/database.dart';
 import 'package:myapp/widgets/loading.dart';
@@ -14,7 +15,8 @@ import 'package:provider/provider.dart';
 
 class SendBrims extends StatefulWidget {
   final String userId;
-  const SendBrims({this.userId});
+  final bool broadcast;
+  const SendBrims({this.userId, this.broadcast});
   @override
   _SendBrimsState createState() => _SendBrimsState();
 }
@@ -28,6 +30,7 @@ class _SendBrimsState extends State<SendBrims> {
   String message = "";
   Brim b = new Brim();
   BrimService db;
+  final TextEditingController _textController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -75,12 +78,14 @@ class _SendBrimsState extends State<SendBrims> {
                           ),
                           onPressed: () async {
                             if (_formKey.currentState.validate()) {
-                              Brim b = new Brim();
+                            if(!widget.broadcast){
+                             Brim b = new Brim();
                               b.date = DateTime.now().toUtc();
-                              b.message = message;
+                              b.message = _textController.text;
                               b.userId1 = user.uid;
                               b.userId2 = widget.userId;
                               b.sender = user.uid;
+
                               setState(() {
                                 print("here");
                                 loading = true;
@@ -95,40 +100,56 @@ class _SendBrimsState extends State<SendBrims> {
                                 });
                                 // _formKey.currentState.reset();
                                 Fluttertoast.showToast(
-                                    msg: "Shoot Successfully fired",
+                                    msg:"Shoot Successfully fired",
                                     toastLength: Toast.LENGTH_SHORT,
                                     gravity: ToastGravity.CENTER,
                                     timeInSecForIosWeb: 3,
                                     backgroundColor: Colors.blue,
                                     textColor: Colors.white,
                                     fontSize: 16.0);
-                             
-                                Navigator.push(
-                                  context,
-                                  CupertinoPageRoute(
-                                    builder: (context) => ChatDetails(),
-                                  ),
-                                );
-                              } else if( result is String) {
-                                setState(() {
-                                  loading = false;
-                                });
-                                Fluttertoast.showToast(
-                                    msg:
-                                        "$result",
+                                var messageId = b.userId1 + b.userId2;
+                                try {
+                                  u.currentUser = await DatabaseService()
+                                      .getUserInfo(b.userId2);
+
+                                  Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(
+                                      builder: (context) => ChatDetailsBrim(
+                                        messageId: messageId,
+                                        isParticipant1: true,
+                                      ),
+                                    ),
+                                  );
+                                } catch (error) {
+                                    Fluttertoast.showToast(
+                                    msg: "Sorry :( An error occured when sending your  brim",
                                     toastLength: Toast.LENGTH_SHORT,
                                     gravity: ToastGravity.CENTER,
                                     timeInSecForIosWeb: 3,
                                     backgroundColor: Colors.red,
                                     textColor: Colors.white,
                                     fontSize: 16.0);
-                              }else{
-                                 setState(() {
+                                }
+                              } else if (result is String) {
+                                setState(() {
+                                  loading = false;
+                                });
+                                Fluttertoast.showToast(
+                                    msg: "Sorry :( An error occured when sending your  brim",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.CENTER,
+                                    timeInSecForIosWeb: 3,
+                                    backgroundColor: Colors.red,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0);
+                              } else {
+                                setState(() {
                                   loading = false;
                                 });
                                 Fluttertoast.showToast(
                                     msg:
-                                        " Sorry :( An error occured when sending the brim",
+                                        " Sorry :( An error occured when sending your brim",
                                     toastLength: Toast.LENGTH_SHORT,
                                     gravity: ToastGravity.CENTER,
                                     timeInSecForIosWeb: 3,
@@ -136,6 +157,66 @@ class _SendBrimsState extends State<SendBrims> {
                                     textColor: Colors.white,
                                     fontSize: 16.0);
                               }
+                            }else{
+                                Brim b = new Brim();
+                              b.date = DateTime.now().toUtc();
+                              b.message = _textController.text;
+                              b.userId1 = user.uid;
+                             setState(() {
+                                print("here");
+                                loading = true;
+                              });
+                              dynamic result = await db.broadcastBrim(b);
+
+                              if (result == null) {
+                                // db.retrieveBrims();
+                                setState(() {
+                                  print("here");
+                                  loading = false;
+                                });
+                                // _formKey.currentState.reset();
+                                Fluttertoast.showToast(
+                                    msg: "Sent succesfully",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.CENTER,
+                                    timeInSecForIosWeb: 3,
+                                    backgroundColor: Colors.blue,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0);
+                               
+                            
+                                 
+
+                                  Navigator.of(context).pop();
+                               
+                              } else if (result is String) {
+                                setState(() {
+                                  loading = false;
+                                });
+                                Fluttertoast.showToast(
+                                    msg: "Sorry :( An error occured when sending",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.CENTER,
+                                    timeInSecForIosWeb: 3,
+                                    backgroundColor: Colors.red,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0);
+                              } else {
+                                setState(() {
+                                  loading = false;
+                                });
+                                Fluttertoast.showToast(
+                                    msg:
+                                        " Sorry :( An error occured when sending",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.CENTER,
+                                    timeInSecForIosWeb: 3,
+                                    backgroundColor: Colors.red,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0);
+                              }
+                            }
+                             
                             }
                           },
                           child: Text(
@@ -156,7 +237,7 @@ class _SendBrimsState extends State<SendBrims> {
                     child: Form(
                       key: _formKey,
                       child: TextFormField(
-                        onChanged: (val) => message = val,
+                        controller: _textController,
                         validator:
                             RequiredValidator(errorText: 'Text Field is empty'),
                         autofocus: true,
@@ -166,7 +247,7 @@ class _SendBrimsState extends State<SendBrims> {
                             backgroundImage: NetworkImage("${u.picture}"),
                             backgroundColor: Colors.purple,
                           ),
-                          labelText: "Shoot your shot.....",
+                          labelText: widget.broadcast ?  "What's on your mind?" : "Shoot your shot.....",
                           enabledBorder: const OutlineInputBorder(
                             borderRadius:
                                 BorderRadius.all(Radius.circular(20.0)),

@@ -42,18 +42,19 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
   void initState() {
     h = 540;
     u = Provider.of<Users>(context, listen: false);
-    Timer(
-        Duration(milliseconds: 500),
-        () => _scrollController
-            .jumpTo(_scrollController.position.maxScrollExtent));
+
     user = FirebaseAuth.instance.currentUser;
-    keyboardVisibilityController = KeyboardVisibilityController();
-    detectKeyBoard();
+    //keyboardVisibilityController = KeyboardVisibilityController();
+    ChatService().readMessage(widget.messageId, widget.isParticipant1);
+    //detectKeyBoard();
     //ChatService().changeBrimtoFriend(widget.messageId);
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //  scrollToBottom();
-    //  print("finish");
-    // });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Timer(
+          Duration(milliseconds: 500),
+          () => _scrollController
+              .jumpTo(_scrollController.position.maxScrollExtent));
+      print("finish");
+    });
     // print(u.currentUser.userName);
     // TODO: implement initState
     super.initState();
@@ -83,16 +84,16 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
     return snapshot;
   }
 
-  void detectKeyBoard() {
-    keyboardVisibilityController.onChange.listen((bool visible) {
-      print('Keyboard visibility update. Is visible: ${visible}');
-      Timer(
-          Duration(milliseconds: 500),
-          () => _scrollController
-              .jumpTo(_scrollController.position.maxScrollExtent));
-      setState(() {});
-    });
-  }
+  // void detectKeyBoard() {
+  //   // keyboardVisibilityController.onChange.listen((bool visible) {
+  //   //   print('Keyboard visibility update. Is visible: ${visible}');
+  //   //   // Timer(
+  //   //   //     Duration(milliseconds: 500),
+  //   //   //     () => _scrollController
+  //   //   //         .jumpTo(_scrollController.position.maxScrollExtent));
+  //   //   // setState(() {});
+  //   // });
+  // }
 
   @override
   void dispose() {
@@ -104,43 +105,41 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
   //  _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
   // }
 
-  void chooseFile() async {
-    await ImagePicker.pickImage(source: ImageSource.gallery)
-        .then((image) async {
-      if (image != null) {
-        Message m = new Message();
-        m.image = image;
-        m.message = _textController.text;
-        m.from = user.uid;
-        m.read = false;
-        m.date = DateTime.now().toUtc();
-        var result = await ChatService().sendChatsText(m, widget.messageId);
-        if (result is String) {
-          Fluttertoast.showToast(
-              msg: "Unable to send message",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.CENTER,
-              timeInSecForIosWeb: 3,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 16.0);
-        } else {
-          _formKey.currentState.reset();
-        }
+  // void chooseFile() async {
+  //   await ImagePicker.pickImage(source: ImageSource.gallery)
+  //       .then((image) async {
+  //     if (image != null) {
+  //       Message m = new Message();
+  //       m.image = image;
+  //       m.message = _textController.text;
+  //       m.from = user.uid;
+  //       m.read = false;
+  //       m.date = DateTime.now().toUtc();
+  //       var result = await ChatService().sendChatsText(m, widget.messageId,widget.isParticipant1);
+  //       if (result is String) {
+  //         Fluttertoast.showToast(
+  //             msg: "Unable to send message",
+  //             toastLength: Toast.LENGTH_SHORT,
+  //             gravity: ToastGravity.CENTER,
+  //             timeInSecForIosWeb: 3,
+  //             backgroundColor: Colors.red,
+  //             textColor: Colors.white,
+  //             fontSize: 16.0);
+  //       } else {
+  //         _formKey.currentState.reset();
+  //       }
 
-        setState(() {
-          // loading = true;
-        });
-      }
-    });
-  }
+  //       setState(() {
+  //         // loading = true;
+  //       });
+  //     }
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
-    Timer(
-        Duration(milliseconds: 500),
-        () => _scrollController
-            .jumpTo(_scrollController.position.maxScrollExtent));
+    ChatService().readMessage(widget.messageId, widget.isParticipant1);
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0.4,
@@ -168,29 +167,28 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
             Expanded(child: Container()),
             InkWell(
               onTap: () {
-                showDialog(
+                return showCupertinoModalPopup<void>(
                   context: context,
                   builder: (BuildContext context) {
-                    // return object of type Dialog
-                    return AlertDialog(
-                      title: new Text("Add This User"),
-                      content: new Text(
-                          "This user would be able to see your profile picture"),
+                    return CupertinoActionSheet(
+                      title: Text('Add Friend'),
+                      message: Text(
+                          'Are you sure you want to add this user to your friends? NB. Yort profile picture becomes visible'),
                       actions: <Widget>[
-                        new InkWell(
-                          child: new Text("Add User"),
-                          onTap: () async {
-                            var result = await ChatService().permit(
+                        CupertinoActionSheetAction(
+                          child: Text('Yes'),
+                          onPressed: ()  async{
+                              var result = await ChatService().permit(
                                 widget.messageId, widget.isParticipant1);
 
                             if (result == true) {
                               print("eii pemit");
                               var permit = await ChatService()
                                   .checkPermit(widget.messageId);
-                                 
+
                                 // print(permit);
                               if (permit == true) {
-                                
+
                                 var change = await ChatService()
                                     .changeBrimtoFriend(widget.messageId);
                                   print("heeerrree");
@@ -206,7 +204,7 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                                     ),
                                   )
                                   );
-                                 
+
                                 } else {
                                   Navigator.of(context).pop();
                                   Fluttertoast.showToast(
@@ -251,17 +249,112 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                             //  }
                           },
                         ),
-                        // usually buttons at the bottom of the dialog
-                        new FlatButton(
-                          child: new Text("Close"),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
+                       
                       ],
+                      cancelButton: CupertinoActionSheetAction(
+                        isDefaultAction: true,
+                        child: Text('Cancel'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
                     );
                   },
                 );
+                // showDialog(
+                //   context: context,
+                //   builder: (BuildContext context) {
+                //     // return object of type Dialog
+                //     return AlertDialog(
+                //       title: new Text("Add This User"),
+                //       content: new Text(
+                //           "This user would be able to see your profile picture"),
+                //       actions: <Widget>[
+                //         new InkWell(
+                //           child: new Text("Add User"),
+                //           onTap: () async {
+                //             var result = await ChatService().permit(
+                //                 widget.messageId, widget.isParticipant1);
+
+                //             if (result == true) {
+                //               print("eii pemit");
+                //               var permit = await ChatService()
+                //                   .checkPermit(widget.messageId);
+
+                //                 // print(permit);
+                //               if (permit == true) {
+
+                //                 var change = await ChatService()
+                //                     .changeBrimtoFriend(widget.messageId);
+                //                   print("heeerrree");
+                //                 if (change == true) {
+                //                   print("heeerrree aggaainn");
+                //                   Navigator.of(context).pop();
+                //                   Navigator.push(
+                //                     context,
+                //                      CupertinoPageRoute(
+                //                     builder: (context) => ChatDetails(
+                //                       messageId: widget.messageId,
+                //                       isParticipant1: widget.isParticipant1,
+                //                     ),
+                //                   )
+                //                   );
+
+                //                 } else {
+                //                   Navigator.of(context).pop();
+                //                   Fluttertoast.showToast(
+                //                       msg: "Sorry :( an error was encountered",
+                //                       toastLength: Toast.LENGTH_SHORT,
+                //                       gravity: ToastGravity.BOTTOM,
+                //                       timeInSecForIosWeb: 3,
+                //                       backgroundColor: Colors.red,
+                //                       textColor: Colors.white,
+                //                       fontSize: 16.0);
+                //                 }
+                //               } else {
+                //                 Navigator.of(context).pop();
+                //                 Fluttertoast.showToast(
+                //                     msg: "Waiting for this user to add you",
+                //                     toastLength: Toast.LENGTH_SHORT,
+                //                     gravity: ToastGravity.BOTTOM,
+                //                     timeInSecForIosWeb: 3,
+                //                     backgroundColor: Colors.red,
+                //                     textColor: Colors.white,
+                //                     fontSize: 16.0);
+                //               }
+                //               //  Navigator.of(context).pop();
+                //             } else if (result is String) {
+                //               Fluttertoast.showToast(
+                //                   msg: "Unable to add user",
+                //                   toastLength: Toast.LENGTH_SHORT,
+                //                   gravity: ToastGravity.BOTTOM,
+                //                   timeInSecForIosWeb: 3,
+                //                   backgroundColor: Colors.red,
+                //                   textColor: Colors.white,
+                //                   fontSize: 16.0);
+                //               Navigator.of(context).pop();
+                //             }
+
+                //             // print(permit);
+
+                //             //  if(permit==true){
+                //             //    print("ookkkaayay");
+                //             //  }else{
+                //             //       print(" not  ookkkaayay");
+                //             //  }
+                //           },
+                //         ),
+                //         // usually buttons at the bottom of the dialog
+                //         new FlatButton(
+                //           child: new Text("Close"),
+                //           onPressed: () {
+                //             Navigator.of(context).pop();
+                //           },
+                //         ),
+                //       ],
+                //     );
+                //   },
+                // );
               },
               child: Container(
                 margin: EdgeInsets.fromLTRB(0, 0, 15, 0),
@@ -378,7 +471,7 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                   ),
                   IconButton(
                     onPressed: () async {
-                      ChatService().getChatlength(widget.messageId);
+                      // ChatService().getChatlength(widget.messageId);
                       if (_textController.text != "") {
                         // length =
                         //     await ChatService().getChatlength(widget.messageId);
@@ -391,8 +484,8 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                             m.read = false;
                             m.date = DateTime.now().toUtc();
 
-                            var result = await ChatService()
-                                .sendChatsText(m, widget.messageId);
+                            var result = await ChatService().sendChatsText(
+                                m, widget.messageId, widget.isParticipant1);
                             if (result is String) {
                               Fluttertoast.showToast(
                                   msg: "Unable to send message",
@@ -482,8 +575,8 @@ class Bubble extends StatelessWidget {
                                 1
                               ],
                             colors: [
-                                Colors.blueAccent,
-                                Colors.blue,
+                                Colors.green,
+                                Colors.green,
                               ])
                         : LinearGradient(
                             begin: Alignment.topRight,
