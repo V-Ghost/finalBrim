@@ -50,6 +50,7 @@ dependencies:
   cached_network_image: ^2.5.0
   photo_view: ^0.10.3
   keyboard_attachable: ^1.0.3
+  cloud_functions: ^0.7.2
 
 dev_dependencies:
   flutter_test:

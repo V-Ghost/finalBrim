@@ -161,7 +161,6 @@ class _MapPageState extends State<MapPage> {
     });
     if (mounted) {
       setState(() {});
-      
     }
     ;
   }
@@ -190,16 +189,15 @@ class _MapPageState extends State<MapPage> {
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     if (isLocationServiceEnabled) {
-      if(mounted){
-      setState(() {
-        _initialPosition = CameraPosition(
-          target: LatLng(position.latitude, position.longitude),
-          zoom: 12.4746,
-        );
-        //print('${placemark[0].name}');
-      });
+      if (mounted) {
+        setState(() {
+          _initialPosition = CameraPosition(
+            target: LatLng(position.latitude, position.longitude),
+            zoom: 12.4746,
+          );
+          //print('${placemark[0].name}');
+        });
       }
-     
     } else {
       permission = await Geolocator.requestPermission();
       setState(() {});
@@ -232,9 +230,69 @@ class _MapPageState extends State<MapPage> {
     return Scaffold(
       appBar: AppBar(
         leading: GestureDetector(
-          // onTap: () {
-          //   _scaffoldKey.currentState.openDrawer();
-          // },
+          onTap: () {
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (context) => Container(
+                height: MediaQuery.of(context).size.height * 0.8,
+                decoration: new BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: new BorderRadius.only(
+                    topLeft: const Radius.circular(25.0),
+                    topRight: const Radius.circular(25.0),
+                  ),
+                ),
+                child: ListView(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          top: 25, bottom: 25, left: 110, right: 110),
+                      child: Material(
+                        elevation: 20.0,
+                        shadowColor: Colors.black,
+                        child: Padding(
+                          padding: EdgeInsets.all(10),
+                          child: CircleAvatar(
+                            radius: 80,
+                            backgroundColor: Colors.grey,
+                            child: ClipOval(
+                              child: SizedBox(
+                                  width: 180.0,
+                                  height: 180.0,
+                                  child: GestureDetector(
+                                    child: Image.network(
+                                      "${u.picture}",
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 40,right: 40),
+                      child: OutlineButton(
+                        onPressed: (){},
+                        borderSide: BorderSide(color: Colors.blue),
+                        shape: new RoundedRectangleBorder(
+                            borderRadius: new BorderRadius.circular(30.0)),
+                        color: Colors.blue,
+                        // height: 30,
+                        // width: 100,
+                        child: Text(
+                          'Send Brim',
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: CircleAvatar(

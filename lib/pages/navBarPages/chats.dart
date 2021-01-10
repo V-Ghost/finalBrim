@@ -37,7 +37,6 @@ class _ChatsState extends State<Chats> {
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       appBar: AppBar(
         leading: GestureDetector(
@@ -175,34 +174,36 @@ class _ChatsState extends State<Chats> {
           return Material(
             child: InkWell(
               onLongPress: () {
-                print("okay");
-                
-                  return showCupertinoModalPopup<void>(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return CupertinoActionSheet(
-                        title: Text('Remove friend'),
-                        message: Text(
-                            'Are you sure you want to unfriend this user? NB. All your chats would be lost'),
-                        actions: <Widget>[
-                          CupertinoActionSheetAction(
-                            child: Text('Yes'),
-                            onPressed: () {/** */},
-                          ),
-                         
-                        ],
-                        cancelButton: CupertinoActionSheetAction(
-                          isDefaultAction: true,
-                          child: Text('Cancel'),
-                          onPressed: () { Navigator.of(context).pop();},
+                return showCupertinoModalPopup<void>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return CupertinoActionSheet(
+                      title: Text('Remove friend'),
+                      message: Text(
+                          'Are you sure you want to unfriend this user? NB. All your chats would be lost'),
+                      actions: <Widget>[
+                        CupertinoActionSheetAction(
+                          child: Text('Yes'),
+                          onPressed: () {/** */},
                         ),
-                      );
-                    },
-                  );
-               
+                      ],
+                      cancelButton: CupertinoActionSheetAction(
+                        isDefaultAction: true,
+                        child: Text('Cancel'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    );
+                  },
+                );
               },
               onTap: () {
                 u.currentUser = snapshotfuture.data;
+                u.currentUser.uid = otherUser;
+                print("okay");
+                print(otherUser);
+                print(u.currentUser.uid);
                 Navigator.push(
                   context,
                   CupertinoPageRoute(
@@ -306,7 +307,7 @@ class _ChatsState extends State<Chats> {
                             padding: EdgeInsets.only(top: 5),
                           ),
                           Text(
-                            ChatService().convertUTCToLocalTime(
+                            DatabaseService().convertUTCToLocalTime(
                                 data["latestMessage"].toDate()),
                             style: TextStyle(
                               color: Colors.grey,
@@ -346,6 +347,7 @@ class _ChatsState extends State<Chats> {
     String otherUser;
     String messageId;
     bool isParticipant1;
+
     String newMessage;
     messageId =
         data["participant1"].toString() + data["participant2"].toString();
@@ -373,7 +375,9 @@ class _ChatsState extends State<Chats> {
                 InkWell(
                   onTap: () {
                     print(snapshotfuture.data.userName);
+                    //u.currentUser = snapshotfuture.data;
                     u.currentUser = snapshotfuture.data;
+                    u.currentUser.uid = otherUser;
                     Navigator.push(
                       context,
                       CupertinoPageRoute(

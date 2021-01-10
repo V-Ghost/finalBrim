@@ -29,7 +29,21 @@ class _HomepageState extends State<Homepage> {
   Future<void> getUserDetails() async {
     SharedPreferences myPrefs = await SharedPreferences.getInstance();
     print("how");
-
+    var query = await FirebaseFirestore.instance.collection('chats').where('type', isEqualTo: 'brim').get();
+   query.docs.forEach((data){
+     
+    //print(data.data());
+    print("data");
+    //DatabaseService().sendNotification();
+    var now = new DateTime.now();
+    if(data.data().isNotEmpty){
+     if(DatabaseService().convertUTCToLocalDateTime(data.data()['latest'].toDate()).isBefore(now.subtract(Duration(days: 1))) ){
+      print("deleeeeeeteeeeeeee");
+    }
+    }
+    //var nextCheck = new DateTime(now  .getYear(), now.getMonth(), now.getDate() + 1);
+   
+   });
     if (myPrefs.getBool('loggedIn')) {
       Users temp;
       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
@@ -101,7 +115,7 @@ class _HomepageState extends State<Homepage> {
   //   });
   // }
 
-//  _scaffoldKey.currentState.openDrawer();
+  //  _scaffoldKey.currentState.openDrawer();
   @override
   Widget build(BuildContext context) {
     print("i conf");

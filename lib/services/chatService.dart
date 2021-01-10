@@ -146,16 +146,16 @@ class ChatService {
     }
   }
 
-  String convertUTCToLocalTime(DateTime dateUtc) {
-    var strToDateTime = DateTime.parse(dateUtc.toString());
-    final convertLocal = strToDateTime.toLocal();
-    var newFormat = DateFormat("yy-MM-dd hh:mm:ss aaa");
-    String updatedDt = newFormat.format(convertLocal);
-    print(dateUtc);
-    print(convertLocal);
-    print(updatedDt);
-    return updatedDt;
-  }
+  // String convertUTCToLocalTime(DateTime dateUtc) {
+  //   var strToDateTime = DateTime.parse(dateUtc.toString());
+  //   final convertLocal = strToDateTime.toLocal();
+  //   var newFormat = DateFormat("yy-MM-dd hh:mm:ss aaa");
+  //   String updatedDt = newFormat.format(convertLocal);
+  //   print(dateUtc);
+  //   print(convertLocal);
+  //   print(updatedDt);
+  //   return updatedDt;
+  // }
 
   Future<dynamic> changeBrimtoFriend(String messageId) async {
     try {
@@ -170,6 +170,7 @@ class ChatService {
           .collection("chats")
           .doc(messageId)
           .update({
+            'type':"friends",
         "latestMessage": DateTime.now().toUtc(),
       });
       // checkPermit(messageId);
@@ -228,7 +229,7 @@ class ChatService {
   Stream brimStream() {
     return FirebaseFirestore.instance
         .collection("chats")
-        .orderBy("latest", descending: false)
+        .orderBy("latest", descending: true)
         .snapshots();
   }
 

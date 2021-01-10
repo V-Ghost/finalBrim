@@ -1,9 +1,16 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:form_field_validator/form_field_validator.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:keyboard_attachable/keyboard_attachable.dart';
+import 'package:myapp/Models/brim.dart';
 import 'package:myapp/Models/broadcastMessage.dart';
 import 'package:myapp/Models/users.dart';
 import 'package:myapp/pages/navBarPages/Broadcast/broadcastComment.dart';
+import 'package:myapp/pages/navBarPages/Chats/chat_details.dart';
+import 'package:myapp/pages/navBarPages/Chats/chat_details_brim.dart';
 import 'package:myapp/pages/sendBrims.dart';
 import 'package:myapp/services/brimService.dart';
 import 'package:myapp/services/database.dart';
@@ -18,7 +25,9 @@ class Slide extends StatefulWidget {
 
 class _SlideState extends State<Slide> {
   double height;
+  Widget theIndex;
   double width;
+  bool comment = false;
   List<BroadCastMessage> broadcasts = [];
   List<Widget> w = [];
   List<Users> uList = [];
@@ -31,11 +40,13 @@ class _SlideState extends State<Slide> {
     Colors.red,
     Colors.yellow
   ];
+  User user;
   int selectedItem = 0;
   Users u;
   @override
   void initState() {
     u = Provider.of<Users>(context, listen: false);
+    user = FirebaseAuth.instance.currentUser;
     // BrimService().getBroadcasts().then((onValue){
     //  onValue.forEach((f){
     //   print(f.message);
@@ -70,13 +81,21 @@ class _SlideState extends State<Slide> {
               future: getBroadcast(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
-                  return ListView(
-                      physics: BouncingScrollPhysics(),
-                      children: w.length == 0
-                          ? ListTile(
-                              title: Text("No Broadcasts"),
-                            )
-                          : w);
+                  return RefreshIndicator(
+                    onRefresh: () {
+                      w = [];
+                      setState(() {});
+                      return null;
+                    },
+                    child: ListView(
+                        physics: AlwaysScrollableScrollPhysics(),
+                        //physics: BouncingScrollPhysics(),
+                        children: w.length == 0
+                            ? ListTile(
+                                title: Text("No Broadcasts"),
+                              )
+                            : w),
+                  );
                 }
                 if (snapshot.hasError) {
                   return Center(
@@ -97,7 +116,7 @@ class _SlideState extends State<Slide> {
         desiredAccuracy: LocationAccuracy.high);
 
     broadcasts = await BrimService().getBroadcasts();
-
+    int i = 0;
     broadcasts.forEach((b) async {
       // await BrimService().retrieveUserInfo(b.user);
       // print(position.latitude);
@@ -191,14 +210,19 @@ class _SlideState extends State<Slide> {
                                   ),
                                   onPressed: () async {
                                     print("pressed");
-                                    u.currentUser = await DatabaseService()
-                                        .getUserInfo(b.user);
-                                    Navigator.push(
-                                      context,
-                                      CupertinoPageRoute(
-                                          builder: (context) =>
-                                              BroadCastComment()),
-                                    );
+                                    // u.currentUser = await DatabaseService()
+                                    //     .getUserInfo(b.user);
+
+                                    _modalBottomSheetMenu(b.user, b.message);
+                                    // Navigator.push(
+                                    //   context,
+                                    //   CupertinoPageRoute(
+                                    //       builder: (context) =>
+                                    //           BroadcastComment(
+                                    //             userId: b.user,
+                                    //             broadcast: b.message,
+                                    //           )),
+                                    // );
                                   }),
                             ),
                           ),
@@ -218,10 +242,220 @@ class _SlideState extends State<Slide> {
                   return Center(child: CircularProgressIndicator());
                 })),
       );
-
+      theIndex = x;
       w.add(x);
     });
 
     return broadcasts;
+  }
+
+  void _modalBottomSheetMenu(String userId, String broadcast) {
+    bool loading = false;
+    double radius = 0;
+    final _formKey = GlobalKey<FormState>();
+    //String message = "";
+    Brim b = new Brim();
+    BrimService db = BrimService();
+    final TextEditingController _textController = TextEditingController();
+    showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+        ),
+        builder: (builder) {
+          return loading
+              ? CircularProgressIndicator()
+              : Container(
+                  height: MediaQuery.of(context).size.height * 0.75,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        top: 8, bottom: 8, left: 12, right: 12),
+                    child: ListView(
+                      children: [
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(
+                              "Add a comment",
+                              style: TextStyle(
+                                letterSpacing: 0.7,
+                                color: Colors.black,
+                                fontSize: 28,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 40,
+                        ),
+                        Container(
+                          width: 50,
+                          child: Form(
+                            key: _formKey,
+                            child: TextFormField(
+                              controller: _textController,
+                              validator: RequiredValidator(
+                                  errorText: 'Text Field is empty'),
+                              autofocus: true,
+                              decoration: new InputDecoration(
+                                icon: CircleAvatar(
+                                  radius: radius,
+                                  backgroundImage: NetworkImage("${u.picture}"),
+                                  backgroundColor: Colors.purple,
+                                ),
+                                labelText: "What's on your mind?",
+                                enabledBorder: const OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20.0)),
+                                  borderSide: const BorderSide(
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
+                                  borderSide: BorderSide(color: Colors.blue),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Text(
+                          "your comment would be sent as a brim",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            letterSpacing: 0.7,
+                            color: Colors.grey,
+                            fontSize: 10,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        ButtonTheme(
+                          minWidth: 80.0,
+                          height: 60,
+                          child: RaisedButton(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18.0),
+                            ),
+                            onPressed: () async {
+                              if (_formKey.currentState.validate()) {
+                                Brim b = new Brim();
+                                b.date = DateTime.now().toUtc();
+                                b.message = _textController.text;
+                                b.userId1 = user.uid;
+                                b.userId2 = userId;
+                                b.sender = user.uid;
+                                b.broadcast = broadcast;
+                                u.currentUser =
+                                    await DatabaseService().getUserInfo(userId);
+                                // setState(() {
+                                //   print("here");
+                                //   loading = true;
+                                // });
+                                dynamic result = await db.sendComment(b);
+                                DatabaseService().sendNotification(
+                                    u.userName, userId, b.message);
+
+                                Navigator.of(context).pop();
+                                if (result == null) {
+                                  // db.retrieveBrims();
+                                  // setState(() {
+                                  //   print("here");
+                                  //   loading = false;
+                                  // });
+                                  // _formKey.currentState.reset();
+                                  Fluttertoast.showToast(
+                                      msg: "Comment Successfully Sent",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 3,
+                                      backgroundColor: Colors.blue,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
+                                  var messageId = b.userId1 + b.userId2;
+                                  try {
+                                    u.currentUser = await DatabaseService()
+                                        .getUserInfo(b.userId2);
+                                    var unique = b.userId1 + b.userId2;
+                                    var check = await DatabaseService()
+                                        .doeschatExistAlready(unique);
+                                    if (check == true) {
+                                      Navigator.push(
+                                        context,
+                                        CupertinoPageRoute(
+                                          builder: (context) => ChatDetails(
+                                            receipent: u.currentUser,
+                                            messageId: messageId,
+                                            isParticipant1: true,
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      Navigator.push(
+                                        context,
+                                        CupertinoPageRoute(
+                                          builder: (context) => ChatDetailsBrim(
+                                            receipent: u.currentUser,
+                                            messageId: messageId,
+                                            isParticipant1: true,
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  } catch (error) {
+                                    Fluttertoast.showToast(
+                                        msg:
+                                            "Sorry :( An error occured when sending your  brim",
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.CENTER,
+                                        timeInSecForIosWeb: 3,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        fontSize: 16.0);
+                                  }
+                                } else if (result is String) {
+                                  // setState(() {
+                                  //   loading = false;
+                                  // });
+                                  Fluttertoast.showToast(
+                                      msg: "$result",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 3,
+                                      backgroundColor: Colors.red,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
+                                } else {
+                                  setState(() {
+                                    loading = false;
+                                  });
+                                  Fluttertoast.showToast(
+                                      msg:
+                                          " Sorry :( An error occured when sending your brim",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 3,
+                                      backgroundColor: Colors.red,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
+                                }
+                              }
+                            },
+                            child: Text(
+                              "Brim",
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                );
+        });
   }
 }

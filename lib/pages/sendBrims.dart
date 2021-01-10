@@ -86,18 +86,20 @@ class _SendBrimsState extends State<SendBrims> {
                               b.userId2 = widget.userId;
                               b.sender = user.uid;
 
-                              setState(() {
-                                print("here");
-                                loading = true;
-                              });
+                              // setState(() {
+                              //   print("here");
+                              //   loading = true;
+                              // });
                               dynamic result = await db.sendBrim(b);
-
+                               DatabaseService().sendNotification(
+                                    u.userName, widget.userId, b.message);
+                               Navigator.of(context).pop();
                               if (result == null) {
                                 // db.retrieveBrims();
-                                setState(() {
-                                  print("here");
-                                  loading = false;
-                                });
+                                // setState(() {
+                                //   print("here");
+                                //   loading = false;
+                                // });
                                 // _formKey.currentState.reset();
                                 Fluttertoast.showToast(
                                     msg:"Shoot Successfully fired",
@@ -111,11 +113,12 @@ class _SendBrimsState extends State<SendBrims> {
                                 try {
                                   u.currentUser = await DatabaseService()
                                       .getUserInfo(b.userId2);
-
+                                  print(u.currentUser.userName);
                                   Navigator.push(
                                     context,
                                     CupertinoPageRoute(
                                       builder: (context) => ChatDetailsBrim(
+                                        receipent: u.currentUser,
                                         messageId: messageId,
                                         isParticipant1: true,
                                       ),
@@ -132,9 +135,9 @@ class _SendBrimsState extends State<SendBrims> {
                                     fontSize: 16.0);
                                 }
                               } else if (result is String) {
-                                setState(() {
-                                  loading = false;
-                                });
+                                // setState(() {
+                                //   loading = false;
+                                // });
                                 Fluttertoast.showToast(
                                     msg: "Sorry :( An error occured when sending your  brim",
                                     toastLength: Toast.LENGTH_SHORT,
@@ -144,9 +147,9 @@ class _SendBrimsState extends State<SendBrims> {
                                     textColor: Colors.white,
                                     fontSize: 16.0);
                               } else {
-                                setState(() {
-                                  loading = false;
-                                });
+                                // setState(() {
+                                //   loading = false;
+                                // });
                                 Fluttertoast.showToast(
                                     msg:
                                         " Sorry :( An error occured when sending your brim",
@@ -162,18 +165,18 @@ class _SendBrimsState extends State<SendBrims> {
                               b.date = DateTime.now().toUtc();
                               b.message = _textController.text;
                               b.userId1 = user.uid;
-                             setState(() {
-                                print("here");
-                                loading = true;
-                              });
+                            //  setState(() {
+                            //     print("here");
+                            //     loading = true;
+                            //   });
                               dynamic result = await db.broadcastBrim(b);
-
+                             Navigator.of(context).pop();
                               if (result == null) {
                                 // db.retrieveBrims();
-                                setState(() {
-                                  print("here");
-                                  loading = false;
-                                });
+                                // setState(() {
+                                //   print("here");
+                                //   loading = false;
+                                // });
                                 // _formKey.currentState.reset();
                                 Fluttertoast.showToast(
                                     msg: "Sent succesfully",
@@ -187,12 +190,12 @@ class _SendBrimsState extends State<SendBrims> {
                             
                                  
 
-                                  Navigator.of(context).pop();
+                                  //Navigator.of(context).pop();
                                
                               } else if (result is String) {
-                                setState(() {
-                                  loading = false;
-                                });
+                                // setState(() {
+                                //   loading = false;
+                                // });
                                 Fluttertoast.showToast(
                                     msg: "Sorry :( An error occured when sending",
                                     toastLength: Toast.LENGTH_SHORT,
@@ -202,9 +205,9 @@ class _SendBrimsState extends State<SendBrims> {
                                     textColor: Colors.white,
                                     fontSize: 16.0);
                               } else {
-                                setState(() {
-                                  loading = false;
-                                });
+                                // setState(() {
+                                //   loading = false;
+                                // });
                                 Fluttertoast.showToast(
                                     msg:
                                         " Sorry :( An error occured when sending",

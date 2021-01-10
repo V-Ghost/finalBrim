@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class Brim extends ChangeNotifier {
   String _message;
+  String _broadcast;
   String _userId1;
    String _userId2;
    String _sender;
@@ -10,7 +11,13 @@ class Brim extends ChangeNotifier {
 
   Brim();
 
-  
+  String get broadcast => _broadcast;
+ 
+  set broadcast(String value) {
+    _broadcast = value;
+    notifyListeners();
+  }
+
   String get message => _message;
  
   set message(String value) {

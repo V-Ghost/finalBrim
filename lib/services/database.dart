@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:myapp/Models/CoOrdinates.dart';
 import 'package:myapp/Models/brim.dart';
 import 'package:myapp/Models/status.dart';
@@ -15,6 +16,7 @@ import 'dart:io';
 import 'package:path/path.dart' as Path;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:intl/intl.dart';
 
 class DatabaseService {
   final String uid;
@@ -75,7 +77,7 @@ class DatabaseService {
     //     await Geocoder.local.findAddressesFromCoordinates(coordinates);
     //var first = addresses.first;
 
-   // print(first.locality);
+    // print(first.locality);
     // await databaseReference.child("userStatus").child(uid).update({
     //   'latitiude': '${position.latitude.toString()}',
     //   'longitude': '${position.longitude.toString()}',
@@ -88,7 +90,7 @@ class DatabaseService {
     //   'sublocality': '${first.subLocality}',
     //   'lastChanged': DateTime.now().toUtc().toString(),
     // });
-      await databaseReference.child("userStatus").child(uid).update({
+    await databaseReference.child("userStatus").child(uid).update({
       'latitiude': '${position.latitude.toString()}',
       'longitude': '${position.longitude.toString()}',
       'lastChanged': DateTime.now().toUtc().toString(),
@@ -174,18 +176,36 @@ class DatabaseService {
     QuerySnapshot query = await FirebaseFirestore.instance
         .collection("chats")
         .where('participant2', isEqualTo: user)
+        .where('participant1', isEqualTo: uid)
         .get();
 
     QuerySnapshot query2 = await FirebaseFirestore.instance
         .collection("chats")
         .where('participant1', isEqualTo: user)
+        .where('participant2', isEqualTo: uid)
         .get();
-   
+
     if (query.docs.isEmpty && query2.docs.isEmpty) {
       return false;
     } else {
       return true;
     }
+  }
+
+  Future<bool> doeschatExistAlready(String unique) async {
+    bool result = false;
+
+    var query =
+        await FirebaseFirestore.instance.collection("chats").doc(unique).get();
+
+    print(query.data());
+    print("showty");
+    query.data().forEach((key, value) {
+      if (key == "latestMessage") {
+        result = true;
+      }
+    });
+    return result;
   }
 
   Future<Map<dynamic, dynamic>> getNearbyUsers() async {
@@ -201,8 +221,6 @@ class DatabaseService {
     Map<dynamic, dynamic> users = new Map();
 
     Map<dynamic, dynamic> values = snapshot.value;
-
-  
 
     final nearYou = databaseReference;
 
@@ -220,24 +238,26 @@ class DatabaseService {
       print(key != uid);
       //  print(check);
       if (key != uid) {
-        double distanceInMeters = Geolocator.distanceBetween(position.latitude,
-            position.longitude, double.parse(values["latitiude"]), double.parse(values["latitiude"]));
+        double distanceInMeters = Geolocator.distanceBetween(
+            position.latitude,
+            position.longitude,
+            double.parse(values["latitiude"]),
+            double.parse(values["latitiude"]));
         print(key);
         print("okay");
         print(distanceInMeters);
         if (distanceInMeters < 5000000000) {
-         CoOrdinates u = new CoOrdinates();
-        Users x = new Users();
-        double latitiude = double.parse(values["latitiude"]);
+          CoOrdinates u = new CoOrdinates();
+          Users x = new Users();
+          double latitiude = double.parse(values["latitiude"]);
 
-        double longitude = double.parse(values["longitude"]);
-        u.latitiude = latitiude;
+          double longitude = double.parse(values["longitude"]);
+          u.latitiude = latitiude;
 
-        u.longitude = longitude;
-        x.position = u;
-        users[key] = x;
+          u.longitude = longitude;
+          x.position = u;
+          users[key] = x;
         }
-        
       }
     });
 
@@ -291,7 +311,7 @@ class DatabaseService {
   Future<Users> getUserInfo(String user) async {
     DocumentSnapshot documentSnapshot =
         await FirebaseFirestore.instance.collection('users').doc(user).get();
-  
+
     Users u = new Users();
     Users temp = new Users();
 
@@ -302,5 +322,48 @@ class DatabaseService {
 
     u.gender = temp.gender;
     return u;
+  }
+
+  String convertUTCToLocalTime(DateTime dateUtc) {
+    var strToDateTime = DateTime.parse(dateUtc.toString());
+    final convertLocal = strToDateTime.toLocal();
+    var newFormat = DateFormat("yy-MM-dd hh:mm:ss aaa");
+    String updatedDt = newFormat.format(convertLocal);
+    print(dateUtc);
+    print(convertLocal);
+    print(updatedDt);
+    return updatedDt;
+  }
+
+  DateTime convertUTCToLocalDateTime(DateTime dateUtc) {
+    var strToDateTime = DateTime.parse(dateUtc.toString());
+    final convertLocal = strToDateTime.toLocal();
+
+    return convertLocal;
+  }
+
+  Future<dynamic> sendNotification(String from,String to,String message) async {
+    try {
+      FirebaseFunctions functions = FirebaseFunctions.instance;
+      HttpsCallable callable = functions.httpsCallable('addMessage');
+      final HttpsCallableResult result = await callable.call(
+        <String, dynamic>{
+          'to': to,
+          'from': from,
+          'message': message,
+        },
+      );
+      print("callable");
+      print(result.data);
+    } on FirebaseFunctionsException catch (e) {
+      print('caught firebase functions exception');
+      print(e);
+      print(e.code);
+      print(e.message);
+      print(e.details);
+    } catch (e) {
+      print('caught generic exception');
+      print(e);
+    }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/services.dart';
 import 'package:myapp/Models/setting.dart';
 import 'package:myapp/Models/users.dart';
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
   Future<dynamic> intialize() async {
     // tz.initializeTimeZones();
       await Firebase.initializeApp();
-      
+     
       SharedPreferences myPrefs = await SharedPreferences.getInstance();
        myPrefs.setBool("login", false);
     FirebaseAuth.instance.authStateChanges().listen((User user) {

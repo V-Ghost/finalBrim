@@ -15,12 +15,14 @@ import 'package:myapp/Models/message.dart';
 import 'package:myapp/Models/users.dart';
 import 'package:myapp/pages/navBarPages/Chats/chat_details.dart';
 import 'package:myapp/services/chatService.dart';
+import 'package:myapp/services/database.dart';
 import 'package:provider/provider.dart';
 
 class ChatDetailsBrim extends StatefulWidget {
   final String messageId;
   final bool isParticipant1;
-  ChatDetailsBrim({this.messageId, this.isParticipant1});
+  final Users receipent;
+  ChatDetailsBrim({this.messageId, this.isParticipant1, this.receipent});
   @override
   _ChatDetailsBrimState createState() => _ChatDetailsBrimState();
 }
@@ -28,6 +30,7 @@ class ChatDetailsBrim extends StatefulWidget {
 class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
   int length;
   bool lastMessageMe;
+  bool isComment = false;
   Users u;
   User user;
   bool isMe;
@@ -42,7 +45,8 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
   void initState() {
     h = 540;
     u = Provider.of<Users>(context, listen: false);
-
+    //print("okadddy");
+    //print(u.currentUser.userName);
     user = FirebaseAuth.instance.currentUser;
     //keyboardVisibilityController = KeyboardVisibilityController();
     ChatService().readMessage(widget.messageId, widget.isParticipant1);
@@ -69,12 +73,12 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
         .snapshots();
     snapshot.length.then((onValue) {
       length = onValue;
-      print(length);
+     // print(length);
     });
-    print("okay");
-    print(length);
+    // print("okay");
+    // print(length);
     snapshot.last.then((onValue) {
-      print(onValue);
+      //print(onValue);
     });
     // snapshot.forEach((value){
     // print("from chats");
@@ -159,10 +163,12 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
             ),
             Container(
               margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
-              child: Text(
-                '${u.currentUser.userName}',
-                style: TextStyle(color: Colors.black),
-              ),
+              child: u.currentUser == null
+                  ? Text(widget.receipent.userName)
+                  : Text(
+                      '${u.currentUser.userName}',
+                      style: TextStyle(color: Colors.black),
+                    ),
             ),
             Expanded(child: Container()),
             InkWell(
@@ -173,38 +179,36 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                     return CupertinoActionSheet(
                       title: Text('Add Friend'),
                       message: Text(
-                          'Are you sure you want to add this user to your friends? NB. Yort profile picture becomes visible'),
+                          'Are you sure you want to add this user to your friends? NB. Your profile picture becomes visible'),
                       actions: <Widget>[
                         CupertinoActionSheetAction(
                           child: Text('Yes'),
-                          onPressed: ()  async{
-                              var result = await ChatService().permit(
+                          onPressed: () async {
+                            var result = await ChatService().permit(
                                 widget.messageId, widget.isParticipant1);
 
                             if (result == true) {
-                              print("eii pemit");
+                              
+                              //print("eii pemit");
                               var permit = await ChatService()
                                   .checkPermit(widget.messageId);
 
-                                // print(permit);
+                              // print(permit);
                               if (permit == true) {
-
                                 var change = await ChatService()
                                     .changeBrimtoFriend(widget.messageId);
-                                  print("heeerrree");
+                                //print("heeerrree");
                                 if (change == true) {
-                                  print("heeerrree aggaainn");
+                                 // print("heeerrree aggaainn");
                                   Navigator.of(context).pop();
                                   Navigator.push(
-                                    context,
-                                     CupertinoPageRoute(
-                                    builder: (context) => ChatDetails(
-                                      messageId: widget.messageId,
-                                      isParticipant1: widget.isParticipant1,
-                                    ),
-                                  )
-                                  );
-
+                                      context,
+                                      CupertinoPageRoute(
+                                        builder: (context) => ChatDetails(
+                                          messageId: widget.messageId,
+                                          isParticipant1: widget.isParticipant1,
+                                        ),
+                                      ));
                                 } else {
                                   Navigator.of(context).pop();
                                   Fluttertoast.showToast(
@@ -249,7 +253,6 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                             //  }
                           },
                         ),
-                       
                       ],
                       cancelButton: CupertinoActionSheetAction(
                         isDefaultAction: true,
@@ -261,100 +264,6 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                     );
                   },
                 );
-                // showDialog(
-                //   context: context,
-                //   builder: (BuildContext context) {
-                //     // return object of type Dialog
-                //     return AlertDialog(
-                //       title: new Text("Add This User"),
-                //       content: new Text(
-                //           "This user would be able to see your profile picture"),
-                //       actions: <Widget>[
-                //         new InkWell(
-                //           child: new Text("Add User"),
-                //           onTap: () async {
-                //             var result = await ChatService().permit(
-                //                 widget.messageId, widget.isParticipant1);
-
-                //             if (result == true) {
-                //               print("eii pemit");
-                //               var permit = await ChatService()
-                //                   .checkPermit(widget.messageId);
-
-                //                 // print(permit);
-                //               if (permit == true) {
-
-                //                 var change = await ChatService()
-                //                     .changeBrimtoFriend(widget.messageId);
-                //                   print("heeerrree");
-                //                 if (change == true) {
-                //                   print("heeerrree aggaainn");
-                //                   Navigator.of(context).pop();
-                //                   Navigator.push(
-                //                     context,
-                //                      CupertinoPageRoute(
-                //                     builder: (context) => ChatDetails(
-                //                       messageId: widget.messageId,
-                //                       isParticipant1: widget.isParticipant1,
-                //                     ),
-                //                   )
-                //                   );
-
-                //                 } else {
-                //                   Navigator.of(context).pop();
-                //                   Fluttertoast.showToast(
-                //                       msg: "Sorry :( an error was encountered",
-                //                       toastLength: Toast.LENGTH_SHORT,
-                //                       gravity: ToastGravity.BOTTOM,
-                //                       timeInSecForIosWeb: 3,
-                //                       backgroundColor: Colors.red,
-                //                       textColor: Colors.white,
-                //                       fontSize: 16.0);
-                //                 }
-                //               } else {
-                //                 Navigator.of(context).pop();
-                //                 Fluttertoast.showToast(
-                //                     msg: "Waiting for this user to add you",
-                //                     toastLength: Toast.LENGTH_SHORT,
-                //                     gravity: ToastGravity.BOTTOM,
-                //                     timeInSecForIosWeb: 3,
-                //                     backgroundColor: Colors.red,
-                //                     textColor: Colors.white,
-                //                     fontSize: 16.0);
-                //               }
-                //               //  Navigator.of(context).pop();
-                //             } else if (result is String) {
-                //               Fluttertoast.showToast(
-                //                   msg: "Unable to add user",
-                //                   toastLength: Toast.LENGTH_SHORT,
-                //                   gravity: ToastGravity.BOTTOM,
-                //                   timeInSecForIosWeb: 3,
-                //                   backgroundColor: Colors.red,
-                //                   textColor: Colors.white,
-                //                   fontSize: 16.0);
-                //               Navigator.of(context).pop();
-                //             }
-
-                //             // print(permit);
-
-                //             //  if(permit==true){
-                //             //    print("ookkkaayay");
-                //             //  }else{
-                //             //       print(" not  ookkkaayay");
-                //             //  }
-                //           },
-                //         ),
-                //         // usually buttons at the bottom of the dialog
-                //         new FlatButton(
-                //           child: new Text("Close"),
-                //           onPressed: () {
-                //             Navigator.of(context).pop();
-                //           },
-                //         ),
-                //       ],
-                //     );
-                //   },
-                // );
               },
               child: Container(
                 margin: EdgeInsets.fromLTRB(0, 0, 15, 0),
@@ -386,27 +295,44 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                       itemCount: snapshot.data.docs.length,
                       itemBuilder: (BuildContext context, int index) {
                         length = snapshot.data.docs.length;
-                        print(snapshot.data.docs.length);
+                        //print(snapshot.data.docs.length);
+                        // if (snapshot.data.docs[index].data()["type"] ==
+                        //     "image") {
+                        //   isImage = true;
+                        // } 
                         if (snapshot.data.docs[index].data()["type"] ==
-                            "image") {
-                          isImage = true;
+                            "comment") {
+                          isComment = true;
+                        } else{
+                          isComment = false;
                         }
                         if (snapshot.data.docs[index].data()["from"] ==
                             user.uid) {
                           isMe = true;
-                        } else {
+                        } else  {
                           isMe = false;
                         }
-
+                        // print(isComment);
+                        // print(snapshot.data.docs[index].data()["broadcast"]);
                         return Padding(
                           padding: EdgeInsets.all(10),
                           child: Column(
                             children: <Widget>[
-                              Bubble(
-                                message:
-                                    snapshot.data.docs[index].data()["message"],
-                                isMe: isMe,
-                              ),
+                              isComment
+                                  ? Bubble(
+                                      message: snapshot.data.docs[index]
+                                          .data()["message"],
+                                      isMe: isMe,
+                                      isComment: isComment,
+                                      comment: snapshot.data.docs[index]
+                                          .data()["broadcast"],
+                                    )
+                                  : Bubble(
+                                      message: snapshot.data.docs[index]
+                                          .data()["message"],
+                                      isMe: isMe,
+                                      isComment: false,
+                                    ),
                             ],
                           ),
                         );
@@ -445,13 +371,13 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                   //     color: Color(0xff3E8DF3),
                   //   ),
                   // ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.image,
-                      color: Colors.purple,
-                    ),
-                  ),
+                  // IconButton(
+                  //   //onPressed: () {},
+                  //   icon: Icon(
+                  //     Icons.image,
+                  //     color: Colors.purple,
+                  //   ),
+                  // ),
                   Padding(
                     padding: EdgeInsets.only(left: 15),
                   ),
@@ -486,6 +412,11 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
 
                             var result = await ChatService().sendChatsText(
                                 m, widget.messageId, widget.isParticipant1);
+                                print("send not");
+                            print(u.userName);
+                             print(u.currentUser.uid);
+                           
+                             DatabaseService().sendNotification(u.userName,u.currentUser.uid,m.message);
                             if (result is String) {
                               Fluttertoast.showToast(
                                   msg: "Unable to send message",
@@ -545,8 +476,9 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
 class Bubble extends StatelessWidget {
   final bool isMe;
   final String message;
-
-  Bubble({this.message, this.isMe});
+  final bool isComment;
+  final String comment;
+  Bubble({this.message, this.isMe, this.isComment, this.comment});
 
   Widget build(BuildContext context) {
     return InkWell(
@@ -603,20 +535,56 @@ class Bubble extends StatelessWidget {
                             bottomLeft: Radius.circular(0),
                           ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: isMe
-                        ? CrossAxisAlignment.end
-                        : CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        message,
-                        textAlign: isMe ? TextAlign.end : TextAlign.start,
-                        style: TextStyle(
-                          color: isMe ? Colors.white : Colors.grey,
+                  child: isComment
+                      ? Column(
+                          crossAxisAlignment: isMe
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Container(
+                              margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                              padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+                              decoration: BoxDecoration(
+                                  color: Colors.purple,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8))),
+                              height: 30,
+                              child: Container(
+                                margin: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                child: Text(
+                                  comment,
+                                  textAlign:
+                                      isMe ? TextAlign.end : TextAlign.start,
+                                  style: TextStyle(
+                                    color: isMe ? Colors.white : Colors.grey,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 10,),
+                            Text(
+                              message,
+                              textAlign: isMe ? TextAlign.end : TextAlign.start,
+                              style: TextStyle(
+                                color: isMe ? Colors.white : Colors.grey,
+                              ),
+                            )
+                          ],
+                        )
+                      : Column(
+                          crossAxisAlignment: isMe
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              message,
+                              textAlign: isMe ? TextAlign.end : TextAlign.start,
+                              style: TextStyle(
+                                color: isMe ? Colors.white : Colors.grey,
+                              ),
+                            )
+                          ],
                         ),
-                      )
-                    ],
-                  ),
                 ),
               ],
             )

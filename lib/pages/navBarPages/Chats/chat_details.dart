@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,13 +18,15 @@ import 'package:myapp/pages/navBarPages/Chats/viewImage.dart';
 import 'package:myapp/pages/navBarPages/chats.dart';
 import 'package:myapp/services/ChatStream.dart';
 import 'package:myapp/services/chatService.dart';
+import 'package:myapp/services/database.dart';
 
 import 'package:provider/provider.dart';
 
 class ChatDetails extends StatefulWidget {
   final String messageId;
   final bool isParticipant1;
-  ChatDetails({this.messageId, this.isParticipant1});
+  final Users receipent;
+  ChatDetails({this.messageId, this.isParticipant1, this.receipent});
   @override
   _ChatDetailsState createState() => _ChatDetailsState();
 }
@@ -38,8 +39,10 @@ class _ChatDetailsState extends State<ChatDetails> {
   User user;
   bool isMe;
   bool isImage = false;
+  bool isComment = false;
   String test;
   double h;
+  bool firstTime = false;
   var lastDocument;
   // String messageId = widget.messageId;
   final TextEditingController _textController = TextEditingController();
@@ -61,7 +64,7 @@ class _ChatDetailsState extends State<ChatDetails> {
           Duration(milliseconds: 500),
           () => _scrollController
               .jumpTo(_scrollController.position.maxScrollExtent));
-      print("finish");
+      // print("finish");
     });
     _scrollController.addListener(() {
       double maxScroll = _scrollController.position.minScrollExtent;
@@ -110,8 +113,8 @@ class _ChatDetailsState extends State<ChatDetails> {
         m.from = user.uid;
         m.read = false;
         m.date = DateTime.now().toUtc();
-        print(u.currentUser.picture);
-           Fluttertoast.showToast(
+        // print(u.currentUser.picture);
+        Fluttertoast.showToast(
             msg: "The Image is sending......",
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.CENTER,
@@ -121,7 +124,7 @@ class _ChatDetailsState extends State<ChatDetails> {
             fontSize: 16.0);
         var result = await ChatService()
             .sendChatsFile(m, widget.messageId, widget.isParticipant1);
-     
+
         if (result is String) {
           Fluttertoast.showToast(
               msg: "Unable to send message",
@@ -169,10 +172,12 @@ class _ChatDetailsState extends State<ChatDetails> {
             ),
             Container(
               margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
-              child: Text(
-                '${u.currentUser.userName}',
-                style: TextStyle(color: Colors.black),
-              ),
+              child: u.currentUser == null
+                  ? Text(widget.receipent.userName)
+                  : Text(
+                      '${u.currentUser.userName}',
+                      style: TextStyle(color: Colors.black),
+                    ),
             ),
           ],
         ),
@@ -194,8 +199,13 @@ class _ChatDetailsState extends State<ChatDetails> {
                       itemCount: snapshot.data.docs.length,
                       itemBuilder: (BuildContext context, int index) {
                         length = snapshot.data.docs.length;
-                        print(snapshot.data.docs.length);
-
+                        //print(snapshot.data.docs.length);
+                        if (snapshot.data.docs[index].data()["type"] ==
+                            "comment") {
+                          isComment = true;
+                        } else {
+                          isComment = false;
+                        }
                         if (snapshot.data.docs[index].data()["type"] ==
                             "image") {
                           isImage = true;
@@ -208,27 +218,42 @@ class _ChatDetailsState extends State<ChatDetails> {
                         } else {
                           isMe = false;
                         }
-
-                        if (index == 0) {
-                          print("we reach");
-                          lastDocument = snapshot.data.docs[index];
-                          test = snapshot.data.docs[index].data()["message"];
-                          Timer(
-                              Duration(milliseconds: 500),
-                              () => _scrollController.jumpTo(
-                                  _scrollController.position.maxScrollExtent));
+                        if (firstTime != true) {
+                          if (index == 0) {
+                            // print("we reach");
+                            lastDocument = snapshot.data.docs[index];
+                            test = snapshot.data.docs[index].data()["message"];
+                            Timer(
+                                Duration(milliseconds: 500),
+                                () => _scrollController.jumpTo(_scrollController
+                                    .position.maxScrollExtent));
+                            firstTime = true;
+                          }
                         }
 
                         return Padding(
                           padding: EdgeInsets.all(10),
                           child: Column(
                             children: <Widget>[
-                              Bubble(
-                                message:
-                                    snapshot.data.docs[index].data()["message"],
-                                isMe: isMe,
-                                isImage: isImage,
-                              ),
+                              isComment
+                                  ? Bubble(
+                                      message: snapshot.data.docs[index]
+                                          .data()["message"],
+                                      isMe: isMe,
+                                      isComment: isComment,
+                                      comment: snapshot.data.docs[index]
+                                          .data()["broadcast"],
+                                      isImage: isImage,
+                                    )
+                                  : Bubble(
+                                      message: snapshot.data.docs[index]
+                                          .data()["message"],
+                                      isMe: isMe,
+                                      isComment: isComment,
+                                      comment: snapshot.data.docs[index]
+                                          .data()["broadcast"],
+                                      isImage: isImage,
+                                    ),
                             ],
                           ),
                         );
@@ -308,6 +333,8 @@ class _ChatDetailsState extends State<ChatDetails> {
 
                         var result = await ChatService().sendChatsTextFromChats(
                             m, widget.messageId, widget.isParticipant1);
+                        DatabaseService().sendNotification(
+                            u.userName, u.currentUser.uid, m.message);
                         if (result is String) {
                           Fluttertoast.showToast(
                               msg: "Unable to send message",
@@ -345,7 +372,9 @@ class Bubble extends StatelessWidget {
   final bool isMe;
   final String message;
   final isImage;
-  Bubble({this.message, this.isMe, this.isImage});
+  final bool isComment;
+  final String comment;
+  Bubble({this.message, this.isMe, this.isImage, this.isComment, this.comment});
 
   Widget build(BuildContext context) {
     return InkWell(
@@ -412,22 +441,61 @@ class Bubble extends StatelessWidget {
                             bottomLeft: Radius.circular(0),
                           ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: isMe
-                        ? CrossAxisAlignment.end
-                        : CrossAxisAlignment.start,
-                    children: <Widget>[
-                      isImage
-                          ? Image.network(message)
-                          : Text(
+                  child: isComment
+                      ? Column(
+                          crossAxisAlignment: isMe
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Container(
+                              margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                              padding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+                              decoration: BoxDecoration(
+                                  color: Colors.purple,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8))),
+                              height: 30,
+                              child: Container(
+                                margin: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                child: Text(
+                                  comment,
+                                  textAlign:
+                                      isMe ? TextAlign.end : TextAlign.start,
+                                  style: TextStyle(
+                                    color: isMe ? Colors.white : Colors.grey,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
                               message,
                               textAlign: isMe ? TextAlign.end : TextAlign.start,
                               style: TextStyle(
                                 color: isMe ? Colors.white : Colors.grey,
                               ),
                             )
-                    ],
-                  ),
+                          ],
+                        )
+                      : Column(
+                          crossAxisAlignment: isMe
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
+                          children: <Widget>[
+                            isImage
+                                ? Image.network(message)
+                                : Text(
+                                    message,
+                                    textAlign:
+                                        isMe ? TextAlign.end : TextAlign.start,
+                                    style: TextStyle(
+                                      color: isMe ? Colors.white : Colors.grey,
+                                    ),
+                                  )
+                          ],
+                        ),
                 ),
               ],
             )

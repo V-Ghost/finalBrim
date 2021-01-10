@@ -7,6 +7,7 @@ import 'package:myapp/Models/broadcastMessage.dart';
 import 'package:myapp/Models/users.dart';
 import 'package:myapp/services/database.dart';
 import 'package:uuid/uuid.dart';
+import 'package:intl/intl.dart';
 
 class BrimService {
   final String uid;
@@ -16,7 +17,7 @@ class BrimService {
     try {
       var check = await DatabaseService(uid: uid)
           .doesBrimMessageExistAlready(b.userId2);
-      if (check != true) {
+     // if (check != true) {
         var uuid = Uuid();
         var unique = b.userId1 + b.userId2;
         var u1 = Uuid();
@@ -27,10 +28,10 @@ class BrimService {
           'participant1': b.userId1,
           'participant2': b.userId2,
           'type': 'brim',
-          'permit1' : true,
-          'permit2' : false,
-          'latest' : b.date,
-          'newMessage1' : true,
+          'permit1': true,
+          'permit2': false,
+          'latest': b.date,
+          'newMessage1': true,
         });
         await userCollection
             .doc(unique)
@@ -45,8 +46,84 @@ class BrimService {
         }).then((onValue) {
           return null;
         });
+      // } else {
+      //   return "You have already sent a brim to this user";
+      // }
+    } catch (error) {
+      print(error.toString());
+      return false;
+    }
+  }
+
+  Future<dynamic> sendComment(Brim b) async {
+    try {
+       var unique = b.userId1 + b.userId2;
+      var check = await  DatabaseService().doeschatExistAlready(unique);
+      //     .doesBrimMessageExistAlready(b.userId2);
+      if (check != true) {
+        var uuid = Uuid();
+      
+        // print("showty22");
+        
+        var u1 = Uuid();
+        print(b.userId2);
+        CollectionReference userCollection =
+            FirebaseFirestore.instance.collection('chats');
+        await userCollection.doc(unique).set({
+          'participant1': b.userId1,
+          'participant2': b.userId2,
+          
+          'type': 'brim',
+          'permit1': true,
+          'permit2': false,
+          'latest': b.date,
+          'newMessage1': true,
+        });
+        await userCollection
+            .doc(unique)
+            .collection('messages')
+            .doc(uuid.v1())
+            .set({
+          'message': b.message,
+          'from': b.sender,
+          'type': "comment",
+          'read': false,
+          'time': b.date,
+          'broadcast': b.broadcast,
+        }).then((onValue) {
+          return null;
+        });
       } else {
-        return "You have already sent a brim to this user";
+         var uuid = Uuid();
+      
+        var u1 = Uuid();
+        print(b.userId2);
+        CollectionReference userCollection =
+            FirebaseFirestore.instance.collection('chats');
+        await userCollection.doc(unique).set({
+          'participant1': b.userId1,
+          'participant2': b.userId2,
+          
+          'type': 'friends',
+          'permit1': true,
+          'permit2': false,
+          'latestMessage': b.date,
+          'newMessage1': true,
+        });
+        await userCollection
+            .doc(unique)
+            .collection('messages')
+            .doc(uuid.v1())
+            .set({
+          'message': b.message,
+          'from': b.sender,
+          'type': "comment",
+          'read': false,
+          'time': b.date,
+          'broadcast': b.broadcast,
+        }).then((onValue) {
+          return null;
+        });
       }
     } catch (error) {
       print(error.toString());
@@ -67,14 +144,15 @@ class BrimService {
   //   });
   // }
   Future<Users> retrieveUserInfo(String user) async {
-     Users temp;
-   DocumentSnapshot documentSnapshot =
-          await FirebaseFirestore.instance.collection('users').doc(user).get();
- 
+    Users temp;
+    DocumentSnapshot documentSnapshot =
+        await FirebaseFirestore.instance.collection('users').doc(user).get();
+
     temp = Users.fromMap(documentSnapshot.data());
-    
-    return temp;    
+
+    return temp;
   }
+
   Future<dynamic> broadcastBrim(Brim b) async {
     try {
       Position position = await Geolocator.getCurrentPosition(
@@ -91,7 +169,7 @@ class BrimService {
         'message': '${b.message}',
         'latitude': position.latitude.toString(),
         'longitude': position.longitude.toString(),
-        'date':'${b.date}',
+        'date': "${b.date}",
         'user': '${b.userId1}'
       }).then((_) {
         return null;
@@ -102,19 +180,29 @@ class BrimService {
   }
 
   Future<List<BroadCastMessage>> getBroadcasts() async {
-    List<BroadCastMessage> broadcasts = [] ;
-   
+
+
+    List<BroadCastMessage> broadcasts = [];
+
     final databaseReference =
         FirebaseDatabase.instance.reference().child("brims");
     DataSnapshot snapshot = await databaseReference.once();
     Map<dynamic, dynamic> values = snapshot.value;
-    values.forEach((key, value){
-       BroadCastMessage d1 = new BroadCastMessage();
-        d1.message = value["message"];
-        d1.user =   value["user"];
-        // d1.time = value["date"];
-        broadcasts.add(d1);
+    if(values != null){
+     values.forEach((key, value) {
+       var now = new DateTime.now();
+      BroadCastMessage d1 = new BroadCastMessage();
+      d1.message = value["message"];
+      d1.user = value["user"];
+      DateTime tempDate = new DateFormat("yyyy-MM-dd hh:mm:ss").parse( value["date"].toString());
+       if(DatabaseService().convertUTCToLocalDateTime(tempDate).isBefore(now.subtract(Duration(days: 1))) ){
+      print("deleeeeeeteeeeeeee");
+    }
+      // d1.time = value["date"];
+      broadcasts.add(d1);
     });
+    }
+    
 
     return broadcasts;
   }
