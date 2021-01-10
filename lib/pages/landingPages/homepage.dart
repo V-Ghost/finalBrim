@@ -56,7 +56,7 @@ class _HomepageState extends State<Homepage> {
         u.picture = temp.picture;
         u.userName = temp.userName;
         u.bio = temp.bio;
-       
+        u.dob = temp.dob;
         u.gender = temp.gender;
         
         user = FirebaseAuth.instance.currentUser;

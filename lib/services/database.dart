@@ -32,12 +32,11 @@ class DatabaseService {
         'picture': u.picture,
         'dob': u.dob,
         'gender': u.gender,
-      }).then((result) {
-        return true;
       });
+     return true;
     } catch (error) {
       print(error.toString());
-      return false;
+      return error.toString();
     }
   }
 
@@ -54,15 +53,14 @@ class DatabaseService {
       firebase_storage.Reference storageReference =
           FirebaseStorage.instance.ref().child('avatar/$uid');
 
-      storageReference.putFile(_image).whenComplete(() async {
+      await storageReference.putFile(_image);
         _uploadedFileURL = await storageReference.getDownloadURL();
-      }).catchError((onError) {
-        print(onError.toString());
-        return onError.toString();
-      });
+    
       print('File Upppppppppppppppppppppppppppppppppppppppppppppppploaded');
+      print(_uploadedFileURL);
       return _uploadedFileURL;
     } catch (error) {
+      print("erroer");
       return error;
     }
   }

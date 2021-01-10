@@ -282,8 +282,12 @@ class _SelectImageState extends State<SelectImage> {
 
             print(result);
           } else {
+             setState(() {
+              loading = false;
+                _image = image;
+            });
             Fluttertoast.showToast(
-                msg: " Sorry :( An error occured when registering in",
+                msg: "  Sorry :( An error occured uploading picture",
                 toastLength: Toast.LENGTH_SHORT,
                 gravity: ToastGravity.CENTER,
                 timeInSecForIosWeb: 3,
@@ -294,23 +298,7 @@ class _SelectImageState extends State<SelectImage> {
           }
         });
 
-        // if (result is String) {
-
-        //   setState(() {
-        //     loading = false;
-        //   });
-        //   print(result);
-        // } else {
-        //   Fluttertoast.showToast(
-        //       msg: " Sorry :( An error occured when signing in",
-        //       toastLength: Toast.LENGTH_SHORT,
-        //       gravity: ToastGravity.CENTER,
-        //       timeInSecForIosWeb: 3,
-        //       backgroundColor: Colors.red,
-        //       textColor: Colors.white,
-        //       fontSize: 16.0);
-        //       print(result);
-        // }
+       
       }
     });
   }

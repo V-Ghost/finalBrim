@@ -2,18 +2,23 @@ import 'dart:collection';
 import 'dart:ui' as ui;
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:myapp/Models/users.dart';
+import 'package:myapp/pages/editProfile.dart';
+import 'package:myapp/pages/register/loginUi.dart';
 import 'package:myapp/pages/sendBrims.dart';
+import 'package:myapp/services/auth.dart';
 import 'package:myapp/services/database.dart';
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:myapp/widgets/raisedGradientButton.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MapPage extends StatefulWidget {
   MapPage({Key key}) : super(key: key);
@@ -205,24 +210,31 @@ class _MapPageState extends State<MapPage> {
     //List<Placemark> placemark = await Geolocator.placemarkFromCoordinates(position.latitude, position.longitude);
   }
 
-  // _onCameraMove(CameraPosition position) {
-  //   _lastMapPosition = position.target;
-  // }
-
-  // void _getNearbyUsers() async {
-
-  //   //  users = await DatabaseService().retrieveOtherInfo(users);
-  //   //  print(users);
-  //    print(users["t3MYcrmwZ9VemLCSOPRI2bOxD9s2"].position.longitude);
-
-  //   //  print(users["t3MYcrmwZ9VemLCSOPRI2bOxD9s2"].bio);
-  //   print("OO");
-  //   // print(users);
-  // }
-
   @override
   Widget build(BuildContext context) {
-    print("eii");
+    final TextStyle textStyle = Theme.of(context).textTheme.bodyText2;
+    final List<Widget> aboutBoxChildren = <Widget>[
+      SizedBox(height: 24),
+      RichText(
+        text: TextSpan(
+          children: <TextSpan>[
+            TextSpan(
+                style: textStyle,
+                text:
+                    'LoveWorld Incorporated, is a global ministry with a vision of taking God’s divine presence to the nations of the world and to demonstrate the character of the Holy Spirit. This is achieved through every available means, as the Ministry is driven by a passion to see men and women all over the world, come to the knowledge of the divine life made available in Christ Jesus. '),
+            TextSpan(
+              style: textStyle.copyWith(color: Theme.of(context).accentColor),
+              text: 'https://ceycairportcity.org/',
+              recognizer: new TapGestureRecognizer()
+                ..onTap = () {
+                  launch('https://ceycairportcity.org/');
+                },
+            ),
+            TextSpan(style: textStyle, text: '.'),
+          ],
+        ),
+      ),
+    ];
     // print(u.position.latitiude);
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
@@ -248,43 +260,198 @@ class _MapPageState extends State<MapPage> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(
-                          top: 25, bottom: 25, left: 110, right: 110),
-                      child: Material(
-                        elevation: 20.0,
-                        shadowColor: Colors.black,
-                        child: Padding(
-                          padding: EdgeInsets.all(10),
-                          child: CircleAvatar(
-                            radius: 80,
-                            backgroundColor: Colors.grey,
-                            child: ClipOval(
-                              child: SizedBox(
-                                  width: 180.0,
-                                  height: 180.0,
-                                  child: GestureDetector(
-                                    child: Image.network(
-                                      "${u.picture}",
-                                      fit: BoxFit.cover,
-                                    ),
-                                  )),
-                            ),
+                          top: 40, bottom: 25, left: 110, right: 110),
+                      child: Container(
+                        height: 70,
+                        width: 50,
+                        child: Image(
+                            image: AssetImage(
+                          'lib/images/brim0.png',
+                        )),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 40, right: 40),
+                      child: ButtonTheme(
+                        height: 50,
+                        child: RaisedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                  builder: (context) => EditProfile()),
+                            );
+                          },
+
+                          // borderSide: BorderSide(color: Colors.blue),
+                          shape: new RoundedRectangleBorder(
+                              borderRadius: new BorderRadius.circular(30.0)),
+                          color: Colors.purple,
+                          // height: 30,
+                          // width: 100,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Container(),
+                              ),
+                              Icon(
+                                Icons.person,
+                                color: Colors.white,
+                              ),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              Text(
+                                'Edit Profile',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              Expanded(
+                                child: Container(),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
+                    SizedBox(
+                      height: 20,
+                    ),
                     Padding(
-                      padding: const EdgeInsets.only(left: 40,right: 40),
-                      child: OutlineButton(
-                        onPressed: (){},
-                        borderSide: BorderSide(color: Colors.blue),
-                        shape: new RoundedRectangleBorder(
-                            borderRadius: new BorderRadius.circular(30.0)),
-                        color: Colors.blue,
-                        // height: 30,
-                        // width: 100,
-                        child: Text(
-                          'Send Brim',
-                          style: TextStyle(color: Colors.blue),
+                      padding: const EdgeInsets.only(left: 40, right: 40),
+                      child: ButtonTheme(
+                        height: 50,
+                        child: RaisedButton(
+                          onPressed: () {
+                            return showAboutDialog (
+                              //icon: Icon(Icons.info),
+                              applicationIcon: ImageIcon(
+                                AssetImage("lib/images/brim0.png"),
+                                // color: Color(0xFF3A5A98),
+                              ),
+                              applicationName: 'Brim the LinkApp',
+                              applicationVersion: 'version 1.0.0',
+                              applicationLegalese: '© 2021 Timisu', 
+                              context: context,
+                              //aboutBoxChildren: aboutBoxChildren,
+                            );
+                          },
+
+                          // borderSide: BorderSide(color: Colors.blue),
+                          shape: new RoundedRectangleBorder(
+                              borderRadius: new BorderRadius.circular(30.0)),
+                          color: Colors.pinkAccent,
+                          // height: 30,
+                          // width: 100,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Container(),
+                              ),
+                              Icon(
+                                Icons.info,
+                                color: Colors.white,
+                              ),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              Text(
+                                'About Us',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              Expanded(
+                                child: Container(),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 40, right: 40),
+                      child: ButtonTheme(
+                        height: 50,
+                        child: RaisedButton(
+                          onPressed: () {},
+
+                          // borderSide: BorderSide(color: Colors.blue),
+                          shape: new RoundedRectangleBorder(
+                              borderRadius: new BorderRadius.circular(30.0)),
+                          color: Colors.blue,
+                          // height: 30,
+                          // width: 100,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Container(),
+                              ),
+                              Icon(
+                                Icons.contact_page,
+                                color: Colors.white,
+                              ),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              Text(
+                                'Contact Us',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              Expanded(
+                                child: Container(),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 40, right: 40),
+                      child: ButtonTheme(
+                        height: 50,
+                        child: RaisedButton(
+                          onPressed: () async {
+                            await AuthService(uid: user.uid).signOut();
+
+                            Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                  settings: RouteSettings(name: "Foo"),
+                                  builder: (context) => LoginUI()),
+                            );
+                          },
+
+                          // borderSide: BorderSide(color: Colors.blue),
+                          shape: new RoundedRectangleBorder(
+                              borderRadius: new BorderRadius.circular(30.0)),
+                          color: Colors.red,
+                          // height: 30,
+                          // width: 100,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Container(),
+                              ),
+                              Icon(
+                                Icons.exit_to_app,
+                                color: Colors.white,
+                              ),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              Text(
+                                'Log Out',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              Expanded(
+                                child: Container(),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

@@ -204,50 +204,47 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
         child: Scaffold(
           key: _scaffoldKey,
          
-          drawer: Drawer(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: <Widget>[
-                DrawerHeader(
-                  padding: const EdgeInsets.only(
-                      top: 30, bottom: 30, left: 90, right: 90),
-                  child: CircleAvatar(
-                    radius: 2,
-                    backgroundImage: NetworkImage("${u.picture}"),
-                    backgroundColor: Colors.purple,
-                  ),
-                  decoration: BoxDecoration(
-                      // color: Colors.white,
-                      ),
-                ),
-                ListTile(
-                  title: Text('Log Out'),
-                  leading: Icon(
-                    CupertinoIcons.fullscreen_exit,
-                    color: Colors.grey,
-                    semanticLabel: 'Text to announce in accessibility modes',
-                  ),
-                  onTap: () async {
+          // drawer: Drawer(
+          //   child: ListView(
+          //     padding: EdgeInsets.zero,
+          //     children: <Widget>[
+          //       DrawerHeader(
+          //         padding: const EdgeInsets.only(
+          //             top: 30, bottom: 30, left: 90, right: 90),
+          //         child: CircleAvatar(
+          //           radius: 2,
+          //           backgroundImage: NetworkImage("${u.picture}"),
+          //           backgroundColor: Colors.purple,
+          //         ),
+          //         decoration: BoxDecoration(
+          //             // color: Colors.white,
+          //             ),
+          //       ),
+          //       ListTile(
+          //         title: Text('Log Out'),
+          //         leading: Icon(
+          //           CupertinoIcons.fullscreen_exit,
+          //           color: Colors.grey,
+          //           semanticLabel: 'Text to announce in accessibility modes',
+          //         ),
+          //         onTap: () async {
                    
 
-                    await  _auth.signOut();
+          //           await  _auth.signOut();
 
-                      Navigator.push(
-                              context,
-                              CupertinoPageRoute(
-                                  settings: RouteSettings(name: "Foo"),
-                                  builder: (context) => LoginUI()),
-                            );
+          //             Navigator.push(
+          //                     context,
+          //                     CupertinoPageRoute(
+          //                         settings: RouteSettings(name: "Foo"),
+          //                         builder: (context) => LoginUI()),
+          //                   );
                     
-                  },
-                ),
-                // ListTile(
-                //   title: Text('Item 2'),
-                //   onTap: () {},
-                // ),
-              ],
-            ),
-          ),
+          //         },
+          //       ),
+               
+          //     ],
+          //   ),
+          // ),
           // floatingActionButton: FloatingActionButton(
           //   child: Text("LOGOUT !!!"),
           //   onPressed: () {
@@ -306,11 +303,11 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Sign Up Error'),
+          title: Text('Location Error'),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text("please on location"),
+                Text("please turn on location setting"),
               ],
             ),
           ),

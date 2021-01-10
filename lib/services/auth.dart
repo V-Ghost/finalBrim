@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_database/firebase_database.dart';
 import 'package:myapp/services/database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,50 +11,7 @@ class AuthService {
  AuthService({this.uid});
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // create user obj based on firebase user
-  // User _userFromFirebaseUser(FirebaseUser user) {
-  //   return user != null ? User(uid: user.uid) : null;
-  // }
-
-  // auth change user stream
-  // Stream<User> get user {
-  //   return _auth.onAuthStateChanged
-  //     //.map((FirebaseUser user) => _userFromFirebaseUser(user));
-  //     .map(_userFromFirebaseUser);
-  // }
-
-  // sign in anon
-  // Future signInAnon() async {
-  //   try {
-  //     AuthResult result = await _auth.signInAnonymously();
-  //     FirebaseUser user = result.user;
-  //     return _userFromFirebaseUser(user);
-  //   } catch (e) {
-  //     print(e.toString());
-  //     return null;
-  //   }
-  // }
-
-  // sign in with email and password
-  // Future registerWithEmailAndPassword(Users u, File _image) async {
-  //   try {
-  //     // FirebaseUser user = result.user;
-  //     final User user = (await _auth.createUserWithEmailAndPassword(
-  //             email: u.email, password: u.password))
-  //         .user;
-  //     String fileUrl = await DatabaseService().uploadFile(_image);
-  //     print("fileurl");
-  //     print(fileUrl);
-  //     u.picture = fileUrl;
-  //     await DatabaseService(uid: user.uid).updateUserData(u);
-
-  //     // print(user);
-  //     return user ?? "signup not successful";
-  //   } catch (error) {
-  //     print(error.toString());
-  //     return error.toString();
-  //   }
-  // }
+ 
 
   Future loginInWithPhoneNumber(Users u) async {
     try {
@@ -111,8 +69,12 @@ class AuthService {
 //   }
 // }
   // sign out
-  Future signOut() async {
+  Future<void> signOut() async {
     try {
+     await FirebaseDatabase.instance
+        .reference()
+        .child("userInfo")
+        .child("userStatus").child(uid).remove();
       return await _auth.signOut();
     } catch (error) {
       print(error.toString());

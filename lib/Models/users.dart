@@ -120,7 +120,7 @@ Users();
 _userName = data['username'];
 _picture = data['picture'];
 _gender = data['gender'];
-// _dob = data['dob'];
+_dob = data['dob'].toDate();
 _bio = data['bio'];
 _phoneNumber = data['phoneNumber'];
 notifyListeners();
