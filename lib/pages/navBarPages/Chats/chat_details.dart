@@ -334,7 +334,7 @@ class _ChatDetailsState extends State<ChatDetails> {
                         var result = await ChatService().sendChatsTextFromChats(
                             m, widget.messageId, widget.isParticipant1);
                         DatabaseService().sendNotification(
-                            u.userName, u.currentUser.uid, m.message);
+                            u.userName, u.currentUser.uid, m.message,null);
                         if (result is String) {
                           Fluttertoast.showToast(
                               msg: "Unable to send message",

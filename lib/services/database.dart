@@ -340,10 +340,25 @@ class DatabaseService {
     return convertLocal;
   }
 
-  Future<dynamic> sendNotification(String from,String to,String message) async {
+  Future<dynamic> sendNotification(String from,String to,String message,String type) async {
     try {
       FirebaseFunctions functions = FirebaseFunctions.instance;
-      HttpsCallable callable = functions.httpsCallable('addMessage');
+      HttpsCallable callable = functions.httpsCallable('noti');
+      print("ookkayyy");
+      print(type);
+      print(message);
+      if(type == "brim"){
+      final HttpsCallableResult result = await callable.call(
+        <String, dynamic>{
+          'to': to,
+          'from': from,
+          'message': message,
+          'type': type,
+        },
+      );
+       print("callable");
+      print(result.data);
+      }else{
       final HttpsCallableResult result = await callable.call(
         <String, dynamic>{
           'to': to,
@@ -351,8 +366,11 @@ class DatabaseService {
           'message': message,
         },
       );
-      print("callable");
+       print("callable");
       print(result.data);
+      }
+     
+     
     } on FirebaseFunctionsException catch (e) {
       print('caught firebase functions exception');
       print(e);

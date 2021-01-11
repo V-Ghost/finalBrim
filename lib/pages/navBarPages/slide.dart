@@ -356,8 +356,9 @@ class _SlideState extends State<Slide> {
                                 //   loading = true;
                                 // });
                                 dynamic result = await db.sendComment(b);
+                                String type = "brim";
                                 DatabaseService().sendNotification(
-                                    u.userName, userId, b.message);
+                                    u.userName, userId, b.message,"brim");
 
                                 Navigator.of(context).pop();
                                 if (result == null) {

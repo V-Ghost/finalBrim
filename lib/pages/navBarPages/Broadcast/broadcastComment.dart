@@ -24,6 +24,7 @@ class BroadcastComment extends StatefulWidget {
 class _BroadcastCommentState extends State<BroadcastComment> {
   Users u;
   User user;
+    String type = "brim";
   bool loading = false;
   double radius = 0;
   final _formKey = GlobalKey<FormState>();
@@ -78,7 +79,9 @@ class _BroadcastCommentState extends State<BroadcastComment> {
                           ),
                           onPressed: () async {
                             if (_formKey.currentState.validate()) {
-                            
+                             
+                             // print("pleaasee");
+                              //print(type);
                              Brim b = new Brim();
                               b.date = DateTime.now().toUtc();
                               b.message = _textController.text;
@@ -87,11 +90,13 @@ class _BroadcastCommentState extends State<BroadcastComment> {
                               b.sender = user.uid;
                              b.broadcast = widget.broadcast;
                               setState(() {
-                                print("here");
+                               // print("here");
                                 loading = true;
                               });
+                            
                               dynamic result = await db.sendComment(b);
-                              
+                              await DatabaseService().sendNotification(
+                                    u.userName, widget.userId, b.message, type);
                               if (result == null) {
                                 // db.retrieveBrims();
                                 setState(() {

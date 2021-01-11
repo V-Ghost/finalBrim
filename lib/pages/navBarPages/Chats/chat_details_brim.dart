@@ -416,7 +416,7 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                             print(u.userName);
                              print(u.currentUser.uid);
                            
-                             DatabaseService().sendNotification(u.userName,u.currentUser.uid,m.message);
+                             DatabaseService().sendNotification(u.userName,u.currentUser.uid,m.message,null);
                             if (result is String) {
                               Fluttertoast.showToast(
                                   msg: "Unable to send message",

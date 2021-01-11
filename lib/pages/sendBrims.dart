@@ -91,8 +91,8 @@ class _SendBrimsState extends State<SendBrims> {
                               //   loading = true;
                               // });
                               dynamic result = await db.sendBrim(b);
-                               DatabaseService().sendNotification(
-                                    u.userName, widget.userId, b.message);
+                              await DatabaseService().sendNotification(
+                                    u.userName, widget.userId, b.message, "brim");
                                Navigator.of(context).pop();
                               if (result == null) {
                                 // db.retrieveBrims();

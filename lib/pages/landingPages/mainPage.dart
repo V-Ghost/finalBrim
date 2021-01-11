@@ -8,6 +8,7 @@ import 'package:myapp/pages/navBarPages/chats.dart';
 import 'package:myapp/pages/navBarPages/mapPage.dart';
 import 'package:myapp/pages/navBarPages/slide.dart';
 import 'package:myapp/pages/register/loginUi.dart';
+import 'package:myapp/services/chatService.dart';
 import 'package:myapp/services/database.dart';
 
 import 'package:myapp/Models/users.dart';
@@ -31,7 +32,7 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   final Geolocator geolocator = Geolocator();
-   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   Position _currentPosition;
   StreamSubscription positionStream;
   Users u;
@@ -49,37 +50,66 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   StreamSubscription iosSubscription;
   @override
   void initState() {
-     user = FirebaseAuth.instance.currentUser;
-     _firebaseMessaging.configure(
+    user = FirebaseAuth.instance.currentUser;
+    _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         // final notification = message['notification'];
         print("onMessage: $message");
         String n = message['notification']['title'];
-        print(n);
-        showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return AlertDialog(
-          title: new Text(message['notification']['title']),
-          content: new Text(message['notification']['body']),
-          actions: <Widget>[
-            // usually buttons at the bottom of the dialog
-            new FlatButton(
-              child: new Text("Close"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-      
+        print("new noootiiifiiicccaa");
+        print(message['data']['type']);
+        if (message['data']['type'].toString() == "brim") {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              // return object of type Dialog
+              return AlertDialog(
+                title: new Text(message['notification']['title']),
+                content: new Text(message['notification']['body']),
+                actions: <Widget>[
+                  // usually buttons at the bottom of the dialog
+                  new FlatButton(
+                    child: new Text("Close"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        }
+        //if(message['data']['type'] == )
+        //     showDialog(
+        //   context: context,
+        //   builder: (BuildContext context) {
+        //     // return object of type Dialog
+        //     return AlertDialog(
+        //       title: new Text(message['notification']['title']),
+        //       content: new Text(message['notification']['body']),
+        //       actions: <Widget>[
+        //         // usually buttons at the bottom of the dialog
+        //         new FlatButton(
+        //           child: new Text("Close"),
+        //           onPressed: () {
+        //             Navigator.of(context).pop();
+        //           },
+        //         ),
+        //       ],
+        //     );
+        //   },
+        // );
       },
       onLaunch: (Map<String, dynamic> message) async {
         // final notification = message['data'];
-        print("onMessage: $message");
+        if (message['data']['type'].toString() != null) {
+          Navigator.push(
+            context,
+            CupertinoPageRoute(
+              builder: (context) => Chats(),
+            ),
+          );
+        }
       },
       onResume: (Map<String, dynamic> message) async {
         //  final notification = message['data'];
@@ -87,36 +117,38 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       },
     );
     if (Platform.isIOS) {
-          iosSubscription = _firebaseMessaging.onIosSettingsRegistered.listen((data) {
-             DatabaseService(uid : user.uid).saveDeviceToken();
-          });
-
-          _firebaseMessaging.requestNotificationPermissions(
-        const IosNotificationSettings(sound: true, badge: true, alert: true));
-        }else{
-          print("hii ios");
-           DatabaseService(uid : user.uid).saveDeviceToken();
-        }
-   
-    WidgetsBinding.instance.addObserver(this);
-    
-    u = Provider.of<Users>(context, listen: false);
-   
-    firstRun = Provider.of<Setting>(context, listen: false);
-     const oneSec = const Duration(seconds:40);
-  // new Timer.periodic(oneSec, (Timer t) =>  DatabaseService(uid : user.uid).onlineUpdate());
-    print('first');
-   final  databaseReference =
-          FirebaseDatabase.instance.reference().child("userInfo").child("userStatus").child(user.uid);
-          
-      databaseReference.onDisconnect().update({
-        'status': 'offline',
-        'lastChanged': DateTime.now().toUtc().toString()
-      }).then((_) async {
-    
+      iosSubscription =
+          _firebaseMessaging.onIosSettingsRegistered.listen((data) {
+        DatabaseService(uid: user.uid).saveDeviceToken();
       });
-    DatabaseService(uid : user.uid).onlineUpdate();
-      DatabaseService(uid : user.uid).saveDeviceToken();
+
+      _firebaseMessaging.requestNotificationPermissions(
+          const IosNotificationSettings(sound: true, badge: true, alert: true));
+    } else {
+      print("hii ios");
+      DatabaseService(uid: user.uid).saveDeviceToken();
+    }
+
+    WidgetsBinding.instance.addObserver(this);
+
+    u = Provider.of<Users>(context, listen: false);
+
+    firstRun = Provider.of<Setting>(context, listen: false);
+    const oneSec = const Duration(seconds: 40);
+    // new Timer.periodic(oneSec, (Timer t) =>  DatabaseService(uid : user.uid).onlineUpdate());
+    print('first');
+    final databaseReference = FirebaseDatabase.instance
+        .reference()
+        .child("userInfo")
+        .child("userStatus")
+        .child(user.uid);
+
+    databaseReference.onDisconnect().update({
+      'status': 'offline',
+      'lastChanged': DateTime.now().toUtc().toString()
+    }).then((_) async {});
+    DatabaseService(uid: user.uid).onlineUpdate();
+    DatabaseService(uid: user.uid).saveDeviceToken();
     super.initState();
   }
 
@@ -150,19 +182,17 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     isLocationServiceEnabled = await Geolocator.isLocationServiceEnabled();
     if (isLocationServiceEnabled) {
       // setState(() {
-        
+
       // });
       if (_dialog != null) {
         Navigator.of(context).pop();
         _dialog = null;
       }
-     
+
       // permission = await Geolocator.requestPermission();
       positionStream = Geolocator.getPositionStream(
-              desiredAccuracy: LocationAccuracy.best,distanceFilter: 5)
+              desiredAccuracy: LocationAccuracy.best, distanceFilter: 5)
           .listen((Position position) {
-      
-      
         DatabaseService(uid: user.uid).locationUpdate(position);
       });
     } else {
@@ -175,8 +205,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
         print('not found');
       }
       print("falsee");
-     
-
     }
   }
 
@@ -203,7 +231,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
         },
         child: Scaffold(
           key: _scaffoldKey,
-         
+
           // drawer: Drawer(
           //   child: ListView(
           //     padding: EdgeInsets.zero,
@@ -228,7 +256,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
           //           semanticLabel: 'Text to announce in accessibility modes',
           //         ),
           //         onTap: () async {
-                   
 
           //           await  _auth.signOut();
 
@@ -238,10 +265,10 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
           //                         settings: RouteSettings(name: "Foo"),
           //                         builder: (context) => LoginUI()),
           //                   );
-                    
+
           //         },
           //       ),
-               
+
           //     ],
           //   ),
           // ),
@@ -262,7 +289,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
             items: const <BottomNavigationBarItem>[
               BottomNavigationBarItem(
                 icon: Icon(
-                   CupertinoIcons.location_solid,
+                  CupertinoIcons.location_solid,
                   size: 30,
                 ),
                 title: Text('Brim'),
