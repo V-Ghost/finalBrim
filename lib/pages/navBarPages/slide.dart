@@ -232,7 +232,7 @@ class _SlideState extends State<Slide> {
                   }
                   if (snapshot.hasError) {
                     return Center(
-                      child: Icon(Icons.error),
+                      child: Text(snapshot.error.toString()),
                     );
                   }
                   // if(snapshot.connectionState == ConnectionState.waiting){

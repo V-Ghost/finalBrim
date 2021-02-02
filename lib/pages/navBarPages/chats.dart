@@ -68,6 +68,7 @@ class _ChatsState extends State<Chats> {
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       if (snapshot.data.docs.length == 0) {
+                        print("makaveliu");
                         return Center(
                           child: Text(
                             "No Brims here",
@@ -76,8 +77,8 @@ class _ChatsState extends State<Chats> {
                             ),
                           ),
                         );
-                      }
-                      {
+                      } else {
+                        print("ooohhhhh");
                         return ListView.builder(
                           itemCount: snapshot.data.docs.length,
                           shrinkWrap: true,
@@ -118,8 +119,7 @@ class _ChatsState extends State<Chats> {
                           ),
                         ),
                       );
-                    }
-                    {
+                    } else {
                       return ListView.builder(
                         itemCount: snapshot.data.docs.length,
                         shrinkWrap: true,
@@ -167,180 +167,189 @@ class _ChatsState extends State<Chats> {
       isParticipant1 = false;
       newMessage = "newMessage2";
     }
-    return FutureBuilder(
-      future: DatabaseService().getUserInfo(otherUser),
-      builder: (context, snapshotfuture) {
-        if (snapshotfuture.hasData) {
-          return Material(
-            child: InkWell(
-              onLongPress: () {
-                return showCupertinoModalPopup<void>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return CupertinoActionSheet(
-                      title: Text('Remove friend'),
-                      message: Text(
-                          'Are you sure you want to unfriend this user? NB. All your chats would be lost'),
-                      actions: <Widget>[
-                        CupertinoActionSheetAction(
-                          child: Text('Yes'),
-                          onPressed: () {/** */},
-                        ),
-                      ],
-                      cancelButton: CupertinoActionSheetAction(
-                        isDefaultAction: true,
-                        child: Text('Cancel'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
+    return otherUser == null
+        ? Center(
+            child: Text(
+              "No Brims here",
+              style: TextStyle(
+                color: Colors.grey,
+              ),
+            ),
+          )
+        : FutureBuilder(
+            future: DatabaseService().getUserInfo(otherUser),
+            builder: (context, snapshotfuture) {
+              if (snapshotfuture.hasData) {
+                return Material(
+                  child: InkWell(
+                    onLongPress: () {
+                      return showCupertinoModalPopup<void>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return CupertinoActionSheet(
+                            title: Text('Remove friend'),
+                            message: Text(
+                                'Are you sure you want to unfriend this user? NB. All your chats would be lost'),
+                            actions: <Widget>[
+                              CupertinoActionSheetAction(
+                                child: Text('Yes'),
+                                onPressed: () {/** */},
+                              ),
+                            ],
+                            cancelButton: CupertinoActionSheetAction(
+                              isDefaultAction: true,
+                              child: Text('Cancel'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          );
                         },
-                      ),
-                    );
-                  },
-                );
-              },
-              onTap: () {
-                u.currentUser = snapshotfuture.data;
-                u.currentUser.uid = otherUser;
-                print("okay");
-                print(otherUser);
-                print(u.currentUser.uid);
-                Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                    builder: (context) => ChatDetails(
-                      messageId: messageId,
-                      isParticipant1: isParticipant1,
-                    ),
-                  ),
-                );
-              },
-              child: Container(
-                margin: EdgeInsets.fromLTRB(15, 5, 15, 5),
-                padding: EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black38,
-                      offset: Offset(-1, 1),
-                      blurRadius: 10,
-                    )
-                  ],
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.white,
-                ),
-                child: Row(
-                  children: <Widget>[
-                    Stack(
-                      children: <Widget>[
-                        Container(
-                          child: CircleAvatar(
-                            backgroundImage:
-                                NetworkImage('${snapshotfuture.data.picture}'),
-                            minRadius: 35,
-                            backgroundColor: Colors.grey[200],
+                      );
+                    },
+                    onTap: () {
+                      u.currentUser = snapshotfuture.data;
+                      u.currentUser.uid = otherUser;
+                      print("okay");
+                      print(otherUser);
+                      print(u.currentUser.uid);
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) => ChatDetails(
+                            messageId: messageId,
+                            isParticipant1: isParticipant1,
                           ),
                         ),
-                      ],
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 10),
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      );
+                    },
+                    child: Container(
+                      margin: EdgeInsets.fromLTRB(15, 5, 15, 5),
+                      padding: EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black38,
+                            offset: Offset(-1, 1),
+                            blurRadius: 10,
+                          )
+                        ],
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white,
+                      ),
+                      child: Row(
                         children: <Widget>[
-                          Text(
-                            snapshotfuture.data.userName,
-                            style: TextStyle(
-                              color: Colors.black,
-                              // fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 5),
-                          ),
-                          data[newMessage] == true
-                              ? Row(
-                                  children: [
-                                    Container(
-                                      child: Icon(
-                                        Icons.messenger,
-                                        color: Colors.purple,
-                                        size: 15,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 8,
-                                    ),
-                                    Text(
-                                      'New Message',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.purple,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Row(
-                                  children: [
-                                    Text(
-                                      'read',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.blue,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 8,
-                                    ),
-                                    Icon(
-                                      Icons.messenger_outline,
-                                      color: Colors.blue,
-                                      size: 16,
-                                    ),
-                                  ],
+                          Stack(
+                            children: <Widget>[
+                              Container(
+                                child: CircleAvatar(
+                                  backgroundImage: NetworkImage(
+                                      '${snapshotfuture.data.picture}'),
+                                  minRadius: 35,
+                                  backgroundColor: Colors.grey[200],
                                 ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 5),
+                              ),
+                            ],
                           ),
-                          Text(
-                            DatabaseService().convertUTCToLocalTime(
-                                data["latestMessage"].toDate()),
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12,
+                          Padding(
+                            padding: EdgeInsets.only(left: 10),
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  snapshotfuture.data.userName,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    // fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 5),
+                                ),
+                                data[newMessage] == true
+                                    ? Row(
+                                        children: [
+                                          Container(
+                                            child: Icon(
+                                              Icons.messenger,
+                                              color: Colors.purple,
+                                              size: 15,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 8,
+                                          ),
+                                          Text(
+                                            'New Message',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w800,
+                                              color: Colors.purple,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : Row(
+                                        children: [
+                                          Text(
+                                            'read',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w800,
+                                              color: Colors.blue,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 8,
+                                          ),
+                                          Icon(
+                                            Icons.messenger_outline,
+                                            color: Colors.blue,
+                                            size: 16,
+                                          ),
+                                        ],
+                                      ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 5),
+                                ),
+                                Text(
+                                  DatabaseService().convertUTCToLocalTime(
+                                      data["latestMessage"].toDate()),
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                  ),
+                                )
+                              ],
                             ),
+                          ),
+                          Column(
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.only(right: 15),
+                                child: Icon(
+                                  Icons.chevron_right,
+                                  size: 18,
+                                ),
+                              )
+                            ],
                           )
                         ],
                       ),
                     ),
-                    Column(
-                      children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.only(right: 15),
-                          child: Icon(
-                            Icons.chevron_right,
-                            size: 18,
-                          ),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            ),
+                  ),
+                );
+              } else if (snapshotfuture.hasError) {
+                return Center(
+                  child: Text(snapshotfuture.error.toString()),
+                );
+              }
+              return CircularProgressIndicator();
+            },
           );
-        } else if (snapshotfuture.hasError) {
-          return Center(
-            child: Icon(Icons.error),
-          );
-        }
-        return CircularProgressIndicator();
-      },
-    );
   }
 
   Widget yourBrims(Map<dynamic, dynamic> data, int index) {
@@ -365,7 +374,16 @@ class _ChatsState extends State<Chats> {
     }
     print("okay");
     print(isParticipant1);
-    return FutureBuilder<Users>(
+    return  otherUser == null
+        ? Center(
+            child: Text(
+              "No Chats here",
+              style: TextStyle(
+                color: Colors.grey,
+              ),
+            ),
+          )
+        : FutureBuilder<Users>(
         future: DatabaseService().getUserInfo(otherUser),
         builder: (context, snapshotfuture) {
           if (snapshotfuture.hasData) {
@@ -446,7 +464,7 @@ class _ChatsState extends State<Chats> {
             );
           } else if (snapshotfuture.hasError) {
             return Center(
-              child: Icon(Icons.error),
+              child: Text(snapshotfuture.error.toString()),
             );
           }
           return CircularProgressIndicator();

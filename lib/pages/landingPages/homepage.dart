@@ -128,7 +128,7 @@ class _HomepageState extends State<Homepage> {
                   child: ShowError(
                 size: 100,
                 color: Colors.grey,
-                error: "An Error occured when fetching you data :(",
+                error: snapshot.error.toString(),
               )),
             );
           }

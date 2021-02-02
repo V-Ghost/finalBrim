@@ -144,7 +144,7 @@ class _BroadcastCommentState extends State<BroadcastComment> {
                                   
                                 } catch (error) {
                                     Fluttertoast.showToast(
-                                    msg: "Sorry :( An error occured when sending your  brim",
+                                    msg: error.toString(),
                                     toastLength: Toast.LENGTH_SHORT,
                                     gravity: ToastGravity.CENTER,
                                     timeInSecForIosWeb: 3,
@@ -168,6 +168,7 @@ class _BroadcastCommentState extends State<BroadcastComment> {
                                 setState(() {
                                   loading = false;
                                 });
+                                print("this is the error");
                                 Fluttertoast.showToast(
                                     msg:
                                         " Sorry :( An error occured when sending your brim",

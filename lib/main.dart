@@ -66,8 +66,13 @@ class MyApp extends StatelessWidget {
               return MaterialApp(
                 debugShowCheckedModeBanner: false,
                 home: Scaffold(
-                  body: Center(
-                    child: Icon(Icons.error),
+                  body: Column(
+                    children: [
+                      Icon(Icons.error),
+                      Text(snapshot.error.toString(),
+                      style: TextStyle(fontSize: 15,color: Colors.grey),
+                      )
+                    ],
                   ),
                 ),
               );
