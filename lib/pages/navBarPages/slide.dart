@@ -140,7 +140,13 @@ class _SlideState extends State<Slide> {
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     uList.add(snapshot.data);
-
+                    double distanceInMeters = Geolocator.distanceBetween(
+                        position.latitude,
+                        position.longitude,
+                        b.latitiude,
+                        b.longitude) * 0.001;
+                        print("this is the distance");
+                        print(distanceInMeters);
                     return Column(
                       children: [
                         Row(
@@ -169,7 +175,7 @@ class _SlideState extends State<Slide> {
                                         TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   Text(
-                                    "100 km from You",
+                                    "${distanceInMeters.toStringAsFixed(1)} km from You",
                                     style: TextStyle(color: Colors.grey),
                                   ),
                                 ],
@@ -357,17 +363,28 @@ class _SlideState extends State<Slide> {
                                 // });
                                 dynamic result = await db.sendComment(b);
                                 String type = "brim";
-                                DatabaseService().sendNotification(
-                                    u.userName, userId, b.message,"brim");
+                                await DatabaseService().sendNotification(
+                                    u.userName, userId, b.message, "brim");
 
                                 Navigator.of(context).pop();
-                                if (result == null) {
+                                if (result is String) {
+                                  print("first errror");
+                                  Fluttertoast.showToast(
+                                      msg: "$result",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 3,
+                                      backgroundColor: Colors.red,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
                                   // db.retrieveBrims();
                                   // setState(() {
                                   //   print("here");
                                   //   loading = false;
                                   // });
                                   // _formKey.currentState.reset();
+
+                                } else {
                                   Fluttertoast.showToast(
                                       msg: "Comment Successfully Sent",
                                       toastLength: Toast.LENGTH_SHORT,
@@ -407,9 +424,9 @@ class _SlideState extends State<Slide> {
                                       );
                                     }
                                   } catch (error) {
+                                    print("second errror");
                                     Fluttertoast.showToast(
-                                        msg:
-                                            "Sorry :( An error occured when sending your  brim",
+                                        msg: error.toString(),
                                         toastLength: Toast.LENGTH_SHORT,
                                         gravity: ToastGravity.CENTER,
                                         timeInSecForIosWeb: 3,
@@ -417,32 +434,25 @@ class _SlideState extends State<Slide> {
                                         textColor: Colors.white,
                                         fontSize: 16.0);
                                   }
-                                } else if (result is String) {
                                   // setState(() {
                                   //   loading = false;
                                   // });
-                                  Fluttertoast.showToast(
-                                      msg: "$result",
-                                      toastLength: Toast.LENGTH_SHORT,
-                                      gravity: ToastGravity.CENTER,
-                                      timeInSecForIosWeb: 3,
-                                      backgroundColor: Colors.red,
-                                      textColor: Colors.white,
-                                      fontSize: 16.0);
-                                } else {
-                                  setState(() {
-                                    loading = false;
-                                  });
-                                  Fluttertoast.showToast(
-                                      msg:
-                                          " Sorry :( An error occured when sending your brim",
-                                      toastLength: Toast.LENGTH_SHORT,
-                                      gravity: ToastGravity.CENTER,
-                                      timeInSecForIosWeb: 3,
-                                      backgroundColor: Colors.red,
-                                      textColor: Colors.white,
-                                      fontSize: 16.0);
+
                                 }
+                                //  else {
+                                //   setState(() {
+                                //     loading = false;
+                                //   });
+                                //   Fluttertoast.showToast(
+                                //       msg:
+                                //           " Sorry :( An error occured when sending your brim",
+                                //       toastLength: Toast.LENGTH_SHORT,
+                                //       gravity: ToastGravity.CENTER,
+                                //       timeInSecForIosWeb: 3,
+                                //       backgroundColor: Colors.red,
+                                //       textColor: Colors.white,
+                                //       fontSize: 16.0);
+                                // }
                               }
                             },
                             child: Text(

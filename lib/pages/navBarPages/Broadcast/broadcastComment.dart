@@ -95,8 +95,8 @@ class _BroadcastCommentState extends State<BroadcastComment> {
                               });
                             
                               dynamic result = await db.sendComment(b);
-                              await DatabaseService().sendNotification(
-                                    u.userName, widget.userId, b.message, type);
+                              // await DatabaseService().sendNotification(
+                              //       u.userName, widget.userId, b.message, type);
                               if (result == null) {
                                 // db.retrieveBrims();
                                 setState(() {

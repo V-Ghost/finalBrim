@@ -1,3 +1,4 @@
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:myapp/Models/users.dart';
 import 'package:myapp/pages/register/userDetails/enterCode.dart';
 
@@ -20,7 +21,7 @@ class _LoginUIState extends State<LoginUI> with TickerProviderStateMixin {
 
   final _formKey = GlobalKey<FormState>();
   Users u;
-
+  String countryCode = "+233";
   @override
   void initState() {
     u = Provider.of<Users>(context, listen: false);
@@ -36,7 +37,7 @@ class _LoginUIState extends State<LoginUI> with TickerProviderStateMixin {
     return Scaffold(
       resizeToAvoidBottomPadding: true,
       body: WillPopScope(
-         onWillPop: () async {
+        onWillPop: () async {
           await SystemNavigator.pop();
         },
         child: Stack(
@@ -95,27 +96,66 @@ class _LoginUIState extends State<LoginUI> with TickerProviderStateMixin {
               margin: EdgeInsets.only(top: h / 2),
               child: ListView(
                 children: [
-                  Form(
-                    key: _formKey,
-                    child: TextFormField(
-                      controller: _phoneNumberController,
-                      decoration: new InputDecoration(
-                        icon: Icon(Icons.phone),
-                        labelText: "PhoneNumber +xxx",
-                        enabledBorder: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                          borderSide: const BorderSide(
-                            color: Colors.grey,
+                  Row(
+                    children: [
+                      Container(
+                        child: CountryCodePicker(
+                            onChanged:(code){
+                              setState(() {
+                              countryCode = code.dialCode;
+                              });
+                            },
+                            // Initial selection and favorite can be one of code ('IT') OR dial_code('+39')
+                            initialSelection: 'GH',
+                            favorite: ['+234', 'NG'],
+                            // optional. Shows only country name and flag
+                            showCountryOnly: false,
+                            // optional. Shows only country name and flag when popup is closed.
+                            showOnlyCountryWhenClosed: false,
+                            // optional. aligns the flag and the Text left
+                            alignLeft: false,
+                            // onInit: (code){
+                            //   setState(() {
+                            //   countryCode = code.dialCode;
+                            //   print("done");
+                            //   print(code.dialCode);
+                            //   });
+                            // }
+                            ),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 8, right: 20),
+                          child: Form(
+                            key: _formKey,
+                            child: TextFormField(
+                              controller: _phoneNumberController,
+                              decoration: new InputDecoration(
+                                // icon: Icon(Icons.phone),
+                                labelText: "PhoneNumber ",
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.blue),
+                                ),
+                                // enabledBorder: const OutlineInputBorder(
+                                //   borderRadius:
+                                //       BorderRadius.all(Radius.circular(20.0)),
+                                //   borderSide: const BorderSide(
+                                //     color: Colors.grey,
+                                //   ),
+                                // ),
+                                // focusedBorder: OutlineInputBorder(
+                                //   // borderRadius:
+                                //   //     BorderRadius.all(Radius.circular(10.0)),
+                                //   // borderSide: BorderSide(color: Colors.blue),
+                                // ),
+                              ),
+                              validator: RequiredValidator(
+                                  errorText: 'Your phone number pleeaasee?'),
+                            ),
                           ),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide: BorderSide(color: Colors.blue),
-                        ),
                       ),
-                      validator: RequiredValidator(
-                          errorText: 'Your phone number pleeaasee?'),
-                    ),
+                    ],
                   ),
                   SizedBox(
                     height: 10,
@@ -140,7 +180,9 @@ class _LoginUIState extends State<LoginUI> with TickerProviderStateMixin {
                         ),
                         onPressed: () {
                           if (_formKey.currentState.validate()) {
-                            u.phoneNumber = _phoneNumberController.text;
+                            u.phoneNumber = countryCode + _phoneNumberController.text;
+                            // print(countryCode);
+                            // print(u.phoneNumber);
                             Navigator.push(
                               context,
                               CupertinoPageRoute(

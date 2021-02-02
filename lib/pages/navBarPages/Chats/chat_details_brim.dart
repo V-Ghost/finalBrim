@@ -10,7 +10,7 @@ import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:image_picker/image_picker.dart';
-
+import 'package:myapp/widgets/blurFilter.dart';
 import 'package:myapp/Models/message.dart';
 import 'package:myapp/Models/users.dart';
 import 'package:myapp/pages/navBarPages/Chats/chat_details.dart';
@@ -73,7 +73,7 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
         .snapshots();
     snapshot.length.then((onValue) {
       length = onValue;
-     // print(length);
+      // print(length);
     });
     // print("okay");
     // print(length);
@@ -151,15 +151,17 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
         backgroundColor: Colors.white,
         title: Row(
           children: <Widget>[
-            Container(
-              width: 40,
-              height: 40,
-              margin: EdgeInsets.fromLTRB(0, 5, 10, 0),
-              child: Image(
-                  // color: Colors.purple,
-                  image: AssetImage(
-                'lib/images/brim0.png',
-              )),
+            BlurFilter(
+              child: Container(
+                width: 40,
+                height: 40,
+                margin: EdgeInsets.fromLTRB(0, 5, 10, 0),
+                child: CircleAvatar(
+                radius: 2,
+                backgroundImage: NetworkImage("${u.currentUser.picture}"),
+                backgroundColor: Colors.purple,
+              ),
+              ),
             ),
             Container(
               margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -188,7 +190,6 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                                 widget.messageId, widget.isParticipant1);
 
                             if (result == true) {
-                              
                               //print("eii pemit");
                               var permit = await ChatService()
                                   .checkPermit(widget.messageId);
@@ -199,7 +200,7 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                                     .changeBrimtoFriend(widget.messageId);
                                 //print("heeerrree");
                                 if (change == true) {
-                                 // print("heeerrree aggaainn");
+                                  // print("heeerrree aggaainn");
                                   Navigator.of(context).pop();
                                   Navigator.push(
                                       context,
@@ -299,17 +300,17 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                         // if (snapshot.data.docs[index].data()["type"] ==
                         //     "image") {
                         //   isImage = true;
-                        // } 
+                        // }
                         if (snapshot.data.docs[index].data()["type"] ==
                             "comment") {
                           isComment = true;
-                        } else{
+                        } else {
                           isComment = false;
                         }
                         if (snapshot.data.docs[index].data()["from"] ==
                             user.uid) {
                           isMe = true;
-                        } else  {
+                        } else {
                           isMe = false;
                         }
                         // print(isComment);
@@ -412,11 +413,12 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
 
                             var result = await ChatService().sendChatsText(
                                 m, widget.messageId, widget.isParticipant1);
-                                print("send not");
+                            print("send not");
                             print(u.userName);
-                             print(u.currentUser.uid);
-                           
-                             DatabaseService().sendNotification(u.userName,u.currentUser.uid,m.message,null);
+                            print(u.currentUser.uid);
+
+                            DatabaseService().sendNotification(
+                                u.userName, u.currentUser.uid, m.message, null);
                             if (result is String) {
                               Fluttertoast.showToast(
                                   msg: "Unable to send message",
@@ -561,7 +563,9 @@ class Bubble extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            SizedBox(height: 10,),
+                            SizedBox(
+                              height: 10,
+                            ),
                             Text(
                               message,
                               textAlign: isMe ? TextAlign.end : TextAlign.start,

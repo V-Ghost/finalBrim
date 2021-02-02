@@ -70,6 +70,7 @@ class DatabaseService {
     SharedPreferences myPrefs = await SharedPreferences.getInstance();
     final databaseReference =
         FirebaseDatabase.instance.reference().child("userInfo");
+       Users user = await getUserInfo(uid);
     //final coordinates = new Coordinates(position.latitude, position.longitude);
     // var addresses =
     //     await Geocoder.local.findAddressesFromCoordinates(coordinates);
@@ -91,6 +92,7 @@ class DatabaseService {
     await databaseReference.child("userStatus").child(uid).update({
       'latitiude': '${position.latitude.toString()}',
       'longitude': '${position.longitude.toString()}',
+      'sex': '${user.gender}',
       'lastChanged': DateTime.now().toUtc().toString(),
     });
     // if (first.featureName == null) {
@@ -198,15 +200,20 @@ class DatabaseService {
 
     print(query.data());
     print("showty");
-    query.data().forEach((key, value) {
+    if(query.data() == null){
+      result = false;
+    }else{
+     query.data().forEach((key, value) {
       if (key == "latestMessage") {
         result = true;
       }
     });
+    }
+   
     return result;
   }
 
-  Future<Map<dynamic, dynamic>> getNearbyUsers() async {
+  Future<Map<dynamic, dynamic>> getNearbyUsers(String mySex) async {
     final databaseReference = FirebaseDatabase.instance
         .reference()
         .child("userInfo")
@@ -231,19 +238,19 @@ class DatabaseService {
     // print(values['adminArea']);
     // print(nearYouValues);
     nearYouValues.forEach((key, values) async {
-      // var check =  doesBrimMessageExistAlready(key);
-
-      print(key != uid);
-      //  print(check);
-      if (key != uid) {
-        double distanceInMeters = Geolocator.distanceBetween(
+      if( mySex != values["sex"]){
+        if (key != uid  ) {
+        print("check");
+        print(key);
+        print(values["sex"]);
+        print(mySex);
+        if(values["latitiude"] != null && values["longitude"] != null){
+          double distanceInMeters = Geolocator.distanceBetween(
             position.latitude,
             position.longitude,
             double.parse(values["latitiude"]),
-            double.parse(values["latitiude"]));
-        print(key);
-        print("okay");
-        print(distanceInMeters);
+            double.parse(values["longitude"]));
+       
         if (distanceInMeters < 5000000000) {
           CoOrdinates u = new CoOrdinates();
           Users x = new Users();
@@ -256,11 +263,17 @@ class DatabaseService {
           x.position = u;
           users[key] = x;
         }
+        }
+       
       }
+      } 
+     
+      //  print(check);
+      
     });
 
     //  print(users);
-    print(" 1st");
+  
 
     //  print(users["t3MYcrmwZ9VemLCSOPRI2bOxD9s2"].bio);
     //   print(users["t3MYcrmwZ9VemLCSOPRI2bOxD9s2"].position.longitude);

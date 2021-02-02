@@ -126,7 +126,7 @@ class _SendBrimsState extends State<SendBrims> {
                                   );
                                 } catch (error) {
                                     Fluttertoast.showToast(
-                                    msg: "Sorry :( An error occured when sending your  brim",
+                                    msg: "${error.toString()}",
                                     toastLength: Toast.LENGTH_SHORT,
                                     gravity: ToastGravity.CENTER,
                                     timeInSecForIosWeb: 3,
@@ -139,7 +139,7 @@ class _SendBrimsState extends State<SendBrims> {
                                 //   loading = false;
                                 // });
                                 Fluttertoast.showToast(
-                                    msg: "Sorry :( An error occured when sending your  brim",
+                                    msg: "Sorry :( $result",
                                     toastLength: Toast.LENGTH_SHORT,
                                     gravity: ToastGravity.CENTER,
                                     timeInSecForIosWeb: 3,

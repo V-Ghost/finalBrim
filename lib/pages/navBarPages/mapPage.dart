@@ -113,7 +113,7 @@ class _MapPageState extends State<MapPage> {
     controller.setMapStyle(_mapStyle);
     _mapController = controller;
 
-    users = await DatabaseService(uid: user.uid).getNearbyUsers();
+    users = await DatabaseService(uid: user.uid).getNearbyUsers(u.gender);
     //   users.forEach((key,values) async {
     //  var check =  await DatabaseService(uid: user.uid).doesBrimMessageExistAlready(key);
     //   print("it's true");
@@ -124,7 +124,7 @@ class _MapPageState extends State<MapPage> {
     //    users.remove(key);
     //  }
     //   });
-    print("noo");
+
     final Uint8List markerIcon =
         await getBytesFromAsset('lib/images/brimPointer.png', 100);
     users.forEach((key, value) async {
@@ -151,8 +151,7 @@ class _MapPageState extends State<MapPage> {
                 user2 = key.toString();
                 gender = f[key].gender.toString();
               });
-              print(f[key].gender.toString());
-              print("key");
+
               // _mapController.moveCamera(CameraUpdate.newLatLngZoom(LatLng(value.position.latitiude, value.position.longitude),15));
             },
             position:
@@ -205,36 +204,18 @@ class _MapPageState extends State<MapPage> {
       }
     } else {
       permission = await Geolocator.requestPermission();
+      if(mounted){
       setState(() {});
+      }
+     
     }
     //List<Placemark> placemark = await Geolocator.placemarkFromCoordinates(position.latitude, position.longitude);
   }
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle textStyle = Theme.of(context).textTheme.bodyText2;
-    final List<Widget> aboutBoxChildren = <Widget>[
-      SizedBox(height: 24),
-      RichText(
-        text: TextSpan(
-          children: <TextSpan>[
-            TextSpan(
-                style: textStyle,
-                text:
-                    'LoveWorld Incorporated, is a global ministry with a vision of taking God’s divine presence to the nations of the world and to demonstrate the character of the Holy Spirit. This is achieved through every available means, as the Ministry is driven by a passion to see men and women all over the world, come to the knowledge of the divine life made available in Christ Jesus. '),
-            TextSpan(
-              style: textStyle.copyWith(color: Theme.of(context).accentColor),
-              text: 'https://ceycairportcity.org/',
-              recognizer: new TapGestureRecognizer()
-                ..onTap = () {
-                  launch('https://ceycairportcity.org/');
-                },
-            ),
-            TextSpan(style: textStyle, text: '.'),
-          ],
-        ),
-      ),
-    ];
+    // final TextStyle textStyle = Theme.of(context).textTheme.bodyText2;
+
     // print(u.position.latitiude);
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
@@ -322,7 +303,7 @@ class _MapPageState extends State<MapPage> {
                         height: 50,
                         child: RaisedButton(
                           onPressed: () {
-                            return showAboutDialog (
+                            return showAboutDialog(
                               //icon: Icon(Icons.info),
                               applicationIcon: ImageIcon(
                                 AssetImage("lib/images/brim0.png"),
@@ -330,7 +311,7 @@ class _MapPageState extends State<MapPage> {
                               ),
                               applicationName: 'Brim the LinkApp',
                               applicationVersion: 'version 1.0.0',
-                              applicationLegalese: '© 2021 Timisu', 
+                              applicationLegalese: '© 2021 Timisu',
                               context: context,
                               //aboutBoxChildren: aboutBoxChildren,
                             );
@@ -415,13 +396,45 @@ class _MapPageState extends State<MapPage> {
                         height: 50,
                         child: RaisedButton(
                           onPressed: () async {
-                            await AuthService(uid: user.uid).signOut();
+                            return showDialog<void>(
+                              context: context,
+                              barrierDismissible: true, // user must tap button!
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('LogOut'),
+                                  content: SingleChildScrollView(
+                                    child: ListBody(
+                                      children: <Widget>[
+                                        Text(
+                                            'Are you sure you want to log out?'),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: Text('Yes'),
+                                      onPressed: () async {
+                                        await AuthService(uid: user.uid)
+                                            .signOut();
+                                        Navigator.push(
+                                          context,
+                                          CupertinoPageRoute(
+                                              settings:
+                                                  RouteSettings(name: "Foo"),
+                                              builder: (context) => LoginUI()),
+                                        );
+                                      },
+                                    ),
 
-                            Navigator.push(
-                              context,
-                              CupertinoPageRoute(
-                                  settings: RouteSettings(name: "Foo"),
-                                  builder: (context) => LoginUI()),
+                                    TextButton(
+                                      child: Text('No'),
+                                      onPressed: () async {
+                                       Navigator.pop(context);
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
                             );
                           },
 

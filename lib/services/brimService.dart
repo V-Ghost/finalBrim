@@ -63,7 +63,7 @@ class BrimService {
       if (check != true) {
         var uuid = Uuid();
       
-        print("showty22333");
+        //print("showty22333");
         
         var u1 = Uuid();
         print(b.userId2);
@@ -90,8 +90,6 @@ class BrimService {
           'read': false,
           'time': b.date,
           'broadcast': b.broadcast,
-        }).then((onValue) {
-          return null;
         });
       } else {
          var uuid = Uuid();
@@ -121,13 +119,12 @@ class BrimService {
           'read': false,
           'time': b.date,
           'broadcast': b.broadcast,
-        }).then((onValue) {
-          return null;
         });
       }
     } catch (error) {
-      print(error.toString());
-      return false;
+      print("error occured");
+        print(error.toString());
+      return error.toString();
     }
   }
 
@@ -192,11 +189,14 @@ class BrimService {
      values.forEach((key, value) {
        var now = new DateTime.now();
       BroadCastMessage d1 = new BroadCastMessage();
-      d1.message = value["message"];
-      d1.user = value["user"];
+      // d1.message = value["message"];
+      // d1.user = value["user"];
+      d1 = BroadCastMessage.fromMap(value);
       DateTime tempDate = new DateFormat("yyyy-MM-dd hh:mm:ss").parse( value["date"].toString());
        if(DatabaseService().convertUTCToLocalDateTime(tempDate).isBefore(now.subtract(Duration(days: 1))) ){
       print("deleeeeeeteeeeeeee");
+    }else{
+      //add the add function here
     }
       // d1.time = value["date"];
       broadcasts.add(d1);

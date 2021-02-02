@@ -86,9 +86,11 @@ class _ChatsState extends State<Chats> {
                           scrollDirection: Axis.horizontal,
                           padding: EdgeInsets.all(15),
                           itemBuilder: (BuildContext context, int index) {
-                            // print(snapshot.data.docs[index].data());
-                            return yourBrims(
+                             if( snapshot.data.docs[index].data()["participant1"].toString()  == user.uid || snapshot.data.docs[index].data()["participant2"].toString()  == user.uid){
+                                  return yourBrims(
                                 snapshot.data.docs[index].data(), index);
+                             }
+                             
                           },
                         );
                       }
@@ -109,8 +111,10 @@ class _ChatsState extends State<Chats> {
             StreamBuilder<QuerySnapshot>(
                 stream: ChatService().chatsStream(),
                 builder: (context, snapshot) {
+                 
                   if (snapshot.hasData) {
                     if (snapshot.data.docs.length == 0) {
+                     
                       return Center(
                         child: Text(
                           "You have no friends yet",
@@ -126,8 +130,13 @@ class _ChatsState extends State<Chats> {
                         physics: BouncingScrollPhysics(),
                         scrollDirection: Axis.vertical,
                         itemBuilder: (BuildContext context, int index) {
-                          return yourChats(
+                            if( snapshot.data.docs[index].data()["participant1"].toString()  == user.uid || snapshot.data.docs[index].data()["participant2"].toString()  == user.uid){
+                                  return yourChats(
                               snapshot.data.docs[index].data(), index);
+                          }
+                          
+                         // if( snapshot.data.docs[index].data()["participant1"] == user.uid || snapshot.data.docs[index].data()["participant1"])
+                         
                         },
                       );
                     }
@@ -170,7 +179,7 @@ class _ChatsState extends State<Chats> {
     return otherUser == null
         ? Center(
             child: Text(
-              "No Brims here",
+              "No Chats here",
               style: TextStyle(
                 color: Colors.grey,
               ),
@@ -377,7 +386,7 @@ class _ChatsState extends State<Chats> {
     return  otherUser == null
         ? Center(
             child: Text(
-              "No Chats here",
+              "No Brims here",
               style: TextStyle(
                 color: Colors.grey,
               ),

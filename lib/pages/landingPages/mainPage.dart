@@ -54,31 +54,31 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         // final notification = message['notification'];
-        print("onMessage: $message");
-        String n = message['notification']['title'];
-        print("new noootiiifiiicccaa");
-        print(message['data']['type']);
-        if (message['data']['type'].toString() == "brim") {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              // return object of type Dialog
-              return AlertDialog(
-                title: new Text(message['notification']['title']),
-                content: new Text(message['notification']['body']),
-                actions: <Widget>[
-                  // usually buttons at the bottom of the dialog
-                  new FlatButton(
-                    child: new Text("Close"),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              );
-            },
-          );
-        }
+        // print("onMessage: $message");
+        // String n = message['notification']['title'];
+        // print("new noootiiifiiicccaa");
+        // print(message['data']['type']);
+        // if (message['data']['type'].toString() == "brim") {
+        //   showDialog(
+        //     context: context,
+        //     builder: (BuildContext context) {
+        //       // return object of type Dialog
+        //       return AlertDialog(
+        //         title: new Text(message['notification']['title']),
+        //         content: new Text(message['notification']['body']),
+        //         actions: <Widget>[
+        //           // usually buttons at the bottom of the dialog
+        //           new FlatButton(
+        //             child: new Text("Close"),
+        //             onPressed: () {
+        //               Navigator.of(context).pop();
+        //             },
+        //           ),
+        //         ],
+        //       );
+        //     },
+        //   );
+        // }
         //if(message['data']['type'] == )
         //     showDialog(
         //   context: context,

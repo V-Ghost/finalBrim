@@ -37,13 +37,15 @@ BroadCastMessage();
     _message = value;
   }
 
-  BroadCastMessage.fromMap(Map<String, dynamic> data) {
-    _longitude = data['longitud'];
+  BroadCastMessage.fromMap(Map<dynamic, dynamic> data) {
+    _longitude =  double.parse(data["longitude"]);
+               
 
-    _latitiude = data['latittude'];
+    _latitiude = double.parse(data["latitude"]);
 
     _message = data['message'];
     _user = data['user'];
     _time = data['time'];
+    
   }
 }
