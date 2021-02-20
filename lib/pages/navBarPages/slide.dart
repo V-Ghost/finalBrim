@@ -348,6 +348,8 @@ class _SlideState extends State<Slide> {
                             ),
                             onPressed: () async {
                               if (_formKey.currentState.validate()) {
+                                 _formKey.currentState.reset();
+                                 Navigator.of(context).pop();
                                 Brim b = new Brim();
                                 b.date = DateTime.now().toUtc();
                                 b.message = _textController.text;
@@ -366,7 +368,7 @@ class _SlideState extends State<Slide> {
                                 await DatabaseService().sendNotification(
                                     u.userName, userId, b.message, "brim");
 
-                                Navigator.of(context).pop();
+                                
                                 if (result is String) {
                                   print("first errror");
                                   Fluttertoast.showToast(

@@ -111,35 +111,32 @@ class _ChatsState extends State<Chats> {
             StreamBuilder<QuerySnapshot>(
                 stream: ChatService().chatsStream(),
                 builder: (context, snapshot) {
-                 
+                  print("nooo");
+                  
                   if (snapshot.hasData) {
-                    if (snapshot.data.docs.length == 0) {
-                     
-                      return Center(
-                        child: Text(
-                          "You have no friends yet",
-                          style: TextStyle(
-                            color: Colors.grey,
-                          ),
-                        ),
-                      );
-                    } else {
+                   
+                   
                       return ListView.builder(
                         itemCount: snapshot.data.docs.length,
                         shrinkWrap: true,
                         physics: BouncingScrollPhysics(),
                         scrollDirection: Axis.vertical,
                         itemBuilder: (BuildContext context, int index) {
-                            if( snapshot.data.docs[index].data()["participant1"].toString()  == user.uid || snapshot.data.docs[index].data()["participant2"].toString()  == user.uid){
+                          print("okayyyyy");
+                          print(snapshot.data.docs[index].data());
+                           // if( snapshot.data.docs[index].data()["participant1"].toString()  == user.uid || snapshot.data.docs[index].data()["participant2"].toString()  == user.uid){
+                                  print("it reach");
                                   return yourChats(
                               snapshot.data.docs[index].data(), index);
-                          }
+                          // }else{
+                          //   print("fathre");
+                          // }
                           
                          // if( snapshot.data.docs[index].data()["participant1"] == user.uid || snapshot.data.docs[index].data()["participant1"])
                          
                         },
                       );
-                    }
+                    
                   } else if (snapshot.hasError) {
                     print(snapshot.error.toString());
                     return Center(
@@ -294,7 +291,7 @@ class _ChatsState extends State<Chats> {
                                           Text(
                                             'New Message',
                                             style: TextStyle(
-                                              fontWeight: FontWeight.w800,
+                                              fontWeight: FontWeight.w800, 
                                               color: Colors.purple,
                                               fontSize: 14,
                                             ),
@@ -303,17 +300,17 @@ class _ChatsState extends State<Chats> {
                                       )
                                     : Row(
                                         children: [
-                                          Text(
-                                            'read',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w800,
-                                              color: Colors.blue,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 8,
-                                          ),
+                                          // Text(
+                                          //   'read',
+                                          //   style: TextStyle(
+                                          //     fontWeight: FontWeight.w800,
+                                          //     color: Colors.blue,
+                                          //     fontSize: 14,
+                                          //   ),
+                                          // ),
+                                          // SizedBox(
+                                          //   width: 8,
+                                          // ),
                                           Icon(
                                             Icons.messenger_outline,
                                             color: Colors.blue,

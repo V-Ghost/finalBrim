@@ -79,7 +79,7 @@ class _BroadcastCommentState extends State<BroadcastComment> {
                           ),
                           onPressed: () async {
                             if (_formKey.currentState.validate()) {
-                             
+                             _formKey.currentState.reset();
                              // print("pleaasee");
                               //print(type);
                              Brim b = new Brim();

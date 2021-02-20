@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:io';
-
+import 'package:myapp/widgets/SendedMessageWidget.dart';
+import 'package:myapp/widgets/comment.dart';
+import 'package:myapp/widgets/ReceivedComment.dart';
+import 'package:myapp/widgets/ReceivedMessageWidget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -143,7 +146,405 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
   @override
   Widget build(BuildContext context) {
     ChatService().readMessage(widget.messageId, widget.isParticipant1);
+    return Scaffold(
+      body: SafeArea(
+        child: Container(
+          child: Stack(
+            fit: StackFit.loose,
+            children: <Widget>[
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                // mainAxisAlignment: MainAxisAlignment.start,
+                // mainAxisSize: MainAxisSize.max,
+                children: <Widget>[
+                  SizedBox(
+                    height: 65,
+                    child: Container(
+                      color: Colors.blue,
+                      child: Row(
+                        children: <Widget>[
+                          IconButton(
+                            icon: Icon(
+                              Icons.arrow_back,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                          Spacer(),
+                          InkWell(
+                            onTap: () {
+                              return showCupertinoModalPopup<void>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return CupertinoActionSheet(
+                                    title: Text('Add Friend'),
+                                    message: Text(
+                                        'Are you sure you want to add this user to your friends? NB. Your profile picture becomes visible'),
+                                    actions: <Widget>[
+                                      CupertinoActionSheetAction(
+                                        child: Text('Yes'),
+                                        onPressed: () async {
+                                           Navigator.of(context).pop();
+                                          var result = await ChatService()
+                                              .permit(widget.messageId,
+                                                  widget.isParticipant1);
 
+                                          if (result == true) {
+                                            //print("eii pemit");
+                                            var permit = await ChatService()
+                                                .checkPermit(widget.messageId);
+
+                                            // print(permit);
+                                            if (permit == true) {
+                                              var change = await ChatService()
+                                                  .changeBrimtoFriend(
+                                                      widget.messageId);
+                                              //print("heeerrree");
+                                              if (change == true) {
+                                                // print("heeerrree aggaainn");
+                                                //Navigator.of(context).pop();
+                                                Navigator.push(
+                                                    context,
+                                                    CupertinoPageRoute(
+                                                      builder: (context) =>
+                                                          ChatDetails(
+                                                        messageId:
+                                                            widget.messageId,
+                                                        isParticipant1: widget
+                                                            .isParticipant1,
+                                                      ),
+                                                    ));
+                                              } else {
+                                                Navigator.of(context).pop();
+                                                Fluttertoast.showToast(
+                                                    msg:
+                                                        "Sorry :( an error was encountered",
+                                                    toastLength:
+                                                        Toast.LENGTH_SHORT,
+                                                    gravity:
+                                                        ToastGravity.BOTTOM,
+                                                    timeInSecForIosWeb: 3,
+                                                    backgroundColor: Colors.red,
+                                                    textColor: Colors.white,
+                                                    fontSize: 16.0);
+                                              }
+                                            } else {
+                                             // Navigator.of(context).pop();
+                                              Fluttertoast.showToast(
+                                                  msg:
+                                                      "Waiting for this user to add you",
+                                                  toastLength:
+                                                      Toast.LENGTH_SHORT,
+                                                  gravity: ToastGravity.BOTTOM,
+                                                  timeInSecForIosWeb: 3,
+                                                  backgroundColor: Colors.red,
+                                                  textColor: Colors.white,
+                                                  fontSize: 16.0);
+                                            }
+                                            //  Navigator.of(context).pop();
+                                          } else if (result is String) {
+                                            Fluttertoast.showToast(
+                                                msg: "Unable to add user",
+                                                toastLength: Toast.LENGTH_SHORT,
+                                                gravity: ToastGravity.BOTTOM,
+                                                timeInSecForIosWeb: 3,
+                                                backgroundColor: Colors.red,
+                                                textColor: Colors.white,
+                                                fontSize: 16.0);
+                                            Navigator.of(context).pop();
+                                          }
+
+                                          // print(permit);
+
+                                          //  if(permit==true){
+                                          //    print("ookkkaayay");
+                                          //  }else{
+                                          //       print(" not  ookkkaayay");
+                                          //  }
+                                        },
+                                      ),
+                                    ],
+                                    cancelButton: CupertinoActionSheetAction(
+                                      isDefaultAction: true,
+                                      child: Text('Cancel'),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            child: Column(
+                              // crossAxisAlignment: CrossAxisAlignment.center,
+                              // mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Expanded(
+                                  child: Container(),
+                                ),
+                                // u.currentUser == null
+                                //     ? Text(
+                                //         widget.receipent.userName,
+                                //         style: TextStyle(color: Colors.black),
+                                //       )
+                                //     :
+                                Text(
+                                  '${u.currentUser.userName}',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                Expanded(
+                                  child: Container(),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Spacer(),
+                          Padding(
+                            padding:
+                                const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
+                            child: BlurFilter(
+                              child: Container(
+                                width: 30,
+                                height: 30,
+                                margin: EdgeInsets.fromLTRB(0, 5, 10, 0),
+                                child: CircleAvatar(
+                                  radius: 1.5,
+                                  backgroundImage:
+                                      NetworkImage("${u.currentUser.picture}"),
+                                  backgroundColor: Colors.purple,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Divider(
+                    height: 0,
+                    color: Colors.black54,
+                  ),
+                  Flexible(
+                    fit: FlexFit.tight,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                          // image: DecorationImage(
+                          //     image: AssetImage(
+                          //         "assets/images/chat-background-1.jpg"),
+                          //     fit: BoxFit.cover,
+                          //     colorFilter:Colors.white),
+                          ),
+                      child: StreamBuilder<QuerySnapshot>(
+                          stream: getYourChats(widget.messageId),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return ListView.builder(
+                                physics: BouncingScrollPhysics(),
+                                controller: _scrollController,
+                                shrinkWrap: true,
+                                itemCount: snapshot.data.docs.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  length = snapshot.data.docs.length;
+                                  //print(snapshot.data.docs.length);
+                                  // if (snapshot.data.docs[index].data()["type"] ==
+                                  //     "image") {
+                                  //   isImage = true;
+                                  // }
+                                  if (snapshot.data.docs[index]
+                                          .data()["type"] ==
+                                      "comment") {
+                                    isComment = true;
+                                  } else {
+                                    isComment = false;
+                                  }
+                                  if (snapshot.data.docs[index]
+                                          .data()["from"] ==
+                                      user.uid) {
+                                    isMe = true;
+                                  } else {
+                                    isMe = false;
+                                  }
+                                  return ChatBubble(
+                                    message: snapshot.data.docs[index]
+                                        .data()["message"],
+                                    isMe: isMe,
+                                    isComment: isComment,
+                                    comment: snapshot.data.docs[index]
+                                        .data()["broadcast"],
+                                  );
+                                  // print(isComment);
+                                  // print(snapshot.data.docs[index].data()["broadcast"]);
+                                  // return Padding(
+                                  //   padding: EdgeInsets.all(10),
+                                  //   child: Column(
+                                  //     children: <Widget>[
+                                  //       isComment
+                                  //           ? Bubble(
+                                  //               message: snapshot.data.docs[index]
+                                  //                   .data()["message"],
+                                  //               isMe: isMe,
+                                  //               isComment: isComment,
+                                  //               comment: snapshot.data.docs[index]
+                                  //                   .data()["broadcast"],
+                                  //             )
+                                  //           : Bubble(
+                                  //               message: snapshot.data.docs[index]
+                                  //                   .data()["message"],
+                                  //               isMe: isMe,
+                                  //               isComment: false,
+                                  //             ),
+                                  //     ],
+                                  //   ),
+                                  // );
+                                },
+                              );
+                            } else if (snapshot.hasError) {
+                              return Center(
+                                child: Icon(Icons.error),
+                              );
+                            }
+                            return CircularProgressIndicator();
+                          }),
+                    ),
+                  ),
+                  Divider(height: 0, color: Colors.black26),
+                  Container(
+                    height: 50,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.image),
+                            onPressed: () {
+                              Fluttertoast.showToast(
+                                  msg:
+                                      "Image Share is disabled , You need to be friends to send image",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.CENTER,
+                                  timeInSecForIosWeb: 3,
+                                  backgroundColor: Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0);
+                            },
+                          ),
+                          Expanded(
+                            child: Form(
+                              key: _formKey,
+                              child: TextField(
+                                maxLines: 20,
+                                controller: _textController,
+                                decoration: InputDecoration(
+                                  suffixIcon: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      IconButton(
+                                        icon: Icon(Icons.send),
+                                        onPressed: () async {
+                                          // ChatService().getChatlength(widget.messageId);
+                                          if (_textController.text != "") {
+                                            // length =
+                                            //     await ChatService().getChatlength(widget.messageId);
+                                            if (length < 100) {
+                                              Message m = new Message();
+
+                                              if (isMe == true) {
+                                                m.message =
+                                                    _textController.text;
+                                                m.from = user.uid;
+                                                m.read = false;
+                                                m.date = DateTime.now().toUtc();
+
+                                                var result = await ChatService()
+                                                    .sendChatsText(
+                                                        m,
+                                                        widget.messageId,
+                                                        widget.isParticipant1);
+                                                print("send not");
+                                                print(u.userName);
+                                                print(u.currentUser.uid);
+
+                                                DatabaseService()
+                                                    .sendNotification(
+                                                        u.userName,
+                                                        u.currentUser.uid,
+                                                        m.message,
+                                                        null);
+                                                if (result is String) {
+                                                  Fluttertoast.showToast(
+                                                      msg:
+                                                          "Unable to send message",
+                                                      toastLength:
+                                                          Toast.LENGTH_SHORT,
+                                                      gravity:
+                                                          ToastGravity.CENTER,
+                                                      timeInSecForIosWeb: 3,
+                                                      backgroundColor:
+                                                          Colors.red,
+                                                      textColor: Colors.white,
+                                                      fontSize: 16.0);
+                                                } else {
+                                                  _textController.clear();
+                                                  Timer(
+                                                      Duration(
+                                                          milliseconds: 500),
+                                                      () => _scrollController
+                                                          .jumpTo(_scrollController
+                                                              .position
+                                                              .maxScrollExtent));
+                                                }
+                                              } else {
+                                                Fluttertoast.showToast(
+                                                    msg:
+                                                        "You need to be friends to send back to back messages",
+                                                    toastLength:
+                                                        Toast.LENGTH_SHORT,
+                                                    gravity:
+                                                        ToastGravity.CENTER,
+                                                    timeInSecForIosWeb: 3,
+                                                    backgroundColor: Colors.red,
+                                                    textColor: Colors.white,
+                                                    fontSize: 16.0);
+                                              }
+                                            } else {
+                                              Fluttertoast.showToast(
+                                                  msg:
+                                                      "Text Limit Reached :( You need to be friends to keep on messaging each other",
+                                                  toastLength:
+                                                      Toast.LENGTH_SHORT,
+                                                  gravity: ToastGravity.CENTER,
+                                                  timeInSecForIosWeb: 3,
+                                                  backgroundColor: Colors.red,
+                                                  textColor: Colors.white,
+                                                  fontSize: 16.0);
+                                            }
+                                          }
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  border: InputBorder.none,
+                                  hintText: "enter your message",
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
     return Scaffold(
       appBar: AppBar(
         elevation: 0.4,
@@ -153,14 +554,14 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
           children: <Widget>[
             BlurFilter(
               child: Container(
-                width: 40,
-                height: 40,
+                width: 30,
+                height: 30,
                 margin: EdgeInsets.fromLTRB(0, 5, 10, 0),
                 child: CircleAvatar(
-                radius: 2,
-                backgroundImage: NetworkImage("${u.currentUser.picture}"),
-                backgroundColor: Colors.purple,
-              ),
+                  radius: 1.5,
+                  backgroundImage: NetworkImage("${u.currentUser.picture}"),
+                  backgroundColor: Colors.purple,
+                ),
               ),
             ),
             Container(
@@ -313,30 +714,37 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                         } else {
                           isMe = false;
                         }
+                        return ChatBubble(
+                          message: snapshot.data.docs[index].data()["message"],
+                          isMe: isMe,
+                          isComment: isComment,
+                          comment:
+                              snapshot.data.docs[index].data()["broadcast"],
+                        );
                         // print(isComment);
                         // print(snapshot.data.docs[index].data()["broadcast"]);
-                        return Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Column(
-                            children: <Widget>[
-                              isComment
-                                  ? Bubble(
-                                      message: snapshot.data.docs[index]
-                                          .data()["message"],
-                                      isMe: isMe,
-                                      isComment: isComment,
-                                      comment: snapshot.data.docs[index]
-                                          .data()["broadcast"],
-                                    )
-                                  : Bubble(
-                                      message: snapshot.data.docs[index]
-                                          .data()["message"],
-                                      isMe: isMe,
-                                      isComment: false,
-                                    ),
-                            ],
-                          ),
-                        );
+                        // return Padding(
+                        //   padding: EdgeInsets.all(10),
+                        //   child: Column(
+                        //     children: <Widget>[
+                        //       isComment
+                        //           ? Bubble(
+                        //               message: snapshot.data.docs[index]
+                        //                   .data()["message"],
+                        //               isMe: isMe,
+                        //               isComment: isComment,
+                        //               comment: snapshot.data.docs[index]
+                        //                   .data()["broadcast"],
+                        //             )
+                        //           : Bubble(
+                        //               message: snapshot.data.docs[index]
+                        //                   .data()["message"],
+                        //               isMe: isMe,
+                        //               isComment: false,
+                        //             ),
+                        //     ],
+                        //   ),
+                        // );
                       },
                     );
                   } else if (snapshot.hasError) {
@@ -471,6 +879,44 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
           )
         ],
       ),
+    );
+  }
+}
+
+class ChatBubble extends StatelessWidget {
+  final bool isMe;
+  final String message;
+  final bool isComment;
+  final String comment;
+  ChatBubble({this.message, this.isMe, this.isComment, this.comment});
+  @override
+  Widget build(BuildContext context) {
+    return isComment? Align(
+      alignment: isMe ? Alignment(1, 0) : Alignment(-1, 0),
+      child: isMe
+          ? Comment(
+              content: message,
+              isImage: false,
+              comment: comment,
+            )
+          : ReceivedComment(
+              content: message,
+              isImage: false,
+              comment: comment,
+             
+            ),
+    ) :Align(
+      alignment: isMe ? Alignment(1, 0) : Alignment(-1, 0),
+      child: isMe
+          ? SendedMessageWidget(
+              content: message,
+              isImage: false,
+            )
+          : ReceivedMessageWidget(
+              content: message,
+              isImage: false,
+              
+            ),
     );
   }
 }
