@@ -181,8 +181,8 @@ class _LoginUIState extends State<LoginUI> with TickerProviderStateMixin {
                         onPressed: () {
                           if (_formKey.currentState.validate()) {
                             u.phoneNumber = countryCode + _phoneNumberController.text;
-                            // print(countryCode);
-                            // print(u.phoneNumber);
+                            print(countryCode);
+                            print(u.phoneNumber);
                             Navigator.push(
                               context,
                               CupertinoPageRoute(

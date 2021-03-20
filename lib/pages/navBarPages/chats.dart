@@ -27,6 +27,7 @@ class _ChatsState extends State<Chats> {
   ];
   User user;
   Users u;
+  bool noChatsHere = false;
   @override
   void initState() {
     user = FirebaseAuth.instance.currentUser;
@@ -86,11 +87,17 @@ class _ChatsState extends State<Chats> {
                           scrollDirection: Axis.horizontal,
                           padding: EdgeInsets.all(15),
                           itemBuilder: (BuildContext context, int index) {
-                             if( snapshot.data.docs[index].data()["participant1"].toString()  == user.uid || snapshot.data.docs[index].data()["participant2"].toString()  == user.uid){
-                                  return yourBrims(
-                                snapshot.data.docs[index].data(), index);
-                             }
-                             
+                            if (snapshot.data.docs[index]
+                                        .data()["participant1"]
+                                        .toString() ==
+                                    user.uid ||
+                                snapshot.data.docs[index]
+                                        .data()["participant2"]
+                                        .toString() ==
+                                    user.uid) {
+                              return yourBrims(
+                                  snapshot.data.docs[index].data(), index);
+                            }
                           },
                         );
                       }
@@ -112,31 +119,43 @@ class _ChatsState extends State<Chats> {
                 stream: ChatService().chatsStream(),
                 builder: (context, snapshot) {
                   print("nooo");
-                  
+
                   if (snapshot.hasData) {
-                   
-                   
-                      return ListView.builder(
-                        itemCount: snapshot.data.docs.length,
-                        shrinkWrap: true,
-                        physics: BouncingScrollPhysics(),
-                        scrollDirection: Axis.vertical,
-                        itemBuilder: (BuildContext context, int index) {
-                          print("okayyyyy");
-                          print(snapshot.data.docs[index].data());
-                           // if( snapshot.data.docs[index].data()["participant1"].toString()  == user.uid || snapshot.data.docs[index].data()["participant2"].toString()  == user.uid){
-                                  print("it reach");
-                                  return yourChats(
+                    return ListView.builder(
+                      itemCount: snapshot.data.docs.length,
+                      shrinkWrap: true,
+                      physics: BouncingScrollPhysics(),
+                      scrollDirection: Axis.vertical,
+                      itemBuilder: (BuildContext context, int index) {
+                        print("okayyyyy");
+                        print(snapshot.data.docs[index].data());
+                        if (snapshot.data.docs[index]
+                                    .data()["participant1"]
+                                    .toString() ==
+                                user.uid ||
+                            snapshot.data.docs[index]
+                                    .data()["participant2"]
+                                    .toString() ==
+                                user.uid) {
+                          print("it reach");
+                          return yourChats(
                               snapshot.data.docs[index].data(), index);
-                          // }else{
-                          //   print("fathre");
-                          // }
-                          
-                         // if( snapshot.data.docs[index].data()["participant1"] == user.uid || snapshot.data.docs[index].data()["participant1"])
-                         
-                        },
-                      );
-                    
+                        }
+                        //else {
+                        //  // print("father");
+
+                        //   return Text(
+                        //     "No Chats here",
+                        //     style: TextStyle(
+                        //       color: Colors.grey,
+                        //     ),
+                        //   );
+
+                        // }
+
+                        // if( snapshot.data.docs[index].data()["participant1"] == user.uid || snapshot.data.docs[index].data()["participant1"])
+                      },
+                    );
                   } else if (snapshot.hasError) {
                     print(snapshot.error.toString());
                     return Center(
@@ -291,7 +310,7 @@ class _ChatsState extends State<Chats> {
                                           Text(
                                             'New Message',
                                             style: TextStyle(
-                                              fontWeight: FontWeight.w800, 
+                                              fontWeight: FontWeight.w800,
                                               color: Colors.purple,
                                               fontSize: 14,
                                             ),
@@ -380,7 +399,7 @@ class _ChatsState extends State<Chats> {
     }
     print("okay");
     print(isParticipant1);
-    return  otherUser == null
+    return otherUser == null
         ? Center(
             child: Text(
               "No Brims here",
@@ -390,90 +409,90 @@ class _ChatsState extends State<Chats> {
             ),
           )
         : FutureBuilder<Users>(
-        future: DatabaseService().getUserInfo(otherUser),
-        builder: (context, snapshotfuture) {
-          if (snapshotfuture.hasData) {
-            print(snapshotfuture.data.userName);
-            return Column(
-              children: <Widget>[
-                InkWell(
-                  onTap: () {
-                    print(snapshotfuture.data.userName);
-                    //u.currentUser = snapshotfuture.data;
-                    u.currentUser = snapshotfuture.data;
-                    u.currentUser.uid = otherUser;
-                    Navigator.push(
-                      context,
-                      CupertinoPageRoute(
-                        builder: (context) => ChatDetailsBrim(
-                          messageId: messageId,
-                          isParticipant1: isParticipant1,
-                        ),
+            future: DatabaseService().getUserInfo(otherUser),
+            builder: (context, snapshotfuture) {
+              if (snapshotfuture.hasData) {
+                print(snapshotfuture.data.userName);
+                return Column(
+                  children: <Widget>[
+                    InkWell(
+                      onTap: () {
+                        print(snapshotfuture.data.userName);
+                        //u.currentUser = snapshotfuture.data;
+                        u.currentUser = snapshotfuture.data;
+                        u.currentUser.uid = otherUser;
+                        Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                            builder: (context) => ChatDetailsBrim(
+                              messageId: messageId,
+                              isParticipant1: isParticipant1,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Stack(
+                        children: [
+                          Container(
+                            width: 100,
+                            height: 100,
+                            margin: EdgeInsets.only(right: 15),
+                            decoration: BoxDecoration(
+                              color: color[i],
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black38,
+                                  offset: Offset(-1, 1),
+                                  blurRadius: 10,
+                                )
+                              ],
+                              // gradient: LinearGradient(
+                              //   begin: Alignment.topRight,
+                              //   end: Alignment.bottomRight,
+                              //   stops: [0.1, 1],
+                              //   colors: [
+                              //     Colors.pink,
+                              //     Colors.pinkAccent,
+                              //   ],
+                              // ),
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(30),
+                              child: Image(
+                                  image: AssetImage(
+                                'lib/images/brim0.png',
+                              )),
+                            ),
+                          ),
+                          data[newMessage] == true
+                              ? Positioned(
+                                  left: 13,
+                                  top: 7,
+                                  child: Container(
+                                    width: 15,
+                                    height: 15,
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle),
+                                  ),
+                                )
+                              : Container()
+                        ],
                       ),
-                    );
-                  },
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        margin: EdgeInsets.only(right: 15),
-                        decoration: BoxDecoration(
-                          color: color[i],
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black38,
-                              offset: Offset(-1, 1),
-                              blurRadius: 10,
-                            )
-                          ],
-                          // gradient: LinearGradient(
-                          //   begin: Alignment.topRight,
-                          //   end: Alignment.bottomRight,
-                          //   stops: [0.1, 1],
-                          //   colors: [
-                          //     Colors.pink,
-                          //     Colors.pinkAccent,
-                          //   ],
-                          // ),
-                          borderRadius: BorderRadius.circular(100),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(30),
-                          child: Image(
-                              image: AssetImage(
-                            'lib/images/brim0.png',
-                          )),
-                        ),
-                      ),
-                      data[newMessage] == true
-                          ? Positioned(
-                              left: 13,
-                              top: 7,
-                              child: Container(
-                                width: 15,
-                                height: 15,
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle),
-                              ),
-                            )
-                          : Container()
-                    ],
-                  ),
-                ),
-                Expanded(
-                    child: Container(
-                        margin: EdgeInsets.only(right: 20),
-                        child: Text(snapshotfuture.data.userName)))
-              ],
-            );
-          } else if (snapshotfuture.hasError) {
-            return Center(
-              child: Text(snapshotfuture.error.toString()),
-            );
-          }
-          return CircularProgressIndicator();
-        });
+                    ),
+                    Expanded(
+                        child: Container(
+                            margin: EdgeInsets.only(right: 20),
+                            child: Text(snapshotfuture.data.userName)))
+                  ],
+                );
+              } else if (snapshotfuture.hasError) {
+                return Center(
+                  child: Text(snapshotfuture.error.toString()),
+                );
+              }
+              return CircularProgressIndicator();
+            });
   }
 }

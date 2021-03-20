@@ -118,6 +118,8 @@ class _SlideState extends State<Slide> {
     broadcasts = await BrimService().getBroadcasts();
     int i = 0;
     broadcasts.forEach((b) async {
+      i++;
+      Color f = color[i%color.length]; 
       // await BrimService().retrieveUserInfo(b.user);
       // print(position.latitude);
       // print(b.latitiude);
@@ -126,9 +128,10 @@ class _SlideState extends State<Slide> {
       Widget x = Padding(
         padding: EdgeInsets.only(top: 20, bottom: 20),
         child: Container(
+
             height: height * 0.4,
             width: width,
-            decoration: BoxDecoration(color: Colors.white, boxShadow: [
+            decoration: BoxDecoration(color: f, boxShadow: [
               BoxShadow(
                 color: Colors.black38,
                 offset: Offset(-1, 1),
@@ -206,16 +209,20 @@ class _SlideState extends State<Slide> {
                                   width: 150,
                                   child: Text(
                                     'Send Comment',
-                                    style: TextStyle(color: Colors.white),
+                                    style: TextStyle(color:  f == Colors.blue? Colors.blue:Colors.white),
                                   ),
-                                  gradient: LinearGradient(
+                                  gradient: f == Colors.blue?LinearGradient(
+                                    colors: <Color>[
+                                      Colors.white,
+                                      Colors.white
+                                    ]) : LinearGradient(
                                     colors: <Color>[
                                       Colors.blueAccent,
                                       Colors.blue
                                     ],
                                   ),
                                   onPressed: () async {
-                                    print("pressed");
+                                    //print("pressed");
                                     // u.currentUser = await DatabaseService()
                                     //     .getUserInfo(b.user);
 

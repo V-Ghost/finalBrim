@@ -28,7 +28,12 @@ class ReceivedMessageWidget extends StatelessWidget {
             topLeft: Radius.circular(15),
             topRight: Radius.circular(15)),
         child: Container(
-          color:  Colors.green,
+           decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [Colors.grey[200], Colors.grey])),
+          //color:  Colors.green,
           child: Stack(
             children: <Widget>[
               !isImage

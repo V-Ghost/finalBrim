@@ -9,7 +9,6 @@ class SendedMessageWidget extends StatelessWidget {
   const SendedMessageWidget({
     Key key,
     this.content,
-   
     this.imageAddress,
     this.isImage,
   }) : super(key: key);
@@ -27,7 +26,12 @@ class SendedMessageWidget extends StatelessWidget {
               topLeft: Radius.circular(15),
               topRight: Radius.circular(15)),
           child: Container(
-            color: Colors.green,
+            //color: Colors.green,
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [Colors.blueAccent, Colors.blue])),
             // margin: const EdgeInsets.only(left: 10.0),
             child: Stack(children: <Widget>[
               !isImage

@@ -30,15 +30,19 @@ class _HomepageState extends State<Homepage> {
     SharedPreferences myPrefs = await SharedPreferences.getInstance();
     print("how");
     var query = await FirebaseFirestore.instance.collection('chats').where('type', isEqualTo: 'brim').get();
-   query.docs.forEach((data){
+   query.docs.forEach((data) async{
      
     //print(data.data());
     print("data");
     //DatabaseService().sendNotification();
     var now = new DateTime.now();
-    if(data.data().isNotEmpty){
+    if(data.data().isNotEmpty) {
      if(DatabaseService().convertUTCToLocalDateTime(data.data()['latest'].toDate()).isBefore(now.subtract(Duration(days: 1))) ){
-      print("deleeeeeeteeeeeeee");
+     print("delting here");
+     print(data.id);
+     
+      await FirebaseFirestore.instance.collection('chats').doc(data.id).delete();
+      print("ma deletii");
     }
     }
     //var nextCheck = new DateTime(now  .getYear(), now.getMonth(), now.getDate() + 1);
