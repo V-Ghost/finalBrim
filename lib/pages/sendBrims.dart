@@ -78,6 +78,9 @@ class _SendBrimsState extends State<SendBrims> {
                           ),
                           onPressed: () async {
                             if (_formKey.currentState.validate()) {
+                             // _textController.clear();
+                            // _formKey.currentState.reset();
+                               //Navigator.of(context).pop();
                             if(!widget.broadcast){
                              Brim b = new Brim();
                               b.date = DateTime.now().toUtc();
@@ -85,15 +88,16 @@ class _SendBrimsState extends State<SendBrims> {
                               b.userId1 = user.uid;
                               b.userId2 = widget.userId;
                               b.sender = user.uid;
-
+                             _textController.clear();
                               // setState(() {
                               //   print("here");
                               //   loading = true;
                               // });
                               dynamic result = await db.sendBrim(b);
-                              await DatabaseService().sendNotification(
+                              //Navigator.of(context).pop();
+                              DatabaseService().sendNotification(
                                     u.userName, widget.userId, b.message, "brim");
-                               Navigator.of(context).pop();
+                              
                               if (result == null) {
                                 // db.retrieveBrims();
                                 // setState(() {

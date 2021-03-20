@@ -194,9 +194,7 @@ class BrimService {
       d1 = BroadCastMessage.fromMap(value);
       DateTime tempDate = new DateFormat("yyyy-MM-dd hh:mm:ss").parse( value["date"].toString());
        if(DatabaseService().convertUTCToLocalDateTime(tempDate).isBefore(now.subtract(Duration(days: 1))) ){
-      print("deleeeeeeteeeeeeee");
-    }else{
-      //add the add function here
+      //FirebaseDatabase.instance.reference().child("brims").child(key).remove();
     }
       // d1.time = value["date"];
       broadcasts.add(d1);

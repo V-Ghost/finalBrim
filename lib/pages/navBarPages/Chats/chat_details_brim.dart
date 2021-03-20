@@ -39,6 +39,7 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
   bool isMe;
   bool isImage;
   double h;
+  bool added = false;
   // String messageId = widget.messageId;
   final TextEditingController _textController = TextEditingController();
   ScrollController _scrollController = new ScrollController();
@@ -55,13 +56,13 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
     ChatService().readMessage(widget.messageId, widget.isParticipant1);
     //detectKeyBoard();
     //ChatService().changeBrimtoFriend(widget.messageId);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Timer(
-          Duration(milliseconds: 500),
-          () => _scrollController
-              .jumpTo(_scrollController.position.maxScrollExtent));
-      print("finish");
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   Timer(
+    //       Duration(milliseconds: 500),
+    //       () => _scrollController
+    //           .jumpTo(_scrollController.position.maxScrollExtent));
+    //   print("finish");
+    // });
     // print(u.currentUser.userName);
     // TODO: implement initState
     super.initState();
@@ -163,87 +164,152 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                       color: Colors.blue,
                       child: Row(
                         children: <Widget>[
-                          IconButton(
-                            icon: Icon(
-                              Icons.arrow_back,
-                              color: Colors.white,
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: BlurFilter(
+                              child: Container(
+                                width: 30,
+                                height: 30,
+                                margin: EdgeInsets.fromLTRB(0, 5, 10, 0),
+                                child: CircleAvatar(
+                                  radius: 1.5,
+                                  backgroundImage:
+                                      NetworkImage("${u.currentUser.picture}"),
+                                  backgroundColor: Colors.purple,
+                                ),
+                              ),
                             ),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
                           ),
-                          Spacer(),
-                          Expanded(child: Container(),),
+                          // Spacer(),
+                          Expanded(
+                            child: Container(),
+                          ),
                           Column(
                             // crossAxisAlignment: CrossAxisAlignment.center,
                             // mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
-                              // Expanded(
-                              //   child: Container(),
-                              // ),
-                              InkWell(
-                                child: BlurFilter(
-                                  child: Container(
-                                    width: 30,
-                                    height: 30,
-                                    margin: EdgeInsets.fromLTRB(0, 5, 10, 0),
-                                    child: CircleAvatar(
-                                      radius: 1.5,
-                                      backgroundImage: NetworkImage(
-                                          "${u.currentUser.picture}"),
-                                      backgroundColor: Colors.purple,
+                              Expanded(
+                                child: Container(),
+                              ),
+                            
+                              Text(
+                                '${u.currentUser.userName}',
+                                style: TextStyle(color: Colors.white, fontSize: 15),
+                              ),
+                              Expanded(
+                                child: Container(),
+                              ),
+                            ],
+                          ),
+                          Expanded(
+                            child: Container(),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: FutureBuilder(
+                                future: ChatService().checkIfAddedAsFriend(
+                                    widget.messageId, widget.isParticipant1),
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    print("check complete");
+                                    print(snapshot.data);
+                                     return IconButton(
+                                    icon: Icon(
+                                      Icons.add_box,
+                                      color: snapshot.data? Colors.purple : Colors.white,
                                     ),
-                                  ),
-                                ),
-                                onTap: () {
-                                  return showCupertinoModalPopup<void>(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return CupertinoActionSheet(
-                                        title: Text('Add Friend'),
-                                        message: Text(
-                                            'Are you sure you want to add this user to your friends? NB. Your profile picture becomes visible'),
-                                        actions: <Widget>[
-                                          CupertinoActionSheetAction(
-                                            child: Text('Yes'),
-                                            onPressed: () async {
-                                              Navigator.of(context).pop();
-                                              var result = await ChatService()
-                                                  .permit(widget.messageId,
-                                                      widget.isParticipant1);
+                                    onPressed: () {
+                                      return showCupertinoModalPopup<void>(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return CupertinoActionSheet(
+                                            title: Text('Add Friend'),
+                                            message: Text(
+                                                'Are you sure you want to add this user to your friends? NB. Your profile picture becomes visible'),
+                                            actions: <Widget>[
+                                              CupertinoActionSheetAction(
+                                                child: Text('Yes'),
+                                                onPressed: () async {
+                                                  Navigator.of(context).pop();
+                                                  var result =
+                                                      await ChatService().permit(
+                                                          widget.messageId,
+                                                          widget
+                                                              .isParticipant1);
+                                                   setState(() {
+                                                     
+                                                   });
+                                                  if (result == true) {
+                                                    //print("eii pemit");
+                                                    var permit =
+                                                        await ChatService()
+                                                            .checkPermit(widget
+                                                                .messageId);
 
-                                              if (result == true) {
-                                                //print("eii pemit");
-                                                var permit = await ChatService()
-                                                    .checkPermit(
-                                                        widget.messageId);
-
-                                                // print(permit);
-                                                if (permit == true) {
-                                                  var change =
-                                                      await ChatService()
-                                                          .changeBrimtoFriend(
-                                                              widget.messageId);
-                                                  //print("heeerrree");
-                                                  if (change == true) {
-                                                    // print("heeerrree aggaainn");
-                                                    //Navigator.of(context).pop();
-                                                    Navigator.push(
-                                                        context,
-                                                        CupertinoPageRoute(
-                                                          builder: (context) =>
-                                                              ChatDetails(
-                                                            messageId: widget
-                                                                .messageId,
-                                                            isParticipant1: widget
-                                                                .isParticipant1,
-                                                          ),
-                                                        ));
-                                                  } else {
-                                                    Navigator.of(context).pop();
+                                                    // print(permit);
+                                                    if (permit == true) {
+                                                      var change =
+                                                          await ChatService()
+                                                              .changeBrimtoFriend(
+                                                                  widget
+                                                                      .messageId);
+                                                      //print("heeerrree");
+                                                      if (change == true) {
+                                                        // print("heeerrree aggaainn");
+                                                        //Navigator.of(context).pop();
+                                                        Navigator.push(
+                                                            context,
+                                                            CupertinoPageRoute(
+                                                              builder:
+                                                                  (context) =>
+                                                                      ChatDetails(
+                                                                messageId: widget
+                                                                    .messageId,
+                                                                isParticipant1:
+                                                                    widget
+                                                                        .isParticipant1,
+                                                              ),
+                                                            ));
+                                                      } else {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                        Fluttertoast.showToast(
+                                                            msg:
+                                                                "Sorry :( an error was encountered",
+                                                            toastLength: Toast
+                                                                .LENGTH_SHORT,
+                                                            gravity:
+                                                                ToastGravity
+                                                                    .BOTTOM,
+                                                            timeInSecForIosWeb:
+                                                                3,
+                                                            backgroundColor:
+                                                                Colors.red,
+                                                            textColor:
+                                                                Colors.white,
+                                                            fontSize: 16.0);
+                                                      }
+                                                    } else {
+                                                      // Navigator.of(context).pop();
+                                                      Fluttertoast.showToast(
+                                                          msg:
+                                                              "Waiting for this user to add you",
+                                                          toastLength: Toast
+                                                              .LENGTH_SHORT,
+                                                          gravity: ToastGravity
+                                                              .BOTTOM,
+                                                          timeInSecForIosWeb: 3,
+                                                          backgroundColor:
+                                                              Colors.red,
+                                                          textColor:
+                                                              Colors.white,
+                                                          fontSize: 16.0);
+                                                    }
+                                                    //  Navigator.of(context).pop();
+                                                  } else if (result is String) {
                                                     Fluttertoast.showToast(
                                                         msg:
-                                                            "Sorry :( an error was encountered",
+                                                            "Unable to add user",
                                                         toastLength:
                                                             Toast.LENGTH_SHORT,
                                                         gravity:
@@ -253,96 +319,40 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                                                             Colors.red,
                                                         textColor: Colors.white,
                                                         fontSize: 16.0);
+                                                    Navigator.of(context).pop();
                                                   }
-                                                } else {
-                                                  // Navigator.of(context).pop();
-                                                  Fluttertoast.showToast(
-                                                      msg:
-                                                          "Waiting for this user to add you",
-                                                      toastLength:
-                                                          Toast.LENGTH_SHORT,
-                                                      gravity:
-                                                          ToastGravity.BOTTOM,
-                                                      timeInSecForIosWeb: 3,
-                                                      backgroundColor:
-                                                          Colors.red,
-                                                      textColor: Colors.white,
-                                                      fontSize: 16.0);
-                                                }
-                                                //  Navigator.of(context).pop();
-                                              } else if (result is String) {
-                                                Fluttertoast.showToast(
-                                                    msg: "Unable to add user",
-                                                    toastLength:
-                                                        Toast.LENGTH_SHORT,
-                                                    gravity:
-                                                        ToastGravity.BOTTOM,
-                                                    timeInSecForIosWeb: 3,
-                                                    backgroundColor: Colors.red,
-                                                    textColor: Colors.white,
-                                                    fontSize: 16.0);
+                                                },
+                                              ),
+                                            ],
+                                            cancelButton:
+                                                CupertinoActionSheetAction(
+                                              isDefaultAction: true,
+                                              child: Text('Cancel'),
+                                              onPressed: () {
                                                 Navigator.of(context).pop();
-                                              }
-
-                                              // print(permit);
-
-                                              //  if(permit==true){
-                                              //    print("ookkkaayay");
-                                              //  }else{
-                                              //       print(" not  ookkkaayay");
-                                              //  }
-                                            },
-                                          ),
-                                        ],
-                                        cancelButton:
-                                            CupertinoActionSheetAction(
-                                          isDefaultAction: true,
-                                          child: Text('Cancel'),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
+                                              },
+                                            ),
+                                          );
+                                        },
                                       );
                                     },
                                   );
-                                },
-                              ),
-                              Spacer(),
-                              // u.currentUser == null
-                              //     ? Text(
-                              //         widget.receipent.userName,
-                              //         style: TextStyle(color: Colors.black),
-                              //       )
-                              //     :
-                              Text(
-                                '${u.currentUser.userName}',
-                                style: TextStyle(
-                                    color: Colors.black, fontSize: 15),
-                              ),
-                              // Expanded(
-                              //   child: Container(),
-                              // ),
-                            ],
+                                  }
+                                  if (snapshot.hasError) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Center(
+                                        child: Icon(Icons.error),
+                                      ),
+                                    );
+                                  }
+                                  return Padding(
+                                    padding: const EdgeInsets.all(20.0),
+                                    child: CircularProgressIndicator(),
+                                  );
+                                 
+                                }),
                           ),
-                            Expanded(child: Container(),),
-                          // Spacer(),
-                          // Padding(
-                          //   padding:
-                          //       const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
-                          //   child: BlurFilter(
-                          //     child: Container(
-                          //       width: 30,
-                          //       height: 30,
-                          //       margin: EdgeInsets.fromLTRB(0, 5, 10, 0),
-                          //       child: CircleAvatar(
-                          //         radius: 1.5,
-                          //         backgroundImage:
-                          //             NetworkImage("${u.currentUser.picture}"),
-                          //         backgroundColor: Colors.purple,
-                          //       ),
-                          //     ),
-                          //   ),
-                          // ),
                         ],
                       ),
                     ),
@@ -437,6 +447,12 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                   ),
                   Divider(height: 0, color: Colors.black26),
                   Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(
+                        color: Colors.blue,
+                      ),
+                    ),
                     height: 50,
                     child: Padding(
                       padding: const EdgeInsets.only(left: 8.0),
@@ -475,7 +491,7 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                                           if (_textController.text != "") {
                                             // length =
                                             //     await ChatService().getChatlength(widget.messageId);
-                                            if (length < 100) {
+                                            if (length < 8) {
                                               Message m = new Message();
 
                                               if (isMe == true) {
@@ -570,341 +586,6 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
         ),
       ),
     );
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0.4,
-        iconTheme: IconThemeData(color: Colors.grey),
-        backgroundColor: Colors.white,
-        title: Row(
-          children: <Widget>[
-            BlurFilter(
-              child: Container(
-                width: 30,
-                height: 30,
-                margin: EdgeInsets.fromLTRB(0, 5, 10, 0),
-                child: CircleAvatar(
-                  radius: 1.5,
-                  backgroundImage: NetworkImage("${u.currentUser.picture}"),
-                  backgroundColor: Colors.purple,
-                ),
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
-              child: u.currentUser == null
-                  ? Text(widget.receipent.userName)
-                  : Text(
-                      '${u.currentUser.userName}',
-                      style: TextStyle(color: Colors.black),
-                    ),
-            ),
-            Expanded(child: Container()),
-            InkWell(
-              onTap: () {
-                return showCupertinoModalPopup<void>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return CupertinoActionSheet(
-                      title: Text('Add Friend'),
-                      message: Text(
-                          'Are you sure you want to add this user to your friends? NB. Your profile picture becomes visible'),
-                      actions: <Widget>[
-                        CupertinoActionSheetAction(
-                          child: Text('Yes'),
-                          onPressed: () async {
-                            var result = await ChatService().permit(
-                                widget.messageId, widget.isParticipant1);
-
-                            if (result == true) {
-                              //print("eii pemit");
-                              var permit = await ChatService()
-                                  .checkPermit(widget.messageId);
-
-                              // print(permit);
-                              if (permit == true) {
-                                var change = await ChatService()
-                                    .changeBrimtoFriend(widget.messageId);
-                                //print("heeerrree");
-                                if (change == true) {
-                                  // print("heeerrree aggaainn");
-                                  Navigator.of(context).pop();
-                                  Navigator.push(
-                                      context,
-                                      CupertinoPageRoute(
-                                        builder: (context) => ChatDetails(
-                                          messageId: widget.messageId,
-                                          isParticipant1: widget.isParticipant1,
-                                        ),
-                                      ));
-                                } else {
-                                  Navigator.of(context).pop();
-                                  Fluttertoast.showToast(
-                                      msg: "Sorry :( an error was encountered",
-                                      toastLength: Toast.LENGTH_SHORT,
-                                      gravity: ToastGravity.BOTTOM,
-                                      timeInSecForIosWeb: 3,
-                                      backgroundColor: Colors.red,
-                                      textColor: Colors.white,
-                                      fontSize: 16.0);
-                                }
-                              } else {
-                                Navigator.of(context).pop();
-                                Fluttertoast.showToast(
-                                    msg: "Waiting for this user to add you",
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.BOTTOM,
-                                    timeInSecForIosWeb: 3,
-                                    backgroundColor: Colors.red,
-                                    textColor: Colors.white,
-                                    fontSize: 16.0);
-                              }
-                              //  Navigator.of(context).pop();
-                            } else if (result is String) {
-                              Fluttertoast.showToast(
-                                  msg: "Unable to add user",
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  gravity: ToastGravity.BOTTOM,
-                                  timeInSecForIosWeb: 3,
-                                  backgroundColor: Colors.red,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0);
-                              Navigator.of(context).pop();
-                            }
-
-                            // print(permit);
-
-                            //  if(permit==true){
-                            //    print("ookkkaayay");
-                            //  }else{
-                            //       print(" not  ookkkaayay");
-                            //  }
-                          },
-                        ),
-                      ],
-                      cancelButton: CupertinoActionSheetAction(
-                        isDefaultAction: true,
-                        child: Text('Cancel'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    );
-                  },
-                );
-              },
-              child: Container(
-                margin: EdgeInsets.fromLTRB(0, 0, 15, 0),
-                child: Icon(
-                  CupertinoIcons.person_add_solid,
-                  size: 40,
-                  color: Colors.grey,
-                  semanticLabel: 'Add user',
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
-      body: Stack(
-        children: <Widget>[
-          Container(
-            color: Colors.white,
-            // height: 540,
-            margin: EdgeInsets.fromLTRB(0, 0, 0, 60),
-            child: StreamBuilder<QuerySnapshot>(
-                stream: getYourChats(widget.messageId),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return ListView.builder(
-                      physics: BouncingScrollPhysics(),
-                      controller: _scrollController,
-                      shrinkWrap: true,
-                      itemCount: snapshot.data.docs.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        length = snapshot.data.docs.length;
-                        //print(snapshot.data.docs.length);
-                        // if (snapshot.data.docs[index].data()["type"] ==
-                        //     "image") {
-                        //   isImage = true;
-                        // }
-                        if (snapshot.data.docs[index].data()["type"] ==
-                            "comment") {
-                          isComment = true;
-                        } else {
-                          isComment = false;
-                        }
-                        if (snapshot.data.docs[index].data()["from"] ==
-                            user.uid) {
-                          isMe = true;
-                        } else {
-                          isMe = false;
-                        }
-                        return ChatBubble(
-                          message: snapshot.data.docs[index].data()["message"],
-                          isMe: isMe,
-                          isComment: isComment,
-                          comment:
-                              snapshot.data.docs[index].data()["broadcast"],
-                        );
-                        // print(isComment);
-                        // print(snapshot.data.docs[index].data()["broadcast"]);
-                        // return Padding(
-                        //   padding: EdgeInsets.all(10),
-                        //   child: Column(
-                        //     children: <Widget>[
-                        //       isComment
-                        //           ? Bubble(
-                        //               message: snapshot.data.docs[index]
-                        //                   .data()["message"],
-                        //               isMe: isMe,
-                        //               isComment: isComment,
-                        //               comment: snapshot.data.docs[index]
-                        //                   .data()["broadcast"],
-                        //             )
-                        //           : Bubble(
-                        //               message: snapshot.data.docs[index]
-                        //                   .data()["message"],
-                        //               isMe: isMe,
-                        //               isComment: false,
-                        //             ),
-                        //     ],
-                        //   ),
-                        // );
-                      },
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Icon(Icons.error),
-                    );
-                  }
-                  return CircularProgressIndicator();
-                }),
-          ),
-          Expanded(
-            child: Container(),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            width: MediaQuery.of(context).size.width,
-            child: Container(
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(color: Colors.white, boxShadow: [
-                BoxShadow(
-                  color: Colors.grey[300],
-                  offset: Offset(-2, 0),
-                  blurRadius: 5,
-                ),
-              ]),
-              child: Row(
-                children: <Widget>[
-                  // IconButton(
-                  //   onPressed: () {},
-                  //   icon: Icon(
-                  //     Icons.camera,
-                  //     color: Color(0xff3E8DF3),
-                  //   ),
-                  // ),
-                  // IconButton(
-                  //   //onPressed: () {},
-                  //   icon: Icon(
-                  //     Icons.image,
-                  //     color: Colors.purple,
-                  //   ),
-                  // ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 15),
-                  ),
-                  Expanded(
-                    child: Form(
-                      key: _formKey,
-                      child: TextFormField(
-                        autofocus: false,
-                        keyboardType: TextInputType.text,
-                        controller: _textController,
-                        decoration: InputDecoration(
-                          hintText: 'Enter Message',
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () async {
-                      // ChatService().getChatlength(widget.messageId);
-                      if (_textController.text != "") {
-                        // length =
-                        //     await ChatService().getChatlength(widget.messageId);
-                        if (length < 100) {
-                          Message m = new Message();
-
-                          if (isMe == true) {
-                            m.message = _textController.text;
-                            m.from = user.uid;
-                            m.read = false;
-                            m.date = DateTime.now().toUtc();
-
-                            var result = await ChatService().sendChatsText(
-                                m, widget.messageId, widget.isParticipant1);
-                            print("send not");
-                            print(u.userName);
-                            print(u.currentUser.uid);
-
-                            DatabaseService().sendNotification(
-                                u.userName, u.currentUser.uid, m.message, null);
-                            if (result is String) {
-                              Fluttertoast.showToast(
-                                  msg: "Unable to send message",
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  gravity: ToastGravity.CENTER,
-                                  timeInSecForIosWeb: 3,
-                                  backgroundColor: Colors.red,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0);
-                            } else {
-                              _textController.clear();
-                              Timer(
-                                  Duration(milliseconds: 500),
-                                  () => _scrollController.jumpTo(
-                                      _scrollController
-                                          .position.maxScrollExtent));
-                            }
-                          } else {
-                            Fluttertoast.showToast(
-                                msg:
-                                    "You need to be friends to send back to back messages",
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.CENTER,
-                                timeInSecForIosWeb: 3,
-                                backgroundColor: Colors.red,
-                                textColor: Colors.white,
-                                fontSize: 16.0);
-                          }
-                        } else {
-                          Fluttertoast.showToast(
-                              msg:
-                                  "Text Limit Reached :( You need to be friends to keep on messaging each other",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.CENTER,
-                              timeInSecForIosWeb: 3,
-                              backgroundColor: Colors.red,
-                              textColor: Colors.white,
-                              fontSize: 16.0);
-                        }
-                      }
-                    },
-                    icon: Icon(
-                      Icons.send,
-                      color: Colors.purple,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
-        ],
-      ),
-    );
   }
 }
 
@@ -924,6 +605,7 @@ class ChatBubble extends StatelessWidget {
                     content: message,
                     isImage: false,
                     comment: comment,
+                    color: Colors.blue
                   )
                 : ReceivedComment(
                     content: message,
@@ -937,6 +619,7 @@ class ChatBubble extends StatelessWidget {
                 ? SendedMessageWidget(
                     content: message,
                     isImage: false,
+                    color: Colors.blue,
                   )
                 : ReceivedMessageWidget(
                     content: message,

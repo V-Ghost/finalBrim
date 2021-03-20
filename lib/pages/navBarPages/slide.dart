@@ -87,14 +87,16 @@ class _SlideState extends State<Slide> {
                       setState(() {});
                       return null;
                     },
-                    child: ListView(
-                        physics: AlwaysScrollableScrollPhysics(),
-                        //physics: BouncingScrollPhysics(),
-                        children: w.length == 0
-                            ? ListTile(
-                                title: Text("No Broadcasts"),
-                              )
-                            : w),
+                    child: w.length == 0
+                        ? Center(
+                            child: Text(
+                            "No Broadcasts",
+                            style: TextStyle(color: Colors.grey, fontSize: 20),
+                          ))
+                        : ListView(
+                            physics: AlwaysScrollableScrollPhysics(),
+                            //physics: BouncingScrollPhysics(),
+                            children: w),
                   );
                 }
                 if (snapshot.hasError) {
@@ -119,37 +121,43 @@ class _SlideState extends State<Slide> {
     int i = 0;
     broadcasts.forEach((b) async {
       i++;
-      Color f = color[i%color.length]; 
+      Color f = color[i % color.length];
       // await BrimService().retrieveUserInfo(b.user);
       // print(position.latitude);
       // print(b.latitiude);
       // double distanceInMeters = Geolocator.distanceBetween(
       //     position.latitude, position.longitude, b.latitiude, b.longitude);
       Widget x = Padding(
-        padding: EdgeInsets.only(top: 20, bottom: 20),
+        padding: EdgeInsets.only(top: 10, bottom: 10),
         child: Container(
-
             height: height * 0.4,
             width: width,
-            decoration: BoxDecoration(color: f, boxShadow: [
-              BoxShadow(
-                color: Colors.black38,
-                offset: Offset(-1, 1),
-                blurRadius: 10,
-              )
-            ]),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+                border: Border.all(
+                  color: Colors.blue,
+                ),
+                color: f,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black38,
+                    offset: Offset(-1, 1),
+                    blurRadius: 10,
+                  )
+                ]),
             child: FutureBuilder<Users>(
                 future: BrimService().retrieveUserInfo(b.user),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     uList.add(snapshot.data);
                     double distanceInMeters = Geolocator.distanceBetween(
-                        position.latitude,
-                        position.longitude,
-                        b.latitiude,
-                        b.longitude) * 0.001;
-                        print("this is the distance");
-                        print(distanceInMeters);
+                            position.latitude,
+                            position.longitude,
+                            b.latitiude,
+                            b.longitude) *
+                        0.001;
+                    print("this is the distance");
+                    print(distanceInMeters);
                     return Column(
                       children: [
                         Row(
@@ -209,18 +217,22 @@ class _SlideState extends State<Slide> {
                                   width: 150,
                                   child: Text(
                                     'Send Comment',
-                                    style: TextStyle(color:  f == Colors.blue? Colors.blue:Colors.white),
+                                    style: TextStyle(
+                                        color: f == Colors.blue
+                                            ? Colors.blue
+                                            : Colors.white),
                                   ),
-                                  gradient: f == Colors.blue?LinearGradient(
-                                    colors: <Color>[
-                                      Colors.white,
-                                      Colors.white
-                                    ]) : LinearGradient(
-                                    colors: <Color>[
-                                      Colors.blueAccent,
-                                      Colors.blue
-                                    ],
-                                  ),
+                                  gradient: f == Colors.blue
+                                      ? LinearGradient(colors: <Color>[
+                                          Colors.white,
+                                          Colors.white
+                                        ])
+                                      : LinearGradient(
+                                          colors: <Color>[
+                                            Colors.blueAccent,
+                                            Colors.blue
+                                          ],
+                                        ),
                                   onPressed: () async {
                                     //print("pressed");
                                     // u.currentUser = await DatabaseService()
@@ -355,8 +367,8 @@ class _SlideState extends State<Slide> {
                             ),
                             onPressed: () async {
                               if (_formKey.currentState.validate()) {
-                                 _formKey.currentState.reset();
-                                 Navigator.of(context).pop();
+                                _formKey.currentState.reset();
+                                Navigator.of(context).pop();
                                 Brim b = new Brim();
                                 b.date = DateTime.now().toUtc();
                                 b.message = _textController.text;
@@ -372,10 +384,9 @@ class _SlideState extends State<Slide> {
                                 // });
                                 dynamic result = await db.sendComment(b);
                                 String type = "brim";
-                                await DatabaseService().sendNotification(
+                                DatabaseService().sendNotification(
                                     u.userName, userId, b.message, "brim");
 
-                                
                                 if (result is String) {
                                   print("first errror");
                                   Fluttertoast.showToast(

@@ -33,54 +33,42 @@ class ReceivedComment extends StatelessWidget {
                   colors: [Colors.grey[200], Colors.grey])),
           //color: Colors.green,
           // margin: const EdgeInsets.only(left: 10.0),
-          child: Stack(children: <Widget>[
-            !isImage
-                ? Padding(
-                    padding: const EdgeInsets.only(
-                        right: 12.0, left: 23.0, top: 8.0, bottom: 20.0),
-                    child: Text(
-                      content,
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.only(
-                        right: 12.0, left: 23.0, top: 8.0, bottom: 15.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          child: Image.asset(
-                            imageAddress,
-                            height: 130,
-                            width: 130,
-                            fit: BoxFit.cover,
+          child: Stack(
+            children: <Widget>[
+               Padding(
+                      padding: const EdgeInsets.only(
+                          right: 8.0, left: 8.0, top: 8.0, bottom: 15.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            child: Container(
+                              
+                              child: Text(comment,
+                              style: TextStyle(color: Colors.black),
+                              ),)
                           ),
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Text(
-                          content,
-                        )
-                      ],
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            content,
+                          )
+                        ],
+                      ),
                     ),
-                  ),
-            Positioned(
-              bottom: 1,
-              left: 23.0,
-              child: Container(
-                //constraints: BoxConstraints(minWidth: 30),
-                //padding: EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5), color: Colors.blue),
-                child: Text(
-                  comment,
-                  style: TextStyle(fontSize: 15, color: Colors.white),
-                ),
-              ),
-            )
-          ]),
+              // Positioned(
+              //   bottom: 1,
+              //   right: 10,
+              //   child: Text(
+              //     time,
+              //     style: TextStyle(
+              //         fontSize: 10, color: Colors.black.withOpacity(0.6)),
+              //   ),
+              // )
+            ],
+          ),
         ),
       ),
     ));

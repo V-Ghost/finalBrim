@@ -28,7 +28,6 @@ class ChatService {
         'message': m.message,
         'from': m.from,
         'type': "text",
-        
         'time': m.date,
       });
 
@@ -86,7 +85,6 @@ class ChatService {
         'message': m.message,
         'from': m.from,
         'type': "text",
-       
         'time': m.date,
       });
 
@@ -121,6 +119,30 @@ class ChatService {
       // checkPermit(messageId);
       print("done");
       return true;
+    } catch (error) {
+      print(error.toString());
+      return error.toString();
+    }
+  }
+
+  Future<dynamic> checkIfAddedAsFriend(
+      String messageId, bool isParticipant1) async {
+    String permit;
+    if (isParticipant1 == true) {
+      permit = "permit1";
+    } else {
+      permit = "permit2";
+    }
+    try {
+      var query =  await FirebaseFirestore.instance.collection("chats").doc(messageId).get();
+      // checkPermit(messageId);
+      if (query.data()[permit] == true) {
+        print("it be lie");
+        print(query.data());
+        return true;
+      } else {
+        return false;
+      }
     } catch (error) {
       print(error.toString());
       return error.toString();
@@ -170,7 +192,7 @@ class ChatService {
           .collection("chats")
           .doc(messageId)
           .update({
-            'type':"friends",
+        'type': "friends",
         "latestMessage": DateTime.now().toUtc(),
       });
       // checkPermit(messageId);
@@ -184,46 +206,46 @@ class ChatService {
 
   Future<dynamic> sendChatsFile(
       Message m, String messageId, bool isParticipant1) async {
-     try{
-     var uuid = Uuid();
-    String _uploadedFileURL;
-    String newMessage;
-    if (isParticipant1 == true) {
-      newMessage = "newMessage1";
-    } else {
-      newMessage = "newMessage2";
-    }
+    try {
+      var uuid = Uuid();
+      String _uploadedFileURL;
+      String newMessage;
+      if (isParticipant1 == true) {
+        newMessage = "newMessage1";
+      } else {
+        newMessage = "newMessage2";
+      }
 
-    firebase_storage.Reference storageReference =
-        FirebaseStorage.instance.ref().child('chat/$messageId/${uuid.v1()}');
-    print("is it null");
-   await  storageReference.putFile(m.image);
+      firebase_storage.Reference storageReference =
+          FirebaseStorage.instance.ref().child('chat/$messageId/${uuid.v1()}');
+      print("is it null");
+      await storageReference.putFile(m.image);
       _uploadedFileURL = await storageReference.getDownloadURL();
-     print(_uploadedFileURL);
-   await FirebaseFirestore.instance
-        .collection("chats")
-        .doc(messageId)
-        .collection("messages")
-        .doc(uuid.v1())
-        .set({
-      'message': _uploadedFileURL,
-      'from': m.from,
-      'type': "image",
-      
-      'time': m.date,
-    });
+      print(_uploadedFileURL);
+      await FirebaseFirestore.instance
+          .collection("chats")
+          .doc(messageId)
+          .collection("messages")
+          .doc(uuid.v1())
+          .set({
+        'message': _uploadedFileURL,
+        'from': m.from,
+        'type': "image",
+        'time': m.date,
+      });
 
-    await FirebaseFirestore.instance.collection("chats").doc(messageId).update({
-      "latestMessage": m.date,
-      newMessage: true,
-    });
-    return true;
-     }catch(onError){
+      await FirebaseFirestore.instance
+          .collection("chats")
+          .doc(messageId)
+          .update({
+        "latestMessage": m.date,
+        newMessage: true,
+      });
+      return true;
+    } catch (onError) {
       print(onError.toString());
       return onError.toString();
-     }
-
-    
+    }
   }
 
   Stream brimStream() {

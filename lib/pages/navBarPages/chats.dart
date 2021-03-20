@@ -163,7 +163,7 @@ class _ChatsState extends State<Chats> {
                     );
                   }
                   return Padding(
-                    padding: const EdgeInsets.all(10.0),
+                    padding: const EdgeInsets.all(20.0),
                     child: CircularProgressIndicator(),
                   );
                 }),

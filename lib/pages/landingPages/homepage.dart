@@ -41,8 +41,20 @@ class _HomepageState extends State<Homepage> {
      print("delting here");
      print(data.id);
      
-      await FirebaseFirestore.instance.collection('chats').doc(data.id).delete();
-      print("ma deletii");
+      var query = await FirebaseFirestore.instance.collection('chats').doc(data.id).collection("messages").get();
+      query.docs.forEach((doc){
+     FirebaseFirestore.instance.collection('chats').doc(data.id).collection("messages").doc(doc.id).delete();
+      });
+       FirebaseFirestore.instance.collection('chats').doc(data.id).delete();
+      // print("eii hun");
+      // print(query.;
+     
+      // query.data().forEach((key,value){
+      //     print("ma deletii");
+      //     print(key);
+      //     print(value);
+      // });
+    
     }
     }
     //var nextCheck = new DateTime(now  .getYear(), now.getMonth(), now.getDate() + 1);

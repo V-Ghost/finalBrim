@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 class SendedMessageWidget extends StatelessWidget {
   final String content;
   final String imageAddress;
-
+   final Color color;
   final bool isImage;
   const SendedMessageWidget({
     Key key,
     this.content,
     this.imageAddress,
-    this.isImage,
+    this.isImage, this.color,
   }) : super(key: key);
 
   @override
@@ -28,10 +28,8 @@ class SendedMessageWidget extends StatelessWidget {
           child: Container(
             //color: Colors.green,
             decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [Colors.blueAccent, Colors.blue])),
+               color: color
+               ),
             // margin: const EdgeInsets.only(left: 10.0),
             child: Stack(children: <Widget>[
               !isImage
@@ -40,6 +38,7 @@ class SendedMessageWidget extends StatelessWidget {
                           right: 12.0, left: 23.0, top: 8.0, bottom: 15.0),
                       child: Text(
                         content,
+                         style: TextStyle(color: Colors.white),
                       ),
                     )
                   : Padding(

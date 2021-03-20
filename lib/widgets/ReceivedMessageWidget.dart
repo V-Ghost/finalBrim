@@ -42,6 +42,7 @@ class ReceivedMessageWidget extends StatelessWidget {
                           right: 8.0, left: 8.0, top: 8.0, bottom: 15.0),
                       child: Text(
                         content,
+                        style: TextStyle(color: Colors.black),
                       ),
                     )
                   : Padding(

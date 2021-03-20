@@ -170,7 +170,7 @@ class _ChatDetailsState extends State<ChatDetails> {
                   SizedBox(
                     height: 65,
                     child: Container(
-                      color: Colors.blue,
+                      color: Colors.purple,
                       child: Row(
                         children: <Widget>[
                           IconButton(
@@ -183,132 +183,27 @@ class _ChatDetailsState extends State<ChatDetails> {
                             },
                           ),
                           Spacer(),
-                          InkWell(
-                            onTap: () {
-                              return showCupertinoModalPopup<void>(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return CupertinoActionSheet(
-                                    title: Text('Add Friend'),
-                                    message: Text(
-                                        'Are you sure you want to add this user to your friends? NB. Your profile picture becomes visible'),
-                                    actions: <Widget>[
-                                      CupertinoActionSheetAction(
-                                        child: Text('Yes'),
-                                        onPressed: () async {
-                                          Navigator.of(context).pop();
-                                          var result = await ChatService()
-                                              .permit(widget.messageId,
-                                                  widget.isParticipant1);
-
-                                          if (result == true) {
-                                            //print("eii pemit");
-                                            var permit = await ChatService()
-                                                .checkPermit(widget.messageId);
-
-                                            // print(permit);
-                                            if (permit == true) {
-                                              var change = await ChatService()
-                                                  .changeBrimtoFriend(
-                                                      widget.messageId);
-                                              //print("heeerrree");
-                                              if (change == true) {
-                                                // print("heeerrree aggaainn");
-                                                //Navigator.of(context).pop();
-                                                Navigator.push(
-                                                    context,
-                                                    CupertinoPageRoute(
-                                                      builder: (context) =>
-                                                          ChatDetails(
-                                                        messageId:
-                                                            widget.messageId,
-                                                        isParticipant1: widget
-                                                            .isParticipant1,
-                                                      ),
-                                                    ));
-                                              } else {
-                                                Navigator.of(context).pop();
-                                                Fluttertoast.showToast(
-                                                    msg:
-                                                        "Sorry :( an error was encountered",
-                                                    toastLength:
-                                                        Toast.LENGTH_SHORT,
-                                                    gravity:
-                                                        ToastGravity.BOTTOM,
-                                                    timeInSecForIosWeb: 3,
-                                                    backgroundColor: Colors.red,
-                                                    textColor: Colors.white,
-                                                    fontSize: 16.0);
-                                              }
-                                            } else {
-                                              // Navigator.of(context).pop();
-                                              Fluttertoast.showToast(
-                                                  msg:
-                                                      "Waiting for this user to add you",
-                                                  toastLength:
-                                                      Toast.LENGTH_SHORT,
-                                                  gravity: ToastGravity.BOTTOM,
-                                                  timeInSecForIosWeb: 3,
-                                                  backgroundColor: Colors.red,
-                                                  textColor: Colors.white,
-                                                  fontSize: 16.0);
-                                            }
-                                            //  Navigator.of(context).pop();
-                                          } else if (result is String) {
-                                            Fluttertoast.showToast(
-                                                msg: "Unable to add user",
-                                                toastLength: Toast.LENGTH_SHORT,
-                                                gravity: ToastGravity.BOTTOM,
-                                                timeInSecForIosWeb: 3,
-                                                backgroundColor: Colors.red,
-                                                textColor: Colors.white,
-                                                fontSize: 16.0);
-                                            Navigator.of(context).pop();
-                                          }
-
-                                          // print(permit);
-
-                                          //  if(permit==true){
-                                          //    print("ookkkaayay");
-                                          //  }else{
-                                          //       print(" not  ookkkaayay");
-                                          //  }
-                                        },
-                                      ),
-                                    ],
-                                    cancelButton: CupertinoActionSheetAction(
-                                      isDefaultAction: true,
-                                      child: Text('Cancel'),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                            child: Column(
-                              // crossAxisAlignment: CrossAxisAlignment.center,
-                              // mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Expanded(
-                                  child: Container(),
-                                ),
-                                // u.currentUser == null
-                                //     ? Text(
-                                //         widget.receipent.userName,
-                                //         style: TextStyle(color: Colors.black),
-                                //       )
-                                //     :
-                                Text(
-                                  '${u.currentUser.userName}',
-                                  style: TextStyle(color: Colors.black),
-                                ),
-                                Expanded(
-                                  child: Container(),
-                                ),
-                              ],
-                            ),
+                          Column(
+                            // crossAxisAlignment: CrossAxisAlignment.center,
+                            // mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Expanded(
+                                child: Container(),
+                              ),
+                              // u.currentUser == null
+                              //     ? Text(
+                              //         widget.receipent.userName,
+                              //         style: TextStyle(color: Colors.black),
+                              //       )
+                              //     :
+                              Text(
+                                '${u.currentUser.userName}',
+                                style: TextStyle(color: Colors.white, fontSize: 15),
+                              ),
+                              Expanded(
+                                child: Container(),
+                              ),
+                            ],
                           ),
                           Spacer(),
                           Padding(
@@ -446,6 +341,12 @@ class _ChatDetailsState extends State<ChatDetails> {
                   ),
                   Divider(height: 0, color: Colors.black26),
                   Container(
+                     decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(
+                        color: Colors.blue,
+                      ),
+                    ),
                     height: 50,
                     child: Padding(
                       padding: const EdgeInsets.only(left: 8.0),
@@ -471,7 +372,7 @@ class _ChatDetailsState extends State<ChatDetails> {
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       IconButton(
-                                        icon: Icon(Icons.send),
+                                        icon: Icon(Icons.send,color: Colors.purple,),
                                         onPressed: () async {
                                           // ChatService().getChatlength(widget.messageId);
                                           if (_textController.text != "") {
@@ -536,220 +437,7 @@ class _ChatDetailsState extends State<ChatDetails> {
         ),
       ),
     );
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        elevation: 0.4,
-        iconTheme: IconThemeData(color: Colors.grey),
-        backgroundColor: Colors.white,
-        title: Row(
-          children: <Widget>[
-            Container(
-              width: 40,
-              height: 40,
-              margin: EdgeInsets.fromLTRB(0, 5, 10, 0),
-              child: CircleAvatar(
-                radius: 2,
-                backgroundImage: NetworkImage("${u.currentUser.picture}"),
-                backgroundColor: Colors.purple,
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
-              child: u.currentUser == null
-                  ? Text(widget.receipent.userName)
-                  : Text(
-                      '${u.currentUser.userName}',
-                      style: TextStyle(color: Colors.black),
-                    ),
-            ),
-          ],
-        ),
-      ),
-      body: Stack(
-        children: <Widget>[
-          Container(
-            color: Colors.white,
-            height: 540,
-            margin: EdgeInsets.fromLTRB(0, 0, 0, 60),
-            child: StreamBuilder<QuerySnapshot>(
-                stream: ChatService().getYourChats(widget.messageId),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return ListView.builder(
-                      physics: BouncingScrollPhysics(),
-                      controller: _scrollController,
-                      shrinkWrap: true,
-                      itemCount: snapshot.data.docs.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        length = snapshot.data.docs.length;
-                        //print(snapshot.data.docs.length);
-                        if (snapshot.data.docs[index].data()["type"] ==
-                            "comment") {
-                          isComment = true;
-                        } else {
-                          isComment = false;
-                        }
-                        if (snapshot.data.docs[index].data()["type"] ==
-                            "image") {
-                          isImage = true;
-                        } else {
-                          isImage = false;
-                        }
-                        if (snapshot.data.docs[index].data()["from"] ==
-                            user.uid) {
-                          isMe = true;
-                        } else {
-                          isMe = false;
-                        }
-                        if (firstTime != true) {
-                          if (index == 0) {
-                            // print("we reach");
-                            lastDocument = snapshot.data.docs[index];
-                            test = snapshot.data.docs[index].data()["message"];
-                            Timer(
-                                Duration(milliseconds: 500),
-                                () => _scrollController.jumpTo(_scrollController
-                                    .position.maxScrollExtent));
-                            firstTime = true;
-                          }
-                        }
 
-                        return Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Column(
-                            children: <Widget>[
-                              isComment
-                                  ? Bubble(
-                                      message: snapshot.data.docs[index]
-                                          .data()["message"],
-                                      isMe: isMe,
-                                      isComment: isComment,
-                                      comment: snapshot.data.docs[index]
-                                          .data()["broadcast"],
-                                      isImage: isImage,
-                                      
-                                    )
-                                  : Bubble(
-                                      message: snapshot.data.docs[index]
-                                          .data()["message"],
-                                      isMe: isMe,
-                                      isComment: isComment,
-                                      comment: snapshot.data.docs[index]
-                                          .data()["broadcast"],
-                                      isImage: isImage,
-                                    ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Icon(Icons.error),
-                    );
-                  }
-                  return CircularProgressIndicator();
-                }),
-          ),
-
-          // Expanded(
-          //   child: Container(),
-          // ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            width: MediaQuery.of(context).size.width,
-            child: Container(
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(color: Colors.white, boxShadow: [
-                BoxShadow(
-                  color: Colors.grey[300],
-                  offset: Offset(-2, 0),
-                  blurRadius: 5,
-                ),
-              ]),
-              child: Row(
-                children: <Widget>[
-                  // IconButton(
-                  //   onPressed: () {},
-                  //   icon: Icon(
-                  //     Icons.camera,
-                  //     color: Color(0xff3E8DF3),
-                  //   ),
-                  // ),
-                  IconButton(
-                    onPressed: chooseFile,
-                    icon: Icon(
-                      Icons.image,
-                      color: Colors.purple,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 15),
-                  ),
-                  Expanded(
-                    child: Form(
-                      key: _formKey,
-                      child: TextFormField(
-                        autofocus: false,
-                        keyboardType: TextInputType.text,
-                        controller: _textController,
-                        decoration: InputDecoration(
-                          hintText: 'Enter Message',
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () async {
-                      // ChatService().getChatlength(widget.messageId);
-                      if (_textController.text != "") {
-                        // length =
-                        //     await ChatService().getChatlength(widget.messageId);
-
-                        Message m = new Message();
-
-                        m.message = _textController.text;
-                        m.from = user.uid;
-                        m.read = false;
-                        m.date = DateTime.now().toUtc();
-
-                        var result = await ChatService().sendChatsTextFromChats(
-                            m, widget.messageId, widget.isParticipant1);
-                        DatabaseService().sendNotification(
-                            u.userName, u.currentUser.uid, m.message, null);
-                        if (result is String) {
-                          Fluttertoast.showToast(
-                              msg: "Unable to send message",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.CENTER,
-                              timeInSecForIosWeb: 3,
-                              backgroundColor: Colors.red,
-                              textColor: Colors.white,
-                              fontSize: 16.0);
-                        } else {
-                          _textController.clear();
-                          Timer(
-                              Duration(milliseconds: 500),
-                              () => _scrollController.jumpTo(
-                                  _scrollController.position.maxScrollExtent));
-                        }
-                      }
-                    },
-                    icon: Icon(
-                      Icons.send,
-                      color: Colors.purple,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
-        ],
-      ),
-    );
   }
 }
 
@@ -772,6 +460,7 @@ class ChatBubble extends StatelessWidget {
                     content: message,
                     isImage: false,
                     comment: comment,
+                    color: Colors.purple,
                   )
                 : ReceivedComment(
                     content: message,
@@ -786,6 +475,7 @@ class ChatBubble extends StatelessWidget {
                     content: message,
                     isImage: isImage,
                     imageAddress: imageAddress,
+                    color: Colors.purple,
                   )
                 : ReceivedMessageWidget(
                     content: message,

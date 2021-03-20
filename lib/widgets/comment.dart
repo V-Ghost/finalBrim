@@ -4,13 +4,14 @@ class Comment extends StatelessWidget {
   final String content;
   final String imageAddress;
   final String comment;
+  final Color color;
   final bool isImage;
   const Comment({
     Key key,
     this.content,
     this.comment,
     this.imageAddress,
-    this.isImage,
+    this.isImage, this.color,
   }) : super(key: key);
 
   @override
@@ -26,31 +27,24 @@ class Comment extends StatelessWidget {
               topLeft: Radius.circular(15),
               topRight: Radius.circular(15)),
           child: Container(
-            color: Colors.green,
+             decoration: BoxDecoration(
+               color: color),
             // margin: const EdgeInsets.only(left: 10.0),
-            child: Stack(children: <Widget>[
-              !isImage
-                  ? Padding(
+            child: Stack(
+            children: <Widget>[
+               Padding(
                       padding: const EdgeInsets.only(
-                          right: 12.0, left: 23.0, top: 8.0, bottom: 20.0),
-                      child: Text(
-                        content,
-                      ),
-                    )
-                  : Padding(
-                      padding: const EdgeInsets.only(
-                          right: 12.0, left: 23.0, top: 8.0, bottom: 15.0),
+                          right: 8.0, left: 8.0, top: 8.0, bottom: 15.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.all(Radius.circular(5)),
-                            child: Image.asset(
-                              imageAddress,
-                              height: 130,
-                              width: 130,
-                              fit: BoxFit.cover,
-                            ),
+                            child: Container(
+                              
+                              child: Text(comment,
+                              style: TextStyle(color: Colors.black),
+                              ),)
                           ),
                           SizedBox(
                             height: 5,
@@ -61,23 +55,17 @@ class Comment extends StatelessWidget {
                         ],
                       ),
                     ),
-              Positioned(
-                bottom: 1,
-                left: 23.0,
-                child: Container(
-                  //constraints: BoxConstraints(minWidth: 30),
-                  //padding: EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: Colors.blue),
-                  child: Text(
-                    comment,
-                    style: TextStyle(
-                        fontSize: 15, color: Colors.white),
-                  ),
-                ),
-              )
-            ]),
+              // Positioned(
+              //   bottom: 1,
+              //   right: 10,
+              //   child: Text(
+              //     time,
+              //     style: TextStyle(
+              //         fontSize: 10, color: Colors.black.withOpacity(0.6)),
+              //   ),
+              // )
+            ],
+          ),
           ),
         ),
       ),
