@@ -192,9 +192,10 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                                 child: Container(),
                               ),
                             
-                              Text(
+                               Text(
                                 '${u.currentUser.userName}',
-                                style: TextStyle(color: Colors.white, fontSize: 15),
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 15),
                               ),
                               Expanded(
                                 child: Container(),
@@ -485,7 +486,7 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       IconButton(
-                                        icon: Icon(Icons.send),
+                                        icon: Icon(Icons.send,color: Colors.blue,),
                                         onPressed: () async {
                                           // ChatService().getChatlength(widget.messageId);
                                           if (_textController.text != "") {

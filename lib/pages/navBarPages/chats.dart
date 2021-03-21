@@ -128,7 +128,7 @@ class _ChatsState extends State<Chats> {
                       scrollDirection: Axis.vertical,
                       itemBuilder: (BuildContext context, int index) {
                         print("okayyyyy");
-                        print(snapshot.data.docs[index].data());
+                        print(snapshot.data.docs[index].id);
                         if (snapshot.data.docs[index]
                                     .data()["participant1"]
                                     .toString() ==
@@ -139,7 +139,7 @@ class _ChatsState extends State<Chats> {
                                 user.uid) {
                           print("it reach");
                           return yourChats(
-                              snapshot.data.docs[index].data(), index);
+                              snapshot.data.docs[index].data(), index,snapshot.data.docs[index].id);
                         }
                         //else {
                         //  // print("father");
@@ -173,7 +173,7 @@ class _ChatsState extends State<Chats> {
     );
   }
 
-  Widget yourChats(Map<dynamic, dynamic> data, int index) {
+  Widget yourChats(Map<dynamic, dynamic> data, int index,String messageId ) {
     String otherUser;
     String newMessage;
     String messageId;
@@ -218,7 +218,32 @@ class _ChatsState extends State<Chats> {
                             actions: <Widget>[
                               CupertinoActionSheetAction(
                                 child: Text('Yes'),
-                                onPressed: () {/** */},
+                                onPressed: () async {
+                                     print("tap");
+                                     
+                                  var query = await FirebaseFirestore.instance
+                                      .collection('chats')
+                                      .doc(messageId)
+                                      .collection("messages")
+                                      .get();
+                                      print(query.size);
+                                  query.docs.forEach((doc) {
+                                    // print("hii reach");
+                                    // print(query);
+                                    // print(doc.data());
+                                    FirebaseFirestore.instance
+                                        .collection('chats')
+                                        .doc(messageId)
+                                        .collection("messages")
+                                        .doc(doc.id)
+                                        .delete();
+                                  });
+                                  FirebaseFirestore.instance
+                                      .collection('chats')
+                                      .doc(messageId)
+                                      .delete();
+                                       Navigator.of(context).pop();
+                                },
                               ),
                             ],
                             cancelButton: CupertinoActionSheetAction(

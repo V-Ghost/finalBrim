@@ -198,7 +198,8 @@ class _ChatDetailsState extends State<ChatDetails> {
                               //     :
                               Text(
                                 '${u.currentUser.userName}',
-                                style: TextStyle(color: Colors.white, fontSize: 15),
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 15),
                               ),
                               Expanded(
                                 child: Container(),
@@ -209,15 +210,27 @@ class _ChatDetailsState extends State<ChatDetails> {
                           Padding(
                             padding:
                                 const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              margin: EdgeInsets.fromLTRB(0, 5, 10, 0),
-                              child: CircleAvatar(
-                                radius: 2,
-                                backgroundImage:
-                                    NetworkImage("${u.currentUser.picture}"),
-                                backgroundColor: Colors.purple,
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  CupertinoPageRoute(
+                                      builder: (context) => ViewImage(
+                                            imageUrl:
+                                                "${u.currentUser.picture}",
+                                          )),
+                                );
+                              },
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                margin: EdgeInsets.fromLTRB(0, 5, 10, 0),
+                                child: CircleAvatar(
+                                  radius: 2,
+                                  backgroundImage:
+                                      NetworkImage("${u.currentUser.picture}"),
+                                  backgroundColor: Colors.purple,
+                                ),
                               ),
                             ),
                           ),
@@ -301,7 +314,7 @@ class _ChatDetailsState extends State<ChatDetails> {
                                     comment: snapshot.data.docs[index]
                                         .data()["broadcast"],
                                     isImage: isImage,
-                                    imageAddress:  snapshot.data.docs[index]
+                                    imageAddress: snapshot.data.docs[index]
                                         .data()["message"],
                                   );
                                   // print(isComment);
@@ -341,7 +354,7 @@ class _ChatDetailsState extends State<ChatDetails> {
                   ),
                   Divider(height: 0, color: Colors.black26),
                   Container(
-                     decoration: BoxDecoration(
+                    decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(20)),
                       border: Border.all(
                         color: Colors.blue,
@@ -372,7 +385,10 @@ class _ChatDetailsState extends State<ChatDetails> {
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       IconButton(
-                                        icon: Icon(Icons.send,color: Colors.purple,),
+                                        icon: Icon(
+                                          Icons.send,
+                                          color: Colors.purple,
+                                        ),
                                         onPressed: () async {
                                           // ChatService().getChatlength(widget.messageId);
                                           if (_textController.text != "") {
@@ -437,7 +453,6 @@ class _ChatDetailsState extends State<ChatDetails> {
         ),
       ),
     );
-
   }
 }
 
@@ -449,7 +464,12 @@ class ChatBubble extends StatelessWidget {
   final bool isImage;
   final String imageAddress;
   ChatBubble(
-      {this.message, this.isMe, this.isComment, this.comment, this.isImage,this.imageAddress});
+      {this.message,
+      this.isMe,
+      this.isComment,
+      this.comment,
+      this.isImage,
+      this.imageAddress});
   @override
   Widget build(BuildContext context) {
     return isComment
@@ -480,7 +500,7 @@ class ChatBubble extends StatelessWidget {
                 : ReceivedMessageWidget(
                     content: message,
                     isImage: isImage,
-                     imageAddress: imageAddress,
+                    imageAddress: imageAddress,
                   ),
           );
   }
