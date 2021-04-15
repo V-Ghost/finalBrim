@@ -43,7 +43,7 @@ class Comment extends StatelessWidget {
                             child: Container(
                               
                               child: Text(comment,
-                              style: TextStyle(color: Colors.black),
+                              style: TextStyle(color: Colors.white),
                               ),)
                           ),
                           SizedBox(

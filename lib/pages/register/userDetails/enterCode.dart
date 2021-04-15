@@ -1,6 +1,6 @@
 import 'package:myapp/Models/users.dart';
 import 'package:myapp/pages/landingPages/homepage.dart';
-
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:myapp/services/auth.dart';
 import 'package:myapp/services/database.dart';
 import 'package:myapp/widgets/loading.dart';
@@ -12,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:provider/provider.dart';
+import 'dart:async';
+import 'dart:io';
 
 class EnterCode extends StatefulWidget {
   EnterCode({Key key}) : super(key: key);
@@ -25,13 +27,16 @@ class _EnterCodeState extends State<EnterCode> {
   String phoneNumber;
   final _formKey = GlobalKey<FormState>();
   bool loading = false;
+  User user;
   String _verificationId = "";
   final FirebaseAuth _auth = FirebaseAuth.instance;
   AuthService _service = new AuthService();
-
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  StreamSubscription iosSubscription;
   @override
   void initState() {
     u = Provider.of<Users>(context, listen: false);
+    user = FirebaseAuth.instance.currentUser;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _verifyPhoneNumber(context);
     });
@@ -121,19 +126,16 @@ class _EnterCodeState extends State<EnterCode> {
                     InkWell(
                       onTap: () {
                         Fluttertoast.showToast(
-                                    msg:
-                                        " Code has been resent",
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.BOTTOM,
-                                    timeInSecForIosWeb: 3,
-                                    backgroundColor: Colors.blue,
-                                    textColor: Colors.white,
-                                    fontSize: 16.0);
-                          _verifyPhoneNumber(context);
-
+                            msg: " Code has been resent",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 3,
+                            backgroundColor: Colors.blue,
+                            textColor: Colors.white,
+                            fontSize: 16.0);
+                        _verifyPhoneNumber(context);
                       },
                       child: Container(
-
                         margin: EdgeInsets.only(right: 10, top: 8),
                         alignment: Alignment.centerRight,
                         child: Text(
@@ -179,6 +181,25 @@ class _EnterCodeState extends State<EnterCode> {
                                     fontSize: 16.0);
                               } else {
                                 print("ahhn");
+                                if (Platform.isIOS) {
+                                  iosSubscription = _firebaseMessaging
+                                      .onIosSettingsRegistered
+                                      .listen((data) {
+                                    DatabaseService(uid: user.uid)
+                                        .saveDeviceToken();
+                                  });
+
+                                  _firebaseMessaging
+                                      .requestNotificationPermissions(
+                                          const IosNotificationSettings(
+                                              sound: true,
+                                              badge: true,
+                                              alert: true));
+                                } else {
+                                  //print("hii ios");
+                                  DatabaseService(uid: user.uid)
+                                      .saveDeviceToken();
+                                }
                                 setState(() {
                                   loading = false;
                                 });
@@ -193,8 +214,7 @@ class _EnterCodeState extends State<EnterCode> {
                               //   CupertinoPageRoute(builder: (context) => EnterCode()),
                               // );
                             }
-                          }
-                          ),
+                          }),
                     ),
                   ],
                 ),

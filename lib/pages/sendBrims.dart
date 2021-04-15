@@ -31,6 +31,10 @@ class _SendBrimsState extends State<SendBrims> {
   Brim b = new Brim();
   BrimService db;
   final TextEditingController _textController = TextEditingController();
+  final textValidator = MultiValidator([
+    RequiredValidator(errorText: 'Enter text'),
+    MaxLengthValidator(160, errorText: 'Not more than 160 characters'),
+  ]);
   @override
   void initState() {
     super.initState();
@@ -78,152 +82,150 @@ class _SendBrimsState extends State<SendBrims> {
                           ),
                           onPressed: () async {
                             if (_formKey.currentState.validate()) {
-                             // _textController.clear();
-                            // _formKey.currentState.reset();
-                               //Navigator.of(context).pop();
-                            if(!widget.broadcast){
-                             Brim b = new Brim();
-                              b.date = DateTime.now().toUtc();
-                              b.message = _textController.text;
-                              b.userId1 = user.uid;
-                              b.userId2 = widget.userId;
-                              b.sender = user.uid;
-                             _textController.clear();
-                              // setState(() {
-                              //   print("here");
-                              //   loading = true;
-                              // });
-                              dynamic result = await db.sendBrim(b);
+                              // _textController.clear();
+                              // _formKey.currentState.reset();
                               //Navigator.of(context).pop();
-                              DatabaseService().sendNotification(
-                                    u.userName, widget.userId, b.message, "brim");
-                              
-                              if (result == null) {
-                                // db.retrieveBrims();
-                                // setState(() {
-                                //   print("here");
-                                //   loading = false;
-                                // });
-                                // _formKey.currentState.reset();
-                                Fluttertoast.showToast(
-                                    msg:"Shoot Successfully fired",
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.CENTER,
-                                    timeInSecForIosWeb: 3,
-                                    backgroundColor: Colors.blue,
-                                    textColor: Colors.white,
-                                    fontSize: 16.0);
-                                var messageId = b.userId1 + b.userId2;
-                                try {
-                                  u.currentUser = await DatabaseService()
-                                      .getUserInfo(b.userId2);
-                                  print(u.currentUser.userName);
-                                  Navigator.push(
-                                    context,
-                                    CupertinoPageRoute(
-                                      builder: (context) => ChatDetailsBrim(
-                                        receipent: u.currentUser,
-                                        messageId: messageId,
-                                        isParticipant1: true,
-                                      ),
-                                    ),
-                                  );
-                                } catch (error) {
-                                    Fluttertoast.showToast(
-                                    msg: "${error.toString()}",
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.CENTER,
-                                    timeInSecForIosWeb: 3,
-                                    backgroundColor: Colors.red,
-                                    textColor: Colors.white,
-                                    fontSize: 16.0);
-                                }
-                              } else if (result is String) {
-                                // setState(() {
-                                //   loading = false;
-                                // });
-                                Fluttertoast.showToast(
-                                    msg: "Sorry :( $result",
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.CENTER,
-                                    timeInSecForIosWeb: 3,
-                                    backgroundColor: Colors.red,
-                                    textColor: Colors.white,
-                                    fontSize: 16.0);
-                              } else {
-                                // setState(() {
-                                //   loading = false;
-                                // });
-                                Fluttertoast.showToast(
-                                    msg:
-                                        " Sorry :( An error occured when sending your brim",
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.CENTER,
-                                    timeInSecForIosWeb: 3,
-                                    backgroundColor: Colors.red,
-                                    textColor: Colors.white,
-                                    fontSize: 16.0);
-                              }
-                            }else{
+                              if (!widget.broadcast) {
                                 Brim b = new Brim();
-                              b.date = DateTime.now().toUtc();
-                              b.message = _textController.text;
-                              b.userId1 = user.uid;
-                            //  setState(() {
-                            //     print("here");
-                            //     loading = true;
-                            //   });
-                              dynamic result = await db.broadcastBrim(b);
-                             Navigator.of(context).pop();
-                              if (result == null) {
-                                // db.retrieveBrims();
+                                b.date = DateTime.now().toUtc();
+                                b.message = _textController.text;
+                                b.userId1 = user.uid;
+                                b.userId2 = widget.userId;
+                                b.sender = user.uid;
+                                _textController.clear();
                                 // setState(() {
                                 //   print("here");
-                                //   loading = false;
+                                //   loading = true;
                                 // });
-                                // _formKey.currentState.reset();
-                                Fluttertoast.showToast(
-                                    msg: "Sent succesfully",
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.CENTER,
-                                    timeInSecForIosWeb: 3,
-                                    backgroundColor: Colors.blue,
-                                    textColor: Colors.white,
-                                    fontSize: 16.0);
-                               
-                            
-                                 
+                                dynamic result = await db.sendBrim(b);
+                                //Navigator.of(context).pop();
+                                DatabaseService().sendNotification(u.userName,
+                                    widget.userId, b.message, "brim");
+
+                                if (result == null) {
+                                  // db.retrieveBrims();
+                                  // setState(() {
+                                  //   print("here");
+                                  //   loading = false;
+                                  // });
+                                  // _formKey.currentState.reset();
+                                  Fluttertoast.showToast(
+                                      msg: "Shoot Successfully fired",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 3,
+                                      backgroundColor: Colors.blue,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
+                                  var messageId = b.userId1 + b.userId2;
+                                  try {
+                                    u.currentUser = await DatabaseService()
+                                        .getUserInfo(b.userId2);
+                                    print(u.currentUser.userName);
+                                    Navigator.push(
+                                      context,
+                                      CupertinoPageRoute(
+                                        builder: (context) => ChatDetailsBrim(
+                                          receipent: u.currentUser,
+                                          messageId: messageId,
+                                          isParticipant1: true,
+                                        ),
+                                      ),
+                                    );
+                                  } catch (error) {
+                                    Fluttertoast.showToast(
+                                        msg: "${error.toString()}",
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.CENTER,
+                                        timeInSecForIosWeb: 3,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        fontSize: 16.0);
+                                  }
+                                } else if (result is String) {
+                                  // setState(() {
+                                  //   loading = false;
+                                  // });
+                                  Fluttertoast.showToast(
+                                      msg: "Sorry :( $result",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 3,
+                                      backgroundColor: Colors.red,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
+                                } else {
+                                  // setState(() {
+                                  //   loading = false;
+                                  // });
+                                  Fluttertoast.showToast(
+                                      msg:
+                                          " Sorry :( An error occured when sending your brim",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 3,
+                                      backgroundColor: Colors.red,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
+                                }
+                              } else {
+                                Brim b = new Brim();
+                                b.date = DateTime.now().toUtc();
+                                b.message = _textController.text;
+                                b.userId1 = user.uid;
+                                 _textController.clear();
+                                //  setState(() {
+                                //     print("here");
+                                //     loading = true;
+                                //   });
+                                dynamic result = await db.broadcastBrim(b);
+                                Navigator.of(context).pop();
+                                if (result == null) {
+                                  // db.retrieveBrims();
+                                  // setState(() {
+                                  //   print("here");
+                                  //   loading = false;
+                                  // });
+                                  // _formKey.currentState.reset();
+                                  Fluttertoast.showToast(
+                                      msg: "Sent succesfully",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 3,
+                                      backgroundColor: Colors.blue,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
 
                                   //Navigator.of(context).pop();
-                               
-                              } else if (result is String) {
-                                // setState(() {
-                                //   loading = false;
-                                // });
-                                Fluttertoast.showToast(
-                                    msg: "Sorry :( An error occured when sending",
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.CENTER,
-                                    timeInSecForIosWeb: 3,
-                                    backgroundColor: Colors.red,
-                                    textColor: Colors.white,
-                                    fontSize: 16.0);
-                              } else {
-                                // setState(() {
-                                //   loading = false;
-                                // });
-                                Fluttertoast.showToast(
-                                    msg:
-                                        " Sorry :( An error occured when sending",
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.CENTER,
-                                    timeInSecForIosWeb: 3,
-                                    backgroundColor: Colors.red,
-                                    textColor: Colors.white,
-                                    fontSize: 16.0);
+
+                                } else if (result is String) {
+                                  // setState(() {
+                                  //   loading = false;
+                                  // });
+                                  Fluttertoast.showToast(
+                                      msg:
+                                          "Sorry :( An error occured when sending",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 3,
+                                      backgroundColor: Colors.red,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
+                                } else {
+                                  // setState(() {
+                                  //   loading = false;
+                                  // });
+                                  Fluttertoast.showToast(
+                                      msg:
+                                          " Sorry :( An error occured when sending",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 3,
+                                      backgroundColor: Colors.red,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
+                                }
                               }
-                            }
-                             
                             }
                           },
                           child: Text(
@@ -245,8 +247,7 @@ class _SendBrimsState extends State<SendBrims> {
                       key: _formKey,
                       child: TextFormField(
                         controller: _textController,
-                        validator:
-                            RequiredValidator(errorText: 'Text Field is empty'),
+                        validator: textValidator,
                         autofocus: true,
                         decoration: new InputDecoration(
                           icon: CircleAvatar(
@@ -254,7 +255,9 @@ class _SendBrimsState extends State<SendBrims> {
                             backgroundImage: NetworkImage("${u.picture}"),
                             backgroundColor: Colors.purple,
                           ),
-                          labelText: widget.broadcast ?  "What's on your mind?" : "Shoot your shot.....",
+                          labelText: widget.broadcast
+                              ? "What's on your mind?"
+                              : "Shoot your shot.....",
                           enabledBorder: const OutlineInputBorder(
                             borderRadius:
                                 BorderRadius.all(Radius.circular(20.0)),

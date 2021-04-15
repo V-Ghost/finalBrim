@@ -50,84 +50,66 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   StreamSubscription iosSubscription;
   @override
   void initState() {
-    user = FirebaseAuth.instance.currentUser;
-    _firebaseMessaging.configure(
+     user = FirebaseAuth.instance.currentUser;
+     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         // final notification = message['notification'];
-        // print("onMessage: $message");
-        // String n = message['notification']['title'];
-        // print("new noootiiifiiicccaa");
-        // print(message['data']['type']);
-        // if (message['data']['type'].toString() == "brim") {
-        //   showDialog(
-        //     context: context,
-        //     builder: (BuildContext context) {
-        //       // return object of type Dialog
-        //       return AlertDialog(
-        //         title: new Text(message['notification']['title']),
-        //         content: new Text(message['notification']['body']),
-        //         actions: <Widget>[
-        //           // usually buttons at the bottom of the dialog
-        //           new FlatButton(
-        //             child: new Text("Close"),
-        //             onPressed: () {
-        //               Navigator.of(context).pop();
-        //             },
-        //           ),
-        //         ],
-        //       );
-        //     },
-        //   );
-        // }
-        //if(message['data']['type'] == )
-        //     showDialog(
-        //   context: context,
-        //   builder: (BuildContext context) {
-        //     // return object of type Dialog
-        //     return AlertDialog(
-        //       title: new Text(message['notification']['title']),
-        //       content: new Text(message['notification']['body']),
-        //       actions: <Widget>[
-        //         // usually buttons at the bottom of the dialog
-        //         new FlatButton(
-        //           child: new Text("Close"),
-        //           onPressed: () {
-        //             Navigator.of(context).pop();
-        //           },
-        //         ),
-        //       ],
-        //     );
-        //   },
+        print("onMessage: $message");
+        String n = message['notification']['title'];
+        print(n);
+        showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        // return AlertDialog(
+        //   title: new Text(message['notification']['title']),
+        //   content: new Text(message['notification']['body']),
+        //   actions: <Widget>[
+        //     // usually buttons at the bottom of the dialog
+        //     new FlatButton(
+        //       child: new Text("Close"),
+        //       onPressed: () {
+        //         Navigator.of(context).pop();
+        //       },
+        //     ),
+        //   ],
         // );
+      },
+    );
+      
       },
       onLaunch: (Map<String, dynamic> message) async {
         // final notification = message['data'];
-        if (message['data']['type'].toString() != null) {
-          Navigator.push(
-            context,
-            CupertinoPageRoute(
-              builder: (context) => Chats(),
-            ),
-          );
-        }
+        print("onMessage: $message");
       },
       onResume: (Map<String, dynamic> message) async {
         //  final notification = message['data'];
         print("onMessage: $message");
       },
     );
-    if (Platform.isIOS) {
-      iosSubscription =
-          _firebaseMessaging.onIosSettingsRegistered.listen((data) {
-        DatabaseService(uid: user.uid).saveDeviceToken();
-      });
+    // if (Platform.isIOS) {
+    //       iosSubscription = _firebaseMessaging.onIosSettingsRegistered.listen((data) {
+    //          DatabaseService(uid : user.uid).saveDeviceToken();
+    //       });
 
-      _firebaseMessaging.requestNotificationPermissions(
-          const IosNotificationSettings(sound: true, badge: true, alert: true));
-    } else {
-      print("hii ios");
-      DatabaseService(uid: user.uid).saveDeviceToken();
-    }
+    //       _firebaseMessaging.requestNotificationPermissions(
+    //     const IosNotificationSettings(sound: true, badge: true, alert: true));
+    //     }else{
+    //       print("hii ios");
+    //        DatabaseService(uid : user.uid).saveDeviceToken();
+    //     }
+    // if (Platform.isIOS) {
+    //   iosSubscription =
+    //       _firebaseMessaging.onIosSettingsRegistered.listen((data) {
+    //     DatabaseService(uid: user.uid).saveDeviceToken();
+    //   });
+
+    //   _firebaseMessaging.requestNotificationPermissions(
+    //       const IosNotificationSettings(sound: true, badge: true, alert: true));
+    // } else {
+    //   print("hii ios");
+    //   DatabaseService(uid: user.uid).saveDeviceToken();
+    // }
 
     WidgetsBinding.instance.addObserver(this);
 

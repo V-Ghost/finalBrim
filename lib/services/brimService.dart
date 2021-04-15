@@ -17,7 +17,7 @@ class BrimService {
     try {
       var check = await DatabaseService(uid: uid)
           .doesBrimMessageExistAlready(b.userId2);
-     // if (check != true) {
+     if (check != true) {
         var uuid = Uuid();
         var unique = b.userId1 + b.userId2;
         var u1 = Uuid();
@@ -46,9 +46,9 @@ class BrimService {
         }).then((onValue) {
           return null;
         });
-      // } else {
-      //   return "You have already sent a brim to this user";
-      // }
+      } else {
+        return "You have already sent a brim to this user";
+      }
     } catch (error) {
       print(error.toString());
       return false;
@@ -57,13 +57,15 @@ class BrimService {
 
   Future<dynamic> sendComment(Brim b) async {
     try {
+      
        var unique = b.userId1 + b.userId2;
+       
       var check = await  DatabaseService().doeschatExistAlready(unique);
       //     .doesBrimMessageExistAlready(b.userId2);
       if (check != true) {
         var uuid = Uuid();
       
-        //print("showty22333");
+        print("showty22333");
         
         var u1 = Uuid();
         print(b.userId2);
@@ -92,10 +94,12 @@ class BrimService {
           'broadcast': b.broadcast,
         });
       } else {
+         print("omG");
          var uuid = Uuid();
       
         var u1 = Uuid();
-        print(b.userId2);
+       
+        //print(b.userId2);
         CollectionReference userCollection =
             FirebaseFirestore.instance.collection('chats');
         await userCollection.doc(unique).set({
@@ -194,7 +198,7 @@ class BrimService {
       d1 = BroadCastMessage.fromMap(value);
       DateTime tempDate = new DateFormat("yyyy-MM-dd hh:mm:ss").parse( value["date"].toString());
        if(DatabaseService().convertUTCToLocalDateTime(tempDate).isBefore(now.subtract(Duration(days: 1))) ){
-      //FirebaseDatabase.instance.reference().child("brims").child(key).remove();
+      FirebaseDatabase.instance.reference().child("brims").child(key).remove();
     }
       // d1.time = value["date"];
       broadcasts.add(d1);

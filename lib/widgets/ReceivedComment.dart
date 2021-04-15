@@ -26,12 +26,19 @@ class ReceivedComment extends StatelessWidget {
             topLeft: Radius.circular(15),
             topRight: Radius.circular(15)),
         child: Container(
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [Colors.grey[200], Colors.grey])),
-          //color: Colors.green,
+            // decoration: BoxDecoration(
+            //           borderRadius: BorderRadius.all(Radius.circular(20)),
+            //           border: Border.all(
+            //             color: Colors.black,
+            //           ),
+            //         ),
+          // decoration: BoxDecoration(
+          //     gradient: LinearGradient(
+          //         begin: Alignment.centerLeft,
+          //         end: Alignment.centerRight,
+          //         colors: [Colors.grey[200], Colors.grey])
+          //         ),
+         color:  Color(0xffcacac8),
           // margin: const EdgeInsets.only(left: 10.0),
           child: Stack(
             children: <Widget>[
@@ -46,7 +53,7 @@ class ReceivedComment extends StatelessWidget {
                             child: Container(
                               
                               child: Text(comment,
-                              style: TextStyle(color: Colors.black),
+                              style: TextStyle(color: Colors.white),
                               ),)
                           ),
                           SizedBox(

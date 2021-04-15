@@ -16,13 +16,14 @@ class _ViewImageState extends State<ViewImage> {
   @override
   Widget build(BuildContext context) {
     w = MediaQuery.of(context).size.width;
+    print( widget.imageUrl);
     return Scaffold(
      
       body: Center(
         child: Container(
             width: w,
             child: PhotoView(
-              imageProvider: CachedNetworkImageProvider(
+              imageProvider: NetworkImage(
                   widget.imageUrl),
             )),
       ),

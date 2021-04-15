@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:form_field_validator/form_field_validator.dart';
 import 'package:myapp/widgets/SendedMessageWidget.dart';
 import 'package:myapp/widgets/comment.dart';
 import 'package:myapp/widgets/blurFilter.dart';
@@ -9,6 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/pages/navBarPages/Chats/sendImage.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -36,6 +38,9 @@ class ChatDetails extends StatefulWidget {
 }
 
 class _ChatDetailsState extends State<ChatDetails> {
+  final textValidator = MultiValidator([
+    RequiredValidator(errorText: 'Enter Text'),
+  ]);
   ChatStream c;
   int length;
   bool lastMessageMe;
@@ -117,38 +122,49 @@ class _ChatDetailsState extends State<ChatDetails> {
         m.from = user.uid;
         m.read = false;
         m.date = DateTime.now().toUtc();
+        print("ghana");
+        Navigator.push(
+            context,
+            CupertinoPageRoute(
+                builder: (context) => SendImage(
+                      m: m,
+                      messageId: widget.messageId,
+                      isParticipant1: widget.isParticipant1,
+                    )));
+
+        print("idea");
         // print(u.currentUser.picture);
-        Fluttertoast.showToast(
-            msg: "The Image is sending......",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 3,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0);
-        var result = await ChatService()
-            .sendChatsFile(m, widget.messageId, widget.isParticipant1);
+        // Fluttertoast.showToast(
+        //     msg: "The Image is sending......",
+        //     toastLength: Toast.LENGTH_SHORT,
+        //     gravity: ToastGravity.CENTER,
+        //     timeInSecForIosWeb: 3,
+        //     backgroundColor: Colors.red,
+        //     textColor: Colors.white,
+        //     fontSize: 16.0);
+        // var result = await ChatService()
+        //     .sendChatsFile(m, widget.messageId, widget.isParticipant1);
 
-        if (result is String) {
-          Fluttertoast.showToast(
-              msg: "Unable to send message",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.CENTER,
-              timeInSecForIosWeb: 3,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 16.0);
-        } else {
-          _textController.clear();
-          Timer(
-              Duration(milliseconds: 500),
-              () => _scrollController
-                  .jumpTo(_scrollController.position.maxScrollExtent));
-        }
+        // if (result is String) {
+        //   Fluttertoast.showToast(
+        //       msg: "Unable to send message",
+        //       toastLength: Toast.LENGTH_SHORT,
+        //       gravity: ToastGravity.CENTER,
+        //       timeInSecForIosWeb: 3,
+        //       backgroundColor: Colors.red,
+        //       textColor: Colors.white,
+        //       fontSize: 16.0);
+        // } else {
+        //   _textController.clear();
+        //   Timer(
+        //       Duration(milliseconds: 500),
+        //       () => _scrollController
+        //           .jumpTo(_scrollController.position.maxScrollExtent));
+        // }
 
-        setState(() {
-          // loading = true;
-        });
+        // setState(() {
+        //   // loading = true;
+        // });
       }
     });
   }
@@ -199,7 +215,7 @@ class _ChatDetailsState extends State<ChatDetails> {
                               Text(
                                 '${u.currentUser.userName}',
                                 style: TextStyle(
-                                    color: Colors.white, fontSize: 15),
+                                    color: Colors.white, fontSize: 20),
                               ),
                               Expanded(
                                 child: Container(),
@@ -315,7 +331,7 @@ class _ChatDetailsState extends State<ChatDetails> {
                                         .data()["broadcast"],
                                     isImage: isImage,
                                     imageAddress: snapshot.data.docs[index]
-                                        .data()["message"],
+                                        .data()["imageUrl"],
                                   );
                                   // print(isComment);
                                   // print(snapshot.data.docs[index].data()["broadcast"]);
@@ -355,94 +371,92 @@ class _ChatDetailsState extends State<ChatDetails> {
                   Divider(height: 0, color: Colors.black26),
                   Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                      border: Border.all(
-                        color: Colors.blue,
-                      ),
-                    ),
+                        //borderRadius: BorderRadius.all(Radius.circular(20)),
+                        // border: Border.all(
+                        //   color: Colors.blue,
+                        // ),
+                        ),
                     height: 50,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            onPressed: chooseFile,
-                            icon: Icon(
-                              Icons.image,
-                              color: Colors.purple,
-                            ),
-                          ),
-                          Expanded(
-                            child: Form(
-                              key: _formKey,
-                              child: TextField(
-                                maxLines: 20,
-                                controller: _textController,
-                                decoration: InputDecoration(
-                                  suffixIcon: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      IconButton(
-                                        icon: Icon(
-                                          Icons.send,
-                                          color: Colors.purple,
-                                        ),
-                                        onPressed: () async {
-                                          // ChatService().getChatlength(widget.messageId);
-                                          if (_textController.text != "") {
-                                            // length =
-                                            //     await ChatService().getChatlength(widget.messageId);
-
-                                            Message m = new Message();
-
-                                            m.message = _textController.text;
-                                            m.from = user.uid;
-                                            m.read = false;
-                                            m.date = DateTime.now().toUtc();
-
-                                            var result = await ChatService()
-                                                .sendChatsTextFromChats(
-                                                    m,
-                                                    widget.messageId,
-                                                    widget.isParticipant1);
-                                            DatabaseService().sendNotification(
-                                                u.userName,
-                                                u.currentUser.uid,
-                                                m.message,
-                                                null);
-                                            if (result is String) {
-                                              Fluttertoast.showToast(
-                                                  msg: "Unable to send message",
-                                                  toastLength:
-                                                      Toast.LENGTH_SHORT,
-                                                  gravity: ToastGravity.CENTER,
-                                                  timeInSecForIosWeb: 3,
-                                                  backgroundColor: Colors.red,
-                                                  textColor: Colors.white,
-                                                  fontSize: 16.0);
-                                            } else {
-                                              _textController.clear();
-                                              Timer(
-                                                  Duration(milliseconds: 500),
-                                                  () => _scrollController
-                                                      .jumpTo(_scrollController
-                                                          .position
-                                                          .maxScrollExtent));
-                                            }
-                                          }
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                  border: InputBorder.none,
-                                  hintText: "enter your message",
-                                ),
+                    child: Material(
+                      elevation: 20.0,
+                      shadowColor: Colors.black,
+                      child: Form(
+                        key: _formKey,
+                        child: TextFormField(
+                          validator: textValidator,
+                          maxLines: 20,
+                          controller: _textController,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.all(10.0),
+                            // enabledBorder: const OutlineInputBorder(
+                            //   borderRadius:
+                            //       BorderRadius.all(Radius.circular(20.0)),
+                            //   borderSide: const BorderSide(
+                            //     color: Colors.white,
+                            //   ),
+                            // ),
+                            // focusedBorder: OutlineInputBorder(
+                            //   borderRadius:
+                            //       BorderRadius.all(Radius.circular(10.0)),
+                            //   borderSide: BorderSide(color: Colors.white),
+                            // ),
+                            prefixIcon: IconButton(
+                              onPressed: chooseFile,
+                              icon: Icon(
+                                Icons.image,
+                                color: Colors.blue,
                               ),
                             ),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                Icons.send,
+                                color: Colors.purple,
+                              ),
+                              onPressed: () async {
+                                // ChatService().getChatlength(widget.messageId);
+                                if (_formKey.currentState.validate()) {
+                                  // length =
+                                  //     await ChatService().getChatlength(widget.messageId);
+
+                                  Message m = new Message();
+
+                                  m.message = _textController.text;
+                                  m.from = user.uid;
+                                  m.read = false;
+                                  m.date = DateTime.now().toUtc();
+                                  _textController.clear();
+                                  var result = await ChatService()
+                                      .sendChatsTextFromChats(
+                                          m,
+                                          widget.messageId,
+                                          widget.isParticipant1);
+
+                                  DatabaseService().sendNotification(u.userName,
+                                      u.currentUser.uid, m.message, null);
+                                  if (result is String) {
+                                    Fluttertoast.showToast(
+                                        msg: "Unable to send message",
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.CENTER,
+                                        timeInSecForIosWeb: 3,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        fontSize: 16.0);
+                                  } else {
+                                    _textController.clear();
+                                    Timer(
+                                        Duration(milliseconds: 500),
+                                        () => _scrollController.jumpTo(
+                                            _scrollController
+                                                .position.maxScrollExtent));
+                                  }
+                                }
+                              },
+                            ),
+                            border: InputBorder.none,
+                            hintText: "enter your message",
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),

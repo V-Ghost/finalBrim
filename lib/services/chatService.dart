@@ -228,7 +228,8 @@ class ChatService {
           .collection("messages")
           .doc(uuid.v1())
           .set({
-        'message': _uploadedFileURL,
+        'imageUrl': _uploadedFileURL,
+        'message': m.message,
         'from': m.from,
         'type': "image",
         'time': m.date,

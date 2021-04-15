@@ -275,6 +275,10 @@ class _SlideState extends State<Slide> {
   }
 
   void _modalBottomSheetMenu(String userId, String broadcast) {
+     final textValidator = MultiValidator([
+    RequiredValidator(errorText: 'Enter text'),
+    MaxLengthValidator(160, errorText: 'Not more than 160 characters'),
+  ]);
     bool loading = false;
     double radius = 0;
     final _formKey = GlobalKey<FormState>();
@@ -320,8 +324,7 @@ class _SlideState extends State<Slide> {
                             key: _formKey,
                             child: TextFormField(
                               controller: _textController,
-                              validator: RequiredValidator(
-                                  errorText: 'Text Field is empty'),
+                              validator: textValidator,
                               autofocus: true,
                               decoration: new InputDecoration(
                                 icon: CircleAvatar(
@@ -367,8 +370,8 @@ class _SlideState extends State<Slide> {
                             ),
                             onPressed: () async {
                               if (_formKey.currentState.validate()) {
-                                _formKey.currentState.reset();
-                                Navigator.of(context).pop();
+                               // _formKey.currentState.reset();
+                               
                                 Brim b = new Brim();
                                 b.date = DateTime.now().toUtc();
                                 b.message = _textController.text;
@@ -376,6 +379,8 @@ class _SlideState extends State<Slide> {
                                 b.userId2 = userId;
                                 b.sender = user.uid;
                                 b.broadcast = broadcast;
+                                 _textController.clear();
+                                  Navigator.of(context).pop();
                                 u.currentUser =
                                     await DatabaseService().getUserInfo(userId);
                                 // setState(() {

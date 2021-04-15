@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:form_field_validator/form_field_validator.dart';
 import 'package:myapp/widgets/SendedMessageWidget.dart';
 import 'package:myapp/widgets/comment.dart';
 import 'package:myapp/widgets/ReceivedComment.dart';
@@ -31,6 +32,9 @@ class ChatDetailsBrim extends StatefulWidget {
 }
 
 class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
+  final textValidator = MultiValidator([
+    RequiredValidator(errorText: ''),
+  ]);
   int length;
   bool lastMessageMe;
   bool isComment = false;
@@ -191,11 +195,10 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                               Expanded(
                                 child: Container(),
                               ),
-                            
-                               Text(
+                              Text(
                                 '${u.currentUser.userName}',
                                 style: TextStyle(
-                                    color: Colors.white, fontSize: 15),
+                                    color: Colors.white, fontSize: 20),
                               ),
                               Expanded(
                                 child: Container(),
@@ -212,71 +215,88 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                                     widget.messageId, widget.isParticipant1),
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
-                                    print("check complete");
+                                    //print("check complete");
                                     print(snapshot.data);
-                                     return IconButton(
-                                    icon: Icon(
-                                      Icons.add_box,
-                                      color: snapshot.data? Colors.purple : Colors.white,
-                                    ),
-                                    onPressed: () {
-                                      return showCupertinoModalPopup<void>(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return CupertinoActionSheet(
-                                            title: Text('Add Friend'),
-                                            message: Text(
-                                                'Are you sure you want to add this user to your friends? NB. Your profile picture becomes visible'),
-                                            actions: <Widget>[
-                                              CupertinoActionSheetAction(
-                                                child: Text('Yes'),
-                                                onPressed: () async {
-                                                  Navigator.of(context).pop();
-                                                  var result =
-                                                      await ChatService().permit(
-                                                          widget.messageId,
-                                                          widget
-                                                              .isParticipant1);
-                                                   setState(() {
-                                                     
-                                                   });
-                                                  if (result == true) {
-                                                    //print("eii pemit");
-                                                    var permit =
-                                                        await ChatService()
-                                                            .checkPermit(widget
-                                                                .messageId);
-
-                                                    // print(permit);
-                                                    if (permit == true) {
-                                                      var change =
+                                    return IconButton(
+                                      icon: Icon(
+                                        Icons.add,
+                                        color: snapshot.data
+                                            ? Colors.white
+                                            : Colors.pink,
+                                      ),
+                                      onPressed: () {
+                                        return showCupertinoModalPopup<void>(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return CupertinoActionSheet(
+                                              title: Text('Add Friend'),
+                                              message: Text(
+                                                  'Are you sure you want to add this user to your friends? NB. Your profile picture becomes visible'),
+                                              actions: <Widget>[
+                                                CupertinoActionSheetAction(
+                                                  child: Text('Yes'),
+                                                  onPressed: () async {
+                                                    Navigator.of(context).pop();
+                                                    var result =
+                                                        await ChatService().permit(
+                                                            widget.messageId,
+                                                            widget
+                                                                .isParticipant1);
+                                                    setState(() {});
+                                                    if (result == true) {
+                                                      //print("eii pemit");
+                                                      var permit =
                                                           await ChatService()
-                                                              .changeBrimtoFriend(
-                                                                  widget
-                                                                      .messageId);
-                                                      //print("heeerrree");
-                                                      if (change == true) {
-                                                        // print("heeerrree aggaainn");
-                                                        //Navigator.of(context).pop();
-                                                        Navigator.push(
-                                                            context,
-                                                            CupertinoPageRoute(
-                                                              builder:
-                                                                  (context) =>
-                                                                      ChatDetails(
-                                                                messageId: widget
-                                                                    .messageId,
-                                                                isParticipant1:
-                                                                    widget
-                                                                        .isParticipant1,
-                                                              ),
-                                                            ));
+                                                              .checkPermit(widget
+                                                                  .messageId);
+
+                                                      // print(permit);
+                                                      if (permit == true) {
+                                                        var change = await ChatService()
+                                                            .changeBrimtoFriend(
+                                                                widget
+                                                                    .messageId);
+                                                        //print("heeerrree");
+                                                        if (change == true) {
+                                                          // print("heeerrree aggaainn");
+                                                          //Navigator.of(context).pop();
+                                                          Navigator.push(
+                                                              context,
+                                                              CupertinoPageRoute(
+                                                                builder:
+                                                                    (context) =>
+                                                                        ChatDetails(
+                                                                  messageId: widget
+                                                                      .messageId,
+                                                                  isParticipant1:
+                                                                      widget
+                                                                          .isParticipant1,
+                                                                ),
+                                                              ));
+                                                        } else {
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                          Fluttertoast.showToast(
+                                                              msg:
+                                                                  "Sorry :( an error was encountered",
+                                                              toastLength: Toast
+                                                                  .LENGTH_SHORT,
+                                                              gravity:
+                                                                  ToastGravity
+                                                                      .BOTTOM,
+                                                              timeInSecForIosWeb:
+                                                                  3,
+                                                              backgroundColor:
+                                                                  Colors.red,
+                                                              textColor:
+                                                                  Colors.white,
+                                                              fontSize: 16.0);
+                                                        }
                                                       } else {
-                                                        Navigator.of(context)
-                                                            .pop();
+                                                        // Navigator.of(context).pop();
                                                         Fluttertoast.showToast(
                                                             msg:
-                                                                "Sorry :( an error was encountered",
+                                                                "Waiting for this user to add you",
                                                             toastLength: Toast
                                                                 .LENGTH_SHORT,
                                                             gravity:
@@ -290,11 +310,12 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                                                                 Colors.white,
                                                             fontSize: 16.0);
                                                       }
-                                                    } else {
-                                                      // Navigator.of(context).pop();
+                                                      //  Navigator.of(context).pop();
+                                                    } else if (result
+                                                        is String) {
                                                       Fluttertoast.showToast(
                                                           msg:
-                                                              "Waiting for this user to add you",
+                                                              "Unable to add user",
                                                           toastLength: Toast
                                                               .LENGTH_SHORT,
                                                           gravity: ToastGravity
@@ -305,39 +326,25 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                                                           textColor:
                                                               Colors.white,
                                                           fontSize: 16.0);
+                                                      Navigator.of(context)
+                                                          .pop();
                                                     }
-                                                    //  Navigator.of(context).pop();
-                                                  } else if (result is String) {
-                                                    Fluttertoast.showToast(
-                                                        msg:
-                                                            "Unable to add user",
-                                                        toastLength:
-                                                            Toast.LENGTH_SHORT,
-                                                        gravity:
-                                                            ToastGravity.BOTTOM,
-                                                        timeInSecForIosWeb: 3,
-                                                        backgroundColor:
-                                                            Colors.red,
-                                                        textColor: Colors.white,
-                                                        fontSize: 16.0);
-                                                    Navigator.of(context).pop();
-                                                  }
+                                                  },
+                                                ),
+                                              ],
+                                              cancelButton:
+                                                  CupertinoActionSheetAction(
+                                                isDefaultAction: true,
+                                                child: Text('Cancel'),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
                                                 },
                                               ),
-                                            ],
-                                            cancelButton:
-                                                CupertinoActionSheetAction(
-                                              isDefaultAction: true,
-                                              child: Text('Cancel'),
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                              },
-                                            ),
-                                          );
-                                        },
-                                      );
-                                    },
-                                  );
+                                            );
+                                          },
+                                        );
+                                      },
+                                    );
                                   }
                                   if (snapshot.hasError) {
                                     return Padding(
@@ -351,7 +358,6 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                                     padding: const EdgeInsets.all(20.0),
                                     child: CircularProgressIndicator(),
                                   );
-                                 
                                 }),
                           ),
                         ],
@@ -449,134 +455,117 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                   Divider(height: 0, color: Colors.black26),
                   Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                      border: Border.all(
-                        color: Colors.blue,
-                      ),
+                      // borderRadius: BorderRadius.all(Radius.circular(20)),
+                      // border: Border.all(
+                      //   color: Colors.blue,
+                      // ),
                     ),
                     height: 50,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.image),
-                            onPressed: () {
-                              Fluttertoast.showToast(
-                                  msg:
-                                      "Image Share is disabled , You need to be friends to send image",
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  gravity: ToastGravity.CENTER,
-                                  timeInSecForIosWeb: 3,
-                                  backgroundColor: Colors.red,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0);
-                            },
-                          ),
-                          Expanded(
-                            child: Form(
-                              key: _formKey,
-                              child: TextField(
-                                maxLines: 20,
-                                controller: _textController,
-                                decoration: InputDecoration(
-                                  suffixIcon: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      IconButton(
-                                        icon: Icon(Icons.send,color: Colors.blue,),
-                                        onPressed: () async {
-                                          // ChatService().getChatlength(widget.messageId);
-                                          if (_textController.text != "") {
-                                            // length =
-                                            //     await ChatService().getChatlength(widget.messageId);
-                                            if (length < 8) {
-                                              Message m = new Message();
-
-                                              if (isMe == true) {
-                                                m.message =
-                                                    _textController.text;
-                                                m.from = user.uid;
-                                                m.read = false;
-                                                m.date = DateTime.now().toUtc();
-
-                                                var result = await ChatService()
-                                                    .sendChatsText(
-                                                        m,
-                                                        widget.messageId,
-                                                        widget.isParticipant1);
-                                                print("send not");
-                                                print(u.userName);
-                                                print(u.currentUser.uid);
-
-                                                DatabaseService()
-                                                    .sendNotification(
-                                                        u.userName,
-                                                        u.currentUser.uid,
-                                                        m.message,
-                                                        null);
-                                                if (result is String) {
-                                                  Fluttertoast.showToast(
-                                                      msg:
-                                                          "Unable to send message",
-                                                      toastLength:
-                                                          Toast.LENGTH_SHORT,
-                                                      gravity:
-                                                          ToastGravity.CENTER,
-                                                      timeInSecForIosWeb: 3,
-                                                      backgroundColor:
-                                                          Colors.red,
-                                                      textColor: Colors.white,
-                                                      fontSize: 16.0);
-                                                } else {
-                                                  _textController.clear();
-                                                  Timer(
-                                                      Duration(
-                                                          milliseconds: 500),
-                                                      () => _scrollController
-                                                          .jumpTo(_scrollController
-                                                              .position
-                                                              .maxScrollExtent));
-                                                }
-                                              } else {
-                                                Fluttertoast.showToast(
-                                                    msg:
-                                                        "You need to be friends to send back to back messages",
-                                                    toastLength:
-                                                        Toast.LENGTH_SHORT,
-                                                    gravity:
-                                                        ToastGravity.CENTER,
-                                                    timeInSecForIosWeb: 3,
-                                                    backgroundColor: Colors.red,
-                                                    textColor: Colors.white,
-                                                    fontSize: 16.0);
-                                              }
-                                            } else {
-                                              Fluttertoast.showToast(
-                                                  msg:
-                                                      "Text Limit Reached :( You need to be friends to keep on messaging each other",
-                                                  toastLength:
-                                                      Toast.LENGTH_SHORT,
-                                                  gravity: ToastGravity.CENTER,
-                                                  timeInSecForIosWeb: 3,
-                                                  backgroundColor: Colors.red,
-                                                  textColor: Colors.white,
-                                                  fontSize: 16.0);
-                                            }
-                                          }
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                  border: InputBorder.none,
-                                  hintText: "enter your message",
-                                ),
+                    child: Material(
+                      elevation: 20.0,
+                      shadowColor: Colors.black,
+                      child: Form(
+                        key: _formKey,
+                        child: TextFormField(
+                          maxLines: 20,
+                          validator: textValidator,
+                          controller: _textController,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.all(10.0),
+                            //  enabledBorder: const OutlineInputBorder(
+                            //     borderRadius:
+                            //         BorderRadius.all(Radius.circular(20.0)),
+                            //     borderSide: const BorderSide(
+                            //       color: Colors.white,
+                            //     ),
+                            //   ),
+                            //   focusedBorder: OutlineInputBorder(
+                            //     borderRadius:
+                            //         BorderRadius.all(Radius.circular(10.0)),
+                            //     borderSide: BorderSide(color: Colors.white),
+                            //   ),
+                            suffixIcon: IconButton(
+                              
+                              icon: Icon(
+                                Icons.send,
+                                color: Colors.blue,
                               ),
+                              onPressed: () async {
+                                // ChatService().getChatlength(widget.messageId);
+                                if (_textController.text != "") {
+                                  // length =
+                                  //     await ChatService().getChatlength(widget.messageId);
+                                  if (length < 8) {
+                                    Message m = new Message();
+
+                                    if (isMe != true) {
+                                      m.message = _textController.text;
+                                      m.from = user.uid;
+                                      m.read = false;
+                                      m.date = DateTime.now().toUtc();
+
+                                      var result = await ChatService()
+                                          .sendChatsText(
+                                              m,
+                                              widget.messageId,
+                                              widget.isParticipant1);
+                                      print("send not");
+                                      print(u.userName);
+                                      print(u.currentUser.uid);
+
+                                      DatabaseService().sendNotification(
+                                          u.userName,
+                                          u.currentUser.uid,
+                                          m.message,
+                                          null);
+                                      if (result is String) {
+                                        Fluttertoast.showToast(
+                                            msg: "Unable to send message",
+                                            toastLength:
+                                                Toast.LENGTH_SHORT,
+                                            gravity: ToastGravity.CENTER,
+                                            timeInSecForIosWeb: 3,
+                                            backgroundColor: Colors.red,
+                                            textColor: Colors.white,
+                                            fontSize: 16.0);
+                                      } else {
+                                        _textController.clear();
+                                        Timer(
+                                            Duration(milliseconds: 500),
+                                            () => _scrollController
+                                                .jumpTo(_scrollController
+                                                    .position
+                                                    .maxScrollExtent));
+                                      }
+                                    } else {
+                                      Fluttertoast.showToast(
+                                          msg:
+                                              "You need to be friends to send back to back messages",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.CENTER,
+                                          timeInSecForIosWeb: 3,
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0);
+                                    }
+                                  } else {
+                                    Fluttertoast.showToast(
+                                        msg:
+                                            "Text Limit Reached :( You need to be friends to keep on messaging each other",
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.CENTER,
+                                        timeInSecForIosWeb: 3,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        fontSize: 16.0);
+                                  }
+                                }
+                              },
                             ),
+                            border: InputBorder.none,
+                            hintText: "enter your message",
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -606,8 +595,7 @@ class ChatBubble extends StatelessWidget {
                     content: message,
                     isImage: false,
                     comment: comment,
-                    color: Colors.blue
-                  )
+                    color: Colors.blue)
                 : ReceivedComment(
                     content: message,
                     isImage: false,

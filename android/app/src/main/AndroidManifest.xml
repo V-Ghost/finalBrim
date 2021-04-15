@@ -2,7 +2,7 @@
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
   <uses-permission android:name="android.permission.INTERNET" />
-  <application android:label="myapp" android:icon="@drawable/icon">
+  <application android:label="Brimm" android:icon="@drawable/icon">
 
     <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyC4IxVLN-xQRuCehKa-lg2RcZsMh0wzn7Y"/>
     <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>

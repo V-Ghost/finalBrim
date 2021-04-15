@@ -145,7 +145,7 @@ class DatabaseService {
 
     // Save it to Firestore
     if (fcmToken != null) {
-      var tokens = userCollection.doc(uid).collection('tokens').doc(fcmToken);
+      var tokens = userCollection.doc(uid).collection('tokens').doc("fcmToken");
 
       await tokens.set({
         'token': fcmToken,
@@ -178,7 +178,9 @@ class DatabaseService {
         .where('participant2', isEqualTo: user)
         .where('participant1', isEqualTo: uid)
         .get();
-
+    print("the test");
+    print(user);
+    print(query.size);
     QuerySnapshot query2 = await FirebaseFirestore.instance
         .collection("chats")
         .where('participant1', isEqualTo: user)
@@ -186,8 +188,10 @@ class DatabaseService {
         .get();
 
     if (query.docs.isEmpty && query2.docs.isEmpty) {
+      print("returned false");
       return false;
     } else {
+      print("returned true");
       return true;
     }
   }
@@ -204,8 +208,13 @@ class DatabaseService {
       result = false;
     }else{
      query.data().forEach((key, value) {
+       print("damages");
+       print(key);
+       print(value);
       if (key == "latestMessage") {
         result = true;
+      }else{
+        result = false;
       }
     });
     }
@@ -234,16 +243,15 @@ class DatabaseService {
     print(nearYouValues);
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
-    nearYouValues = await removeUsersAlreadyTexted(nearYouValues);
+   // nearYouValues = await removeUsersAlreadyTexted(nearYouValues);
     // print(values['adminArea']);
     // print(nearYouValues);
     nearYouValues.forEach((key, values) async {
+      print("check");
+      print(key);
       if( mySex != values["sex"]){
         if (key != uid  ) {
-        print("check");
-        print(key);
-        print(values["sex"]);
-        print(mySex);
+       
         if(values["latitiude"] != null && values["longitude"] != null){
           double distanceInMeters = Geolocator.distanceBetween(
             position.latitude,
@@ -288,6 +296,8 @@ class DatabaseService {
       // print("it's true");
       //  print(check);
       if (check == true) {
+        print("de bug here");
+        print(key);
         users.remove(key);
       }
     });
