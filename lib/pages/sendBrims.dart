@@ -101,7 +101,14 @@ class _SendBrimsState extends State<SendBrims> {
                                 //Navigator.of(context).pop();
                                 DatabaseService().sendNotification(u.userName,
                                     widget.userId, b.message, "brim");
-
+                                   Fluttertoast.showToast(
+                                      msg: "Sending",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 3,
+                                      backgroundColor: Colors.blue,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
                                 if (result == null) {
                                   // db.retrieveBrims();
                                   // setState(() {

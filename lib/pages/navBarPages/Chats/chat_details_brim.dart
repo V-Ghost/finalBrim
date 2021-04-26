@@ -60,13 +60,13 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
     ChatService().readMessage(widget.messageId, widget.isParticipant1);
     //detectKeyBoard();
     //ChatService().changeBrimtoFriend(widget.messageId);
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   Timer(
-    //       Duration(milliseconds: 500),
-    //       () => _scrollController
-    //           .jumpTo(_scrollController.position.maxScrollExtent));
-    //   print("finish");
-    // });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Timer(
+          Duration(milliseconds: 500),
+          () => _scrollController
+              .jumpTo(_scrollController.position.maxScrollExtent));
+      print("finish");
+    });
     // print(u.currentUser.userName);
     // TODO: implement initState
     super.initState();
@@ -169,10 +169,22 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                       child: Row(
                         children: <Widget>[
                           Padding(
-                            padding: const EdgeInsets.only(left: 10),
+                            padding: const EdgeInsets.all(8),
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.arrow_back,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 0),
                             child: BlurFilter(
                               child: Container(
-                                width: 30,
+                                width: 40,
                                 height: 30,
                                 margin: EdgeInsets.fromLTRB(0, 5, 10, 0),
                                 child: CircleAvatar(
@@ -221,8 +233,8 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                                       icon: Icon(
                                         Icons.add,
                                         color: snapshot.data
-                                            ? Colors.white
-                                            : Colors.pink,
+                                            ? Colors.pink
+                                            : Colors.white,
                                       ),
                                       onPressed: () {
                                         return showCupertinoModalPopup<void>(
@@ -258,21 +270,36 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                                                                     .messageId);
                                                         //print("heeerrree");
                                                         if (change == true) {
+                                                          Fluttertoast.showToast(
+                                                              msg:
+                                                                  "You are friends now",
+                                                              toastLength: Toast
+                                                                  .LENGTH_SHORT,
+                                                              gravity:
+                                                                  ToastGravity
+                                                                      .CENTER,
+                                                              timeInSecForIosWeb:
+                                                                  3,
+                                                              backgroundColor:
+                                                                  Colors.blue,
+                                                              textColor:
+                                                                  Colors.white,
+                                                              fontSize: 16.0);
                                                           // print("heeerrree aggaainn");
-                                                          //Navigator.of(context).pop();
-                                                          Navigator.push(
-                                                              context,
-                                                              CupertinoPageRoute(
-                                                                builder:
-                                                                    (context) =>
-                                                                        ChatDetails(
-                                                                  messageId: widget
-                                                                      .messageId,
-                                                                  isParticipant1:
-                                                                      widget
-                                                                          .isParticipant1,
-                                                                ),
-                                                              ));
+                                                          // Navigator.of(context).pop();
+                                                          // Navigator.push(
+                                                          //     context,
+                                                          //     CupertinoPageRoute(
+                                                          //       builder:
+                                                          //           (context) =>
+                                                          //               ChatDetails(
+                                                          //         messageId: widget
+                                                          //             .messageId,
+                                                          //         isParticipant1:
+                                                          //             widget
+                                                          //                 .isParticipant1,
+                                                          //       ),
+                                                          //     ));
                                                         } else {
                                                           Navigator.of(context)
                                                               .pop();
@@ -455,11 +482,11 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                   Divider(height: 0, color: Colors.black26),
                   Container(
                     decoration: BoxDecoration(
-                      // borderRadius: BorderRadius.all(Radius.circular(20)),
-                      // border: Border.all(
-                      //   color: Colors.blue,
-                      // ),
-                    ),
+                        // borderRadius: BorderRadius.all(Radius.circular(20)),
+                        // border: Border.all(
+                        //   color: Colors.blue,
+                        // ),
+                        ),
                     height: 50,
                     child: Material(
                       elevation: 20.0,
@@ -485,7 +512,6 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                             //     borderSide: BorderSide(color: Colors.white),
                             //   ),
                             suffixIcon: IconButton(
-                              
                               icon: Icon(
                                 Icons.send,
                                 color: Colors.blue,
@@ -505,9 +531,7 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                                       m.date = DateTime.now().toUtc();
 
                                       var result = await ChatService()
-                                          .sendChatsText(
-                                              m,
-                                              widget.messageId,
+                                          .sendChatsText(m, widget.messageId,
                                               widget.isParticipant1);
                                       print("send not");
                                       print(u.userName);
@@ -521,8 +545,7 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                                       if (result is String) {
                                         Fluttertoast.showToast(
                                             msg: "Unable to send message",
-                                            toastLength:
-                                                Toast.LENGTH_SHORT,
+                                            toastLength: Toast.LENGTH_SHORT,
                                             gravity: ToastGravity.CENTER,
                                             timeInSecForIosWeb: 3,
                                             backgroundColor: Colors.red,
@@ -532,10 +555,9 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                                         _textController.clear();
                                         Timer(
                                             Duration(milliseconds: 500),
-                                            () => _scrollController
-                                                .jumpTo(_scrollController
-                                                    .position
-                                                    .maxScrollExtent));
+                                            () => _scrollController.jumpTo(
+                                                _scrollController
+                                                    .position.maxScrollExtent));
                                       }
                                     } else {
                                       Fluttertoast.showToast(

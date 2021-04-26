@@ -387,6 +387,12 @@ class _SlideState extends State<Slide> {
                                 //   print("here");
                                 //   loading = true;
                                 // });
+                                //  var unique = b.userId1 + b.userId2;
+                                //   var unique1 = b.userId2 + b.userId1;
+                                //  print(unique);
+                                //  print("start");
+                                //   await  DatabaseService().doeschatExistAlready(unique,unique1);
+                                //   print("finish");
                                 dynamic result = await db.sendComment(b);
                                 String type = "brim";
                                 DatabaseService().sendNotification(
@@ -423,9 +429,11 @@ class _SlideState extends State<Slide> {
                                     u.currentUser = await DatabaseService()
                                         .getUserInfo(b.userId2);
                                     var unique = b.userId1 + b.userId2;
+                                     var unique1 = b.userId2 + b.userId1;
+                                    print("second time");
                                     var check = await DatabaseService()
-                                        .doeschatExistAlready(unique);
-                                    if (check == true) {
+                                        .doeschatExistAlready(unique,unique1);
+                                    if (check.check == true) {
                                       Navigator.push(
                                         context,
                                         CupertinoPageRoute(

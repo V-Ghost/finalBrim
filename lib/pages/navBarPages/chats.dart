@@ -219,30 +219,38 @@ class _ChatsState extends State<Chats> {
                               CupertinoActionSheetAction(
                                 child: Text('Yes'),
                                 onPressed: () async {
-                                     print("tap");
-                                     
+                                     //print("tap");
+                                    Navigator.pop(context);
                                   var query = await FirebaseFirestore.instance
                                       .collection('chats')
                                       .doc(messageId)
                                       .collection("messages")
                                       .get();
-                                      print(query.size);
-                                  query.docs.forEach((doc) {
-                                    // print("hii reach");
-                                    // print(query);
-                                    // print(doc.data());
-                                    FirebaseFirestore.instance
+                                     print(query.size);
+                                     Future.forEach(query.docs, (doc)async{
+                                         await FirebaseFirestore.instance
                                         .collection('chats')
                                         .doc(messageId)
                                         .collection("messages")
                                         .doc(doc.id)
                                         .delete();
-                                  });
-                                  FirebaseFirestore.instance
+                                     });
+                                  // query.docs.forEach((doc) {
+                                  //   // print("hii reach");
+                                  //   // print(query);
+                                  //   // print(doc.data());
+                                  //  await FirebaseFirestore.instance
+                                  //       .collection('chats')
+                                  //       .doc(messageId)
+                                  //       .collection("messages")
+                                  //       .doc(doc.id)
+                                  //       .delete();
+                                  // });
+                                  await FirebaseFirestore.instance
                                       .collection('chats')
                                       .doc(messageId)
                                       .delete();
-                                       Navigator.of(context).pop();
+                                       //Navigator.of(context).pop();
                                 },
                               ),
                             ],

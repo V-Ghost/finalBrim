@@ -17,7 +17,7 @@ import 'package:path/path.dart' as Path;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:intl/intl.dart';
-
+import 'package:myapp/Models/checker.dart';
 class DatabaseService {
   final String uid;
   DatabaseService({this.uid});
@@ -33,7 +33,7 @@ class DatabaseService {
         'dob': u.dob,
         'gender': u.gender,
       });
-     return true;
+      return true;
     } catch (error) {
       print(error.toString());
       return error.toString();
@@ -54,8 +54,8 @@ class DatabaseService {
           FirebaseStorage.instance.ref().child('avatar/$uid');
 
       await storageReference.putFile(_image);
-        _uploadedFileURL = await storageReference.getDownloadURL();
-    
+      _uploadedFileURL = await storageReference.getDownloadURL();
+
       print('File Upppppppppppppppppppppppppppppppppppppppppppppppploaded');
       print(_uploadedFileURL);
       return _uploadedFileURL;
@@ -70,7 +70,7 @@ class DatabaseService {
     SharedPreferences myPrefs = await SharedPreferences.getInstance();
     final databaseReference =
         FirebaseDatabase.instance.reference().child("userInfo");
-       Users user = await getUserInfo(uid);
+    Users user = await getUserInfo(uid);
     //final coordinates = new Coordinates(position.latitude, position.longitude);
     // var addresses =
     //     await Geocoder.local.findAddressesFromCoordinates(coordinates);
@@ -196,30 +196,68 @@ class DatabaseService {
     }
   }
 
-  Future<bool> doeschatExistAlready(String unique) async {
+  Future<Checker> doeschatExistAlready(String unique, String unique1) async {
     bool result = false;
-
+    Checker check = new Checker();
     var query =
         await FirebaseFirestore.instance.collection("chats").doc(unique).get();
+    var query1 =
+        await FirebaseFirestore.instance.collection("chats").doc(unique1).get();
 
     print(query.data());
-    print("showty");
-    if(query.data() == null){
-      result = false;
-    }else{
-     query.data().forEach((key, value) {
-       print("damages");
-       print(key);
-       print(value);
-      if (key == "latestMessage") {
-        result = true;
-      }else{
-        result = false;
+    print("first showty");
+    if (query.data() == null && query1.data() == null) {
+      print("all null");
+       check.data = unique1;
+       check.check = false; 
+    } else {
+      if (query.data() != null) {
+          print("not null");
+        print(check.data);
+        if (query.data().containsKey("latestMessage")) {
+          print("are friends");
+          check.data = unique;
+          check.check = true;
+          //return true;
+        } else {
+          print("are not friends");
+            check.data = unique;
+         check.check = false; 
+        }
       }
-    });
+      if (query1.data() != null) {
+        if (query1.data().containsKey("latestMessage")) {
+          print("are friends");
+            check.data = unique1;
+          check.check = true;
+        } else {
+          print("are not friends");
+           check.data = unique1;
+           check.check = false; 
+        }
+      }
     }
-   
-    return result;
+   return check;
+    // if (query1.data() == null) {
+    //   return false;
+    // }
+
+    //query.data().containsKey("latestMessage");
+    //  query.data().forEach((key, value) {
+    //print("damages");
+    //    print(key);
+    //    print(value);
+    // if (query.data().containsKey("latestMessage") ||
+    //     query1.data().containsKey("latestMessage")) {
+    //   result = true;
+    //   print("are friends");
+    // } else {
+    //   result = false;
+    //   print("are not friends");
+    // }
+    // // });
+
+    // return result;
   }
 
   Future<Map<dynamic, dynamic>> getNearbyUsers(String mySex) async {
@@ -243,45 +281,41 @@ class DatabaseService {
     print(nearYouValues);
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
-   // nearYouValues = await removeUsersAlreadyTexted(nearYouValues);
+    // nearYouValues = await removeUsersAlreadyTexted(nearYouValues);
     // print(values['adminArea']);
     // print(nearYouValues);
     nearYouValues.forEach((key, values) async {
       print("check");
       print(key);
-      if( mySex != values["sex"]){
-        if (key != uid  ) {
-       
-        if(values["latitiude"] != null && values["longitude"] != null){
-          double distanceInMeters = Geolocator.distanceBetween(
-            position.latitude,
-            position.longitude,
-            double.parse(values["latitiude"]),
-            double.parse(values["longitude"]));
-       
-        if (distanceInMeters < 5000000000) {
-          CoOrdinates u = new CoOrdinates();
-          Users x = new Users();
-          double latitiude = double.parse(values["latitiude"]);
+      if (mySex != values["sex"]) {
+        if (key != uid) {
+          if (values["latitiude"] != null && values["longitude"] != null) {
+            double distanceInMeters = Geolocator.distanceBetween(
+                position.latitude,
+                position.longitude,
+                double.parse(values["latitiude"]),
+                double.parse(values["longitude"]));
 
-          double longitude = double.parse(values["longitude"]);
-          u.latitiude = latitiude;
+            if (distanceInMeters < 5000000000) {
+              CoOrdinates u = new CoOrdinates();
+              Users x = new Users();
+              double latitiude = double.parse(values["latitiude"]);
 
-          u.longitude = longitude;
-          x.position = u;
-          users[key] = x;
+              double longitude = double.parse(values["longitude"]);
+              u.latitiude = latitiude;
+
+              u.longitude = longitude;
+              x.position = u;
+              users[key] = x;
+            }
+          }
         }
-        }
-       
       }
-      } 
-     
+
       //  print(check);
-      
     });
 
     //  print(users);
-  
 
     //  print(users["t3MYcrmwZ9VemLCSOPRI2bOxD9s2"].bio);
     //   print(users["t3MYcrmwZ9VemLCSOPRI2bOxD9s2"].position.longitude);
@@ -363,37 +397,36 @@ class DatabaseService {
     return convertLocal;
   }
 
-  Future<dynamic> sendNotification(String from,String to,String message,String type) async {
+  Future<dynamic> sendNotification(
+      String from, String to, String message, String type) async {
     try {
       FirebaseFunctions functions = FirebaseFunctions.instance;
       HttpsCallable callable = functions.httpsCallable('noti');
       print("ookkayyy");
       print(type);
       print(message);
-      if(type == "brim"){
-      final HttpsCallableResult result = await callable.call(
-        <String, dynamic>{
-          'to': to,
-          'from': from,
-          'message': message,
-          'type': type,
-        },
-      );
-       print("callable");
-      print(result.data);
-      }else{
-      final HttpsCallableResult result = await callable.call(
-        <String, dynamic>{
-          'to': to,
-          'from': from,
-          'message': message,
-        },
-      );
-       print("callable");
-      print(result.data);
+      if (type == "brim") {
+        final HttpsCallableResult result = await callable.call(
+          <String, dynamic>{
+            'to': to,
+            'from': from,
+            'message': message,
+            'type': type,
+          },
+        );
+        print("callable");
+        print(result.data);
+      } else {
+        final HttpsCallableResult result = await callable.call(
+          <String, dynamic>{
+            'to': to,
+            'from': from,
+            'message': message,
+          },
+        );
+        print("callable");
+        print(result.data);
       }
-     
-     
     } on FirebaseFunctionsException catch (e) {
       print('caught firebase functions exception');
       print(e);

@@ -117,8 +117,9 @@ class _BroadcastCommentState extends State<BroadcastComment> {
                                   u.currentUser = await DatabaseService()
                                       .getUserInfo(b.userId2);
                                    var unique = b.userId1 + b.userId2;
-                              var check = await  DatabaseService().doeschatExistAlready(unique);
-                              if(check == true){
+                                    var unique1 = b.userId2 + b.userId1;
+                              var check = await  DatabaseService().doeschatExistAlready(unique,unique1);
+                              if(check.check == true){
                                 Navigator.push(
                                     context,
                                     CupertinoPageRoute(

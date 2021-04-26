@@ -59,15 +59,15 @@ class BrimService {
     try {
       
        var unique = b.userId1 + b.userId2;
-       
-      var check = await  DatabaseService().doeschatExistAlready(unique);
+        var unique1 = b.userId2 + b.userId1;
+      var check = await  DatabaseService().doeschatExistAlready(unique,unique1);
       //     .doesBrimMessageExistAlready(b.userId2);
-      if (check != true) {
+      if (check.check != true) {
         var uuid = Uuid();
       
-        print("showty22333");
+        print("triggerd false");
         
-        var u1 = Uuid();
+       // var u1 = Uuid();
         print(b.userId2);
         CollectionReference userCollection =
             FirebaseFirestore.instance.collection('chats');
@@ -94,7 +94,7 @@ class BrimService {
           'broadcast': b.broadcast,
         });
       } else {
-         print("omG");
+         print("triggered true");
          var uuid = Uuid();
       
         var u1 = Uuid();
@@ -102,7 +102,7 @@ class BrimService {
         //print(b.userId2);
         CollectionReference userCollection =
             FirebaseFirestore.instance.collection('chats');
-        await userCollection.doc(unique).set({
+        await userCollection.doc(check.data).set({
           'participant1': b.userId1,
           'participant2': b.userId2,
           
@@ -113,7 +113,7 @@ class BrimService {
           'newMessage1': true,
         });
         await userCollection
-            .doc(unique)
+            .doc(check.data)
             .collection('messages')
             .doc(uuid.v1())
             .set({

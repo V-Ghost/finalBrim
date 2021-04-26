@@ -51,6 +51,7 @@ class Comment extends StatelessWidget {
                           ),
                           Text(
                             content,
+                             style: TextStyle(color: Colors.black),
                           )
                         ],
                       ),
