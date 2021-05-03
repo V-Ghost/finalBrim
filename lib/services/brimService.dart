@@ -19,6 +19,7 @@ class BrimService {
           .doesBrimMessageExistAlready(b.userId2);
       if (check != true) {
         var uuid = Uuid();
+        var array = [b.userId1,b.userId2];
         var unique = b.userId1 + b.userId2;
         var u1 = Uuid();
         print(b.userId2);
@@ -32,6 +33,7 @@ class BrimService {
           'permit2': false,
           'latest': b.date,
           'newMessage1': true,
+          'members': array,
         });
         await userCollection
             .doc(unique)
@@ -59,6 +61,7 @@ class BrimService {
     try {
       var unique = b.userId1 + b.userId2;
       var unique1 = b.userId2 + b.userId1;
+       var array = [b.userId1,b.userId2];
       var query = await FirebaseFirestore.instance
           .collection("chats")
           .where('participant1', isEqualTo: b.userId1)
@@ -103,7 +106,7 @@ class BrimService {
         await userCollection.doc(unique).set({
           'participant1': b.userId1,
           'participant2': b.userId2,
-
+            'members': array,
           'type': 'friends',
           'permit1': true,
           'permit2': false,
@@ -134,7 +137,7 @@ class BrimService {
         await userCollection.doc(unique).set({
           'participant1': b.userId1,
           'participant2': b.userId2,
-
+            'members': array,
           'type': 'brim',
           'permit1': true,
           'permit2': false,
@@ -173,7 +176,7 @@ class BrimService {
         await userCollection.doc(unique1).set({
           'participant1': b.userId1,
           'participant2': b.userId2,
-
+           'members': array,
           'type': 'friends',
           'permit1': true,
           'permit2': false,
@@ -204,7 +207,7 @@ class BrimService {
         await userCollection.doc(unique1).set({
           'participant1': b.userId1,
           'participant2': b.userId2,
-
+           'members': array,
           'type': 'brim',
           'permit1': true,
           'permit2': false,
@@ -237,7 +240,7 @@ class BrimService {
         await userCollection.doc(unique).set({
           'participant1': b.userId1,
           'participant2': b.userId2,
-
+            'members': array,
           'type': 'brim',
           'permit1': true,
           'permit2': false,

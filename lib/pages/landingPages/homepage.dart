@@ -14,6 +14,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:myapp/services/auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
 class Homepage extends StatefulWidget {
   Homepage({Key key}) : super(key: key);
 
@@ -25,43 +28,45 @@ class _HomepageState extends State<Homepage> {
   User user;
   bool registered;
   Users u;
-
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   Future<void> getUserDetails() async {
     //await AuthService(uid: user.uid).signOut();
     SharedPreferences myPrefs = await SharedPreferences.getInstance();
     print("how");
-    var oneDayAgo =  Timestamp.fromDate(DateTime.now().toUtc().subtract(Duration(days: 1)));
+    var oneDayAgo =
+        Timestamp.fromDate(DateTime.now().toUtc().subtract(Duration(days: 1)));
     var query = await FirebaseFirestore.instance
         .collection('chats')
-        .where('type', isEqualTo: 'brim').where('members', arrayContains: user.uid)
+        .where('type', isEqualTo: 'brim')
+        .where('members', arrayContains: user.uid)
         .get();
     query.docs.forEach((data) async {
-       print("data");
+      print("data");
       print(data.data());
-     
+
       //DatabaseService().sendNotification();
       var now = new DateTime.now();
       if (data.data().isNotEmpty) {
-        // if (DatabaseService()
-        //     .convertUTCToLocalDateTime(data.data()['latest'].toDate())
-        //     .isBefore(now.subtract(Duration(days: 1)))) {
+        if (DatabaseService()
+            .convertUTCToLocalDateTime(data.data()['latest'].toDate())
+            .isBefore(now.subtract(Duration(days: 1)))) {
           print("delting here");
           print(data.id);
 
-          // var query = await FirebaseFirestore.instance
-          //     .collection('chats')
-          //     .doc(data.id)
-          //     .collection("messages")
-          //     .get();
-          // query.docs.forEach((doc) {
-          //   FirebaseFirestore.instance
-          //       .collection('chats')
-          //       .doc(data.id)
-          //       .collection("messages")
-          //       .doc(doc.id)
-          //       .delete();
-          // });
-          // FirebaseFirestore.instance.collection('chats').doc(data.id).delete();
+          var query = await FirebaseFirestore.instance
+              .collection('chats')
+              .doc(data.id)
+              .collection("messages")
+              .get();
+          query.docs.forEach((doc) {
+            FirebaseFirestore.instance
+                .collection('chats')
+                .doc(data.id)
+                .collection("messages")
+                .doc(doc.id)
+                .delete();
+          });
+          FirebaseFirestore.instance.collection('chats').doc(data.id).delete();
           // print("eii hun");
           // print(query.;
 
@@ -71,7 +76,7 @@ class _HomepageState extends State<Homepage> {
           //     print(value);
           // });
 
-        // }
+        }
       }
       //var nextCheck = new DateTime(now  .getYear(), now.getMonth(), now.getDate() + 1);
     });
@@ -116,7 +121,30 @@ class _HomepageState extends State<Homepage> {
     print("open");
     // user = Provider.of<User>(context, listen: false);
     user = FirebaseAuth.instance.currentUser;
-
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        // final notification = message['notification'];
+        print(message);
+        print("onMessage: $message");
+        String n = message['notification']['title'];
+        Fluttertoast.showToast(
+            msg: "it come",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 3,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        // final notification = message['data'];
+        print("onMessage: $message");
+      },
+      onResume: (Map<String, dynamic> message) async {
+        //  final notification = message['data'];
+        print("onMessage: $message");
+      },
+    );
     // u = DatabaseService(uid: user.uid).getUserDetails();
     // print(user.uid);
     // _getCurrentLocation();

@@ -23,6 +23,7 @@ import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class MainPage extends StatefulWidget {
   MainPage({Key key}) : super(key: key);
@@ -50,66 +51,8 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   StreamSubscription iosSubscription;
   @override
   void initState() {
-     user = FirebaseAuth.instance.currentUser;
-     _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        // final notification = message['notification'];
-        print("onMessage: $message");
-        String n = message['notification']['title'];
-        print(n);
-        showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        // return AlertDialog(
-        //   title: new Text(message['notification']['title']),
-        //   content: new Text(message['notification']['body']),
-        //   actions: <Widget>[
-        //     // usually buttons at the bottom of the dialog
-        //     new FlatButton(
-        //       child: new Text("Close"),
-        //       onPressed: () {
-        //         Navigator.of(context).pop();
-        //       },
-        //     ),
-        //   ],
-        // );
-      },
-    );
-      
-      },
-      onLaunch: (Map<String, dynamic> message) async {
-        // final notification = message['data'];
-        print("onMessage: $message");
-      },
-      onResume: (Map<String, dynamic> message) async {
-        //  final notification = message['data'];
-        print("onMessage: $message");
-      },
-    );
-    // if (Platform.isIOS) {
-    //       iosSubscription = _firebaseMessaging.onIosSettingsRegistered.listen((data) {
-    //          DatabaseService(uid : user.uid).saveDeviceToken();
-    //       });
-
-    //       _firebaseMessaging.requestNotificationPermissions(
-    //     const IosNotificationSettings(sound: true, badge: true, alert: true));
-    //     }else{
-    //       print("hii ios");
-    //        DatabaseService(uid : user.uid).saveDeviceToken();
-    //     }
-    // if (Platform.isIOS) {
-    //   iosSubscription =
-    //       _firebaseMessaging.onIosSettingsRegistered.listen((data) {
-    //     DatabaseService(uid: user.uid).saveDeviceToken();
-    //   });
-
-    //   _firebaseMessaging.requestNotificationPermissions(
-    //       const IosNotificationSettings(sound: true, badge: true, alert: true));
-    // } else {
-    //   print("hii ios");
-    //   DatabaseService(uid: user.uid).saveDeviceToken();
-    // }
+    user = FirebaseAuth.instance.currentUser;
+    
 
     WidgetsBinding.instance.addObserver(this);
 
@@ -130,7 +73,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       'lastChanged': DateTime.now().toUtc().toString()
     }).then((_) async {});
     DatabaseService(uid: user.uid).onlineUpdate();
-    DatabaseService(uid: user.uid).saveDeviceToken();
+    //DatabaseService(uid: user.uid).saveDeviceToken();
     super.initState();
   }
 
