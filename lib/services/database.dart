@@ -56,11 +56,10 @@ class DatabaseService {
       await storageReference.putFile(_image);
       _uploadedFileURL = await storageReference.getDownloadURL();
 
-      print('File Upppppppppppppppppppppppppppppppppppppppppppppppploaded');
-      print(_uploadedFileURL);
+     
       return _uploadedFileURL;
     } catch (error) {
-      print("erroer");
+     
       return error;
     }
   }
@@ -344,6 +343,8 @@ class DatabaseService {
     users.forEach((key, value) async {
       DocumentSnapshot documentSnapshot =
           await FirebaseFirestore.instance.collection('users').doc(key).get();
+          print("wtf");
+          print(documentSnapshot.data());
       temp = Users.fromMap(documentSnapshot.data());
       users[key].bio = temp.bio;
       //if()
@@ -402,9 +403,7 @@ class DatabaseService {
     try {
       FirebaseFunctions functions = FirebaseFunctions.instance;
       HttpsCallable callable = functions.httpsCallable('noti');
-      print("ookkayyy");
-      print(type);
-      print(message);
+     
       if (type == "brim") {
         final HttpsCallableResult result = await callable.call(
           <String, dynamic>{
@@ -414,8 +413,7 @@ class DatabaseService {
             'type': type,
           },
         );
-        print("callable");
-        print(result.data);
+       
       } else {
         final HttpsCallableResult result = await callable.call(
           <String, dynamic>{
@@ -424,8 +422,7 @@ class DatabaseService {
             'message': message,
           },
         );
-        print("callable");
-        print(result.data);
+       
       }
     } on FirebaseFunctionsException catch (e) {
       print('caught firebase functions exception');

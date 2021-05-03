@@ -251,14 +251,14 @@ class ChatService {
 
   Stream brimStream() {
     return FirebaseFirestore.instance
-        .collection("chats")
+        .collection("chats").where('members', arrayContains: uid)
         .orderBy("latest", descending: true)
         .snapshots();
   }
 
   Stream chatsStream() {
     return FirebaseFirestore.instance
-        .collection("chats")
+        .collection("chats").where('members', arrayContains: uid)
         .orderBy("latestMessage", descending: false)
         .snapshots();
   }

@@ -13,7 +13,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:myapp/services/auth.dart';
 class Homepage extends StatefulWidget {
   Homepage({Key key}) : super(key: key);
 
@@ -27,39 +27,54 @@ class _HomepageState extends State<Homepage> {
   Users u;
 
   Future<void> getUserDetails() async {
+    //await AuthService(uid: user.uid).signOut();
     SharedPreferences myPrefs = await SharedPreferences.getInstance();
     print("how");
-    var query = await FirebaseFirestore.instance.collection('chats').where('type', isEqualTo: 'brim').get();
-   query.docs.forEach((data) async{
+    var oneDayAgo =  Timestamp.fromDate(DateTime.now().toUtc().subtract(Duration(days: 1)));
+    var query = await FirebaseFirestore.instance
+        .collection('chats')
+        .where('type', isEqualTo: 'brim').where('members', arrayContains: user.uid)
+        .get();
+    query.docs.forEach((data) async {
+       print("data");
+      print(data.data());
      
-    //print(data.data());
-    print("data");
-    //DatabaseService().sendNotification();
-    var now = new DateTime.now();
-    if(data.data().isNotEmpty) {
-     if(DatabaseService().convertUTCToLocalDateTime(data.data()['latest'].toDate()).isBefore(now.subtract(Duration(days: 1))) ){
-     print("delting here");
-     print(data.id);
-     
-      var query = await FirebaseFirestore.instance.collection('chats').doc(data.id).collection("messages").get();
-      query.docs.forEach((doc){
-     FirebaseFirestore.instance.collection('chats').doc(data.id).collection("messages").doc(doc.id).delete();
-      });
-       FirebaseFirestore.instance.collection('chats').doc(data.id).delete();
-      // print("eii hun");
-      // print(query.;
-     
-      // query.data().forEach((key,value){
-      //     print("ma deletii");
-      //     print(key);
-      //     print(value);
-      // });
-    
-    }
-    }
-    //var nextCheck = new DateTime(now  .getYear(), now.getMonth(), now.getDate() + 1);
-   
-   });
+      //DatabaseService().sendNotification();
+      var now = new DateTime.now();
+      if (data.data().isNotEmpty) {
+        // if (DatabaseService()
+        //     .convertUTCToLocalDateTime(data.data()['latest'].toDate())
+        //     .isBefore(now.subtract(Duration(days: 1)))) {
+          print("delting here");
+          print(data.id);
+
+          // var query = await FirebaseFirestore.instance
+          //     .collection('chats')
+          //     .doc(data.id)
+          //     .collection("messages")
+          //     .get();
+          // query.docs.forEach((doc) {
+          //   FirebaseFirestore.instance
+          //       .collection('chats')
+          //       .doc(data.id)
+          //       .collection("messages")
+          //       .doc(doc.id)
+          //       .delete();
+          // });
+          // FirebaseFirestore.instance.collection('chats').doc(data.id).delete();
+          // print("eii hun");
+          // print(query.;
+
+          // query.data().forEach((key,value){
+          //     print("ma deletii");
+          //     print(key);
+          //     print(value);
+          // });
+
+        // }
+      }
+      //var nextCheck = new DateTime(now  .getYear(), now.getMonth(), now.getDate() + 1);
+    });
     if (myPrefs.getBool('loggedIn')) {
       Users temp;
       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
@@ -74,7 +89,7 @@ class _HomepageState extends State<Homepage> {
         u.bio = temp.bio;
         u.dob = temp.dob;
         u.gender = temp.gender;
-        
+
         user = FirebaseAuth.instance.currentUser;
         SharedPreferences myPrefs = await SharedPreferences.getInstance();
         firstRun.firstRun = myPrefs.getBool('isFirstRun');

@@ -17,7 +17,7 @@ class BrimService {
     try {
       var check = await DatabaseService(uid: uid)
           .doesBrimMessageExistAlready(b.userId2);
-     if (check != true) {
+      if (check != true) {
         var uuid = Uuid();
         var unique = b.userId1 + b.userId2;
         var u1 = Uuid();
@@ -57,16 +57,45 @@ class BrimService {
 
   Future<dynamic> sendComment(Brim b) async {
     try {
-      
-       var unique = b.userId1 + b.userId2;
-        var unique1 = b.userId2 + b.userId1;
-      var check = await  DatabaseService().doeschatExistAlready(unique,unique1);
+      var unique = b.userId1 + b.userId2;
+      var unique1 = b.userId2 + b.userId1;
+      var query = await FirebaseFirestore.instance
+          .collection("chats")
+          .where('participant1', isEqualTo: b.userId1)
+          .where('participant2', isEqualTo: b.userId2)
+          .get();
+
+      var query1 = await FirebaseFirestore.instance
+          .collection("chats")
+          .where('participant2', isEqualTo: b.userId1)
+          .where('participant1', isEqualTo: b.userId2)
+          .get();
+      // var query1 = await FirebaseFirestore.instance
+      //     .collection("chats")
+      //     .where('members', arrayContainsAny: [b.userId2]).get();
+      // bool greater = false;
+      // int q = await query.docs.length.toInt();
+      // print("length for q : $q");
+      // print(b.userId2);
+      // int q1 = await query1.docs.length.toInt();
+      // print("length for q1 : $q1");
+      // if (q > q1) {
+      //   print("query is greater");
+      //   greater = true;//user1
+      // }
       //     .doesBrimMessageExistAlready(b.userId2);
-      if (check.check != true) {
-        var uuid = Uuid();
-      
+      //print("about to");
+      if (query.docs.isNotEmpty) {
+        query.docs.forEach((data) async {
+          print("unique");
+          print(unique);
+          print(data.data());
+
+          if (data.data().containsKey("latestMessage"))  {
+           var uuid = Uuid();
+
         print("triggerd false");
-        
+
        // var u1 = Uuid();
         print(b.userId2);
         CollectionReference userCollection =
@@ -74,7 +103,38 @@ class BrimService {
         await userCollection.doc(unique).set({
           'participant1': b.userId1,
           'participant2': b.userId2,
-          
+
+          'type': 'friends',
+          'permit1': true,
+          'permit2': false,
+          'latestMessage': b.date,
+          'newMessage1': true,
+        });
+        await userCollection
+            .doc(unique)
+            .collection('messages')
+            .doc(uuid.v1())
+            .set({
+          'message': b.message,
+          'from': b.sender,
+          'type': "comment",
+          'read': false,
+          'time': b.date,
+          'broadcast': b.broadcast,
+        });
+          } else if (data.data().containsKey("latest")) {
+            var uuid = Uuid();
+
+        print("triggerd false");
+
+       // var u1 = Uuid();
+        print(b.userId2);
+        CollectionReference userCollection =
+            FirebaseFirestore.instance.collection('chats');
+        await userCollection.doc(unique).set({
+          'participant1': b.userId1,
+          'participant2': b.userId2,
+
           'type': 'brim',
           'permit1': true,
           'permit2': false,
@@ -93,19 +153,27 @@ class BrimService {
           'time': b.date,
           'broadcast': b.broadcast,
         });
-      } else {
-         print("triggered true");
-         var uuid = Uuid();
-      
-        var u1 = Uuid();
-       
-        //print(b.userId2);
+          }
+        });
+      }else if(query1.docs.isNotEmpty ){
+      query1.docs.forEach((data) async {
+          print("unique1");
+          print(unique1);
+          print(data.data());
+
+            if (data.data().containsKey("latestMessage"))  {
+           var uuid = Uuid();
+
+        print("triggerd false");
+
+       // var u1 = Uuid();
+        print(b.userId2);
         CollectionReference userCollection =
             FirebaseFirestore.instance.collection('chats');
-        await userCollection.doc(check.data).set({
+        await userCollection.doc(unique1).set({
           'participant1': b.userId1,
           'participant2': b.userId2,
-          
+
           'type': 'friends',
           'permit1': true,
           'permit2': false,
@@ -113,7 +181,7 @@ class BrimService {
           'newMessage1': true,
         });
         await userCollection
-            .doc(check.data)
+            .doc(unique1)
             .collection('messages')
             .doc(uuid.v1())
             .set({
@@ -124,10 +192,150 @@ class BrimService {
           'time': b.date,
           'broadcast': b.broadcast,
         });
+          } else if (data.data().containsKey("latest")) {
+            var uuid = Uuid();
+
+        print("triggerd false");
+
+       // var u1 = Uuid();
+        print(b.userId2);
+        CollectionReference userCollection =
+            FirebaseFirestore.instance.collection('chats');
+        await userCollection.doc(unique1).set({
+          'participant1': b.userId1,
+          'participant2': b.userId2,
+
+          'type': 'brim',
+          'permit1': true,
+          'permit2': false,
+          'latest': b.date,
+          'newMessage1': true,
+        });
+        await userCollection
+            .doc(unique1)
+            .collection('messages')
+            .doc(uuid.v1())
+            .set({
+          'message': b.message,
+          'from': b.sender,
+          'type': "comment",
+          'read': false,
+          'time': b.date,
+          'broadcast': b.broadcast,
+        });
+          }
+        });
+      } else {
+         var uuid = Uuid();
+
+        print("triggerd false");
+
+       // var u1 = Uuid();
+        print(b.userId2);
+        CollectionReference userCollection =
+            FirebaseFirestore.instance.collection('chats');
+        await userCollection.doc(unique).set({
+          'participant1': b.userId1,
+          'participant2': b.userId2,
+
+          'type': 'brim',
+          'permit1': true,
+          'permit2': false,
+          'latest': b.date,
+          'newMessage1': true,
+        });
+        await userCollection
+            .doc(unique)
+            .collection('messages')
+            .doc(uuid.v1())
+            .set({
+          'message': b.message,
+          'from': b.sender,
+          'type': "comment",
+          'read': false,
+          'time': b.date,
+          'broadcast': b.broadcast,
+        });
+          
+        
       }
+      //else {
+      //   query1.docs.forEach((data) {
+      //     print("entered1");
+      //     print(data.data());
+      //     if (data.data().isNotEmpty) {
+      //     } else {
+
+      //     }
+      //   });
+      // }
+
+      // if (check..) {
+      //   var uuid = Uuid();
+
+      //   print("triggerd false");
+
+      //  // var u1 = Uuid();
+      //   print(b.userId2);
+      //   CollectionReference userCollection =
+      //       FirebaseFirestore.instance.collection('chats');
+      //   await userCollection.doc(unique).set({
+      //     'participant1': b.userId1,
+      //     'participant2': b.userId2,
+
+      //     'type': 'brim',
+      //     'permit1': true,
+      //     'permit2': false,
+      //     'latest': b.date,
+      //     'newMessage1': true,
+      //   });
+      //   await userCollection
+      //       .doc(unique)
+      //       .collection('messages')
+      //       .doc(uuid.v1())
+      //       .set({
+      //     'message': b.message,
+      //     'from': b.sender,
+      //     'type': "comment",
+      //     'read': false,
+      //     'time': b.date,
+      //     'broadcast': b.broadcast,
+      //   });
+      // } else {
+      //    print("triggered true");
+      //    var uuid = Uuid();
+
+      //   var u1 = Uuid();
+
+      //   //print(b.userId2);
+      //   CollectionReference userCollection =
+      //       FirebaseFirestore.instance.collection('chats');
+      //   await userCollection.doc(check.data).set({
+      //     'participant1': b.userId1,
+      //     'participant2': b.userId2,
+
+      //     'type': 'friends',
+      //     'permit1': true,
+      //     'permit2': false,
+      //     'latestMessage': b.date,
+      //     'newMessage1': true,
+      //   });
+      //   await userCollection
+      //       .doc(check.data)
+      //       .collection('messages')
+      //       .doc(uuid.v1())
+      //       .set({
+      //     'message': b.message,
+      //     'from': b.sender,
+      //     'type': "comment",
+      //     'read': false,
+      //     'time': b.date,
+      //     'broadcast': b.broadcast,
+      //   });
+      // }
     } catch (error) {
       print("error occured");
-        print(error.toString());
+      print(error.toString());
       return error.toString();
     }
   }
@@ -160,9 +368,9 @@ class BrimService {
           desiredAccuracy: LocationAccuracy.high);
       final coordinates =
           new Coordinates(position.latitude, position.longitude);
-      var addresses =
-          await Geocoder.local.findAddressesFromCoordinates(coordinates);
-      var first = addresses.first;
+      // var addresses =
+      //     await Geocoder.local.findAddressesFromCoordinates(coordinates);
+      // var first = addresses.first;
       String id = DateTime.now().millisecondsSinceEpoch.toString() + uid;
       final databaseReference =
           FirebaseDatabase.instance.reference().child("brims");
@@ -181,30 +389,34 @@ class BrimService {
   }
 
   Future<List<BroadCastMessage>> getBroadcasts() async {
-
-
     List<BroadCastMessage> broadcasts = [];
 
     final databaseReference =
         FirebaseDatabase.instance.reference().child("brims");
     DataSnapshot snapshot = await databaseReference.once();
     Map<dynamic, dynamic> values = snapshot.value;
-    if(values != null){
-     values.forEach((key, value) {
-       var now = new DateTime.now();
-      BroadCastMessage d1 = new BroadCastMessage();
-      // d1.message = value["message"];
-      // d1.user = value["user"];
-      d1 = BroadCastMessage.fromMap(value);
-      DateTime tempDate = new DateFormat("yyyy-MM-dd hh:mm:ss").parse( value["date"].toString());
-       if(DatabaseService().convertUTCToLocalDateTime(tempDate).isBefore(now.subtract(Duration(days: 1))) ){
-      FirebaseDatabase.instance.reference().child("brims").child(key).remove();
+    if (values != null) {
+      values.forEach((key, value) {
+        var now = new DateTime.now();
+        BroadCastMessage d1 = new BroadCastMessage();
+        // d1.message = value["message"];
+        // d1.user = value["user"];
+        d1 = BroadCastMessage.fromMap(value);
+        DateTime tempDate = new DateFormat("yyyy-MM-dd hh:mm:ss")
+            .parse(value["date"].toString());
+        if (DatabaseService()
+            .convertUTCToLocalDateTime(tempDate)
+            .isBefore(now.subtract(Duration(days: 1)))) {
+          FirebaseDatabase.instance
+              .reference()
+              .child("brims")
+              .child(key)
+              .remove();
+        }
+        // d1.time = value["date"];
+        broadcasts.add(d1);
+      });
     }
-      // d1.time = value["date"];
-      broadcasts.add(d1);
-    });
-    }
-    
 
     return broadcasts;
   }

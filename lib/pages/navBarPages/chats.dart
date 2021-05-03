@@ -69,7 +69,7 @@ class _ChatsState extends State<Chats> {
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       if (snapshot.data.docs.length == 0) {
-                        print("makaveliu");
+                        // print("makaveliu");
                         return Center(
                           child: Text(
                             "No Brims here",

@@ -17,20 +17,20 @@ class Users extends ChangeNotifier {
   String _uid;
   User _user;
   Users _currentUser;
-   CoOrdinates _position;
+  CoOrdinates _position;
   Users get instance => this;
-   
+
   String get userName => _userName;
 
+  Users();
 
-Users();
-
- CoOrdinates get position => _position;
+  CoOrdinates get position => _position;
 
   set position(CoOrdinates value) {
     _position = value;
     notifyListeners();
   }
+
   set userName(String value) {
     _userName = value;
     notifyListeners();
@@ -43,7 +43,6 @@ Users();
     notifyListeners();
   }
 
-  
   Users get currentUser => _currentUser;
 
   set currentUser(Users value) {
@@ -51,7 +50,7 @@ Users();
     notifyListeners();
   }
 
-   String get gender => _gender;
+  String get gender => _gender;
 
   set gender(String value) {
     _gender = value;
@@ -72,7 +71,7 @@ Users();
     notifyListeners();
   }
 
-   String get uid => _uid;
+  String get uid => _uid;
 
   set uid(String value) {
     _uid = value;
@@ -107,22 +106,23 @@ Users();
 
   String get smsCode => _smsCode;
 
-   set phoneNumber(String value) {
+  set phoneNumber(String value) {
     _phoneNumber = value;
     notifyListeners();
   }
 
   String get phoneNumber => _phoneNumber;
 
-
-  Users.fromMap(Map<String,dynamic> data){
-  //sets all private values to values of the input map
-_userName = data['username'];
-_picture = data['picture'];
-_gender = data['gender'];
-_dob = data['dob'].toDate();
-_bio = data['bio'];
-_phoneNumber = data['phoneNumber'];
-notifyListeners();
-}
+  Users.fromMap(Map<String, dynamic> data) {
+    print("the data ");
+    print(data);
+    //sets all private values to values of the input map
+    _userName = data['username'];
+    _picture = data['picture'];
+    _gender = data['gender'];
+    _dob = data['dob'].toDate();
+    _bio = data['bio'];
+    _phoneNumber = data['phoneNumber'];
+    notifyListeners();
+  }
 }

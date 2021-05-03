@@ -180,6 +180,7 @@ class _EnterCodeState extends State<EnterCode> {
                                     textColor: Colors.white,
                                     fontSize: 16.0);
                               } else {
+                                 user = FirebaseAuth.instance.currentUser;
                                 print("ahhn");
                                 if (Platform.isIOS) {
                                   iosSubscription = _firebaseMessaging

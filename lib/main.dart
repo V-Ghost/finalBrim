@@ -7,7 +7,7 @@ import 'package:myapp/pages/login.dart';
 import 'package:myapp/pages/navBarPages/chats.dart';
 import 'package:myapp/pages/register/loginUi.dart';
 import 'package:myapp/pages/signup.dart';
-
+import 'package:myapp/services/auth.dart';
 import 'package:provider/provider.dart';
 import 'package:myapp/pages/userDetails.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +29,8 @@ class MyApp extends StatelessWidget {
   Future<dynamic> intialize() async {
     // tz.initializeTimeZones();
       await Firebase.initializeApp();
-     
+      //User user = FirebaseAuth.instance.currentUser;
+        //await AuthService(uid: user.uid).signOut();
       SharedPreferences myPrefs = await SharedPreferences.getInstance();
        myPrefs.setBool("login", false);
     FirebaseAuth.instance.authStateChanges().listen((User user) {

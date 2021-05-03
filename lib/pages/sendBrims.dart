@@ -97,11 +97,7 @@ class _SendBrimsState extends State<SendBrims> {
                                 //   print("here");
                                 //   loading = true;
                                 // });
-                                dynamic result = await db.sendBrim(b);
-                                //Navigator.of(context).pop();
-                                DatabaseService().sendNotification(u.userName,
-                                    widget.userId, b.message, "brim");
-                                   Fluttertoast.showToast(
+                                Fluttertoast.showToast(
                                       msg: "Sending",
                                       toastLength: Toast.LENGTH_SHORT,
                                       gravity: ToastGravity.CENTER,
@@ -109,6 +105,11 @@ class _SendBrimsState extends State<SendBrims> {
                                       backgroundColor: Colors.blue,
                                       textColor: Colors.white,
                                       fontSize: 16.0);
+                                dynamic result = await db.sendBrim(b);
+                                //Navigator.of(context).pop();
+                                DatabaseService().sendNotification(u.userName,
+                                    widget.userId, b.message, "brim");
+                                   
                                 if (result == null) {
                                   // db.retrieveBrims();
                                   // setState(() {
@@ -185,6 +186,14 @@ class _SendBrimsState extends State<SendBrims> {
                                 //     print("here");
                                 //     loading = true;
                                 //   });
+                                Fluttertoast.showToast(
+                                      msg: "Sending",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 3,
+                                      backgroundColor: Colors.blue,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
                                 dynamic result = await db.broadcastBrim(b);
                                 Navigator.of(context).pop();
                                 if (result == null) {

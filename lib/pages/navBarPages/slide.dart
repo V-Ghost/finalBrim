@@ -288,6 +288,7 @@ class _SlideState extends State<Slide> {
     final TextEditingController _textController = TextEditingController();
     showModalBottomSheet(
         context: context,
+        isDismissible: true,
         isScrollControlled: true,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
@@ -393,7 +394,15 @@ class _SlideState extends State<Slide> {
                                 //  print("start");
                                 //   await  DatabaseService().doeschatExistAlready(unique,unique1);
                                 //   print("finish");
-                                dynamic result = await db.sendComment(b);
+                                 Fluttertoast.showToast(
+                                      msg: "Sending",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 3,
+                                      backgroundColor: Colors.blue,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
+                                dynamic result = await BrimService(uid:user.uid).sendComment(b);
                                 String type = "brim";
                                 DatabaseService().sendNotification(
                                     u.userName, userId, b.message, "brim");

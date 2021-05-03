@@ -227,6 +227,7 @@ class _MapPageState extends State<MapPage> {
             showModalBottomSheet(
               context: context,
               isScrollControlled: true,
+              isDismissible: true,
               backgroundColor: Colors.transparent,
               builder: (context) => Container(
                 height: MediaQuery.of(context).size.height * 0.8,
