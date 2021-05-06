@@ -121,30 +121,7 @@ class _HomepageState extends State<Homepage> {
     print("open");
     // user = Provider.of<User>(context, listen: false);
     user = FirebaseAuth.instance.currentUser;
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        // final notification = message['notification'];
-        print(message);
-        print("onMessage: $message");
-        String n = message['notification']['title'];
-        Fluttertoast.showToast(
-            msg: "it come",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 3,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0);
-      },
-      onLaunch: (Map<String, dynamic> message) async {
-        // final notification = message['data'];
-        print("onMessage: $message");
-      },
-      onResume: (Map<String, dynamic> message) async {
-        //  final notification = message['data'];
-        print("onMessage: $message");
-      },
-    );
+   
     // u = DatabaseService(uid: user.uid).getUserDetails();
     // print(user.uid);
     // _getCurrentLocation();

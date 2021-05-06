@@ -33,7 +33,7 @@ class _SendBrimsState extends State<SendBrims> {
   final TextEditingController _textController = TextEditingController();
   final textValidator = MultiValidator([
     RequiredValidator(errorText: 'Enter text'),
-    MaxLengthValidator(160, errorText: 'Not more than 160 characters'),
+    MaxLengthValidator(100, errorText: 'Not more than 100 characters'),
   ]);
   @override
   void initState() {

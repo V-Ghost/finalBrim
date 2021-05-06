@@ -521,10 +521,10 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                                 if (_textController.text != "") {
                                   // length =
                                   //     await ChatService().getChatlength(widget.messageId);
-                                  if (length < 8) {
+                                  if (length < 25) {
                                     Message m = new Message();
 
-                                    if (isMe != true) {
+                                   // if (isMe != true) {
                                       m.message = _textController.text;
                                       m.from = user.uid;
                                       m.read = false;
@@ -559,17 +559,17 @@ class _ChatDetailsBrimState extends State<ChatDetailsBrim> {
                                                 _scrollController
                                                     .position.maxScrollExtent));
                                       }
-                                    } else {
-                                      Fluttertoast.showToast(
-                                          msg:
-                                              "You need to be friends to send back to back messages",
-                                          toastLength: Toast.LENGTH_SHORT,
-                                          gravity: ToastGravity.CENTER,
-                                          timeInSecForIosWeb: 3,
-                                          backgroundColor: Colors.red,
-                                          textColor: Colors.white,
-                                          fontSize: 16.0);
-                                    }
+                                    // } else {
+                                    //   Fluttertoast.showToast(
+                                    //       msg:
+                                    //           "You need to be friends to send back to back messages",
+                                    //       toastLength: Toast.LENGTH_SHORT,
+                                    //       gravity: ToastGravity.CENTER,
+                                    //       timeInSecForIosWeb: 3,
+                                    //       backgroundColor: Colors.red,
+                                    //       textColor: Colors.white,
+                                    //       fontSize: 16.0);
+                                    // }
                                   } else {
                                     Fluttertoast.showToast(
                                         msg:

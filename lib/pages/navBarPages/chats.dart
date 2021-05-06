@@ -9,6 +9,7 @@ import 'package:myapp/services/chatService.dart';
 import 'package:myapp/services/database.dart';
 import 'package:myapp/widgets/custom_heading.dart';
 import 'package:provider/provider.dart';
+import 'package:myapp/widgets/options.dart';
 
 class Chats extends StatefulWidget {
   @override
@@ -38,20 +39,11 @@ class _ChatsState extends State<Chats> {
 
   @override
   Widget build(BuildContext context) {
+   
     return Scaffold(
       appBar: AppBar(
-        leading: GestureDetector(
-          // onTap: () {
-          //   _scaffoldKey.currentState.openDrawer();
-          // },
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CircleAvatar(
-              radius: 2,
-              backgroundImage: NetworkImage("${u.picture}"),
-              backgroundColor: Colors.purple,
-            ),
-          ),
+        leading: OptionsMenu(
+          u: u,
         ),
         backgroundColor: Colors.white,
         title: const Text('Brim', style: TextStyle(color: Colors.black)),
@@ -69,7 +61,8 @@ class _ChatsState extends State<Chats> {
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       if (snapshot.data.docs.length == 0) {
-                        // print("makaveliu");
+                        print("makaveliu");
+                        print(snapshot.data.docs);
                         return Center(
                           child: Text(
                             "No Brims here",
@@ -82,11 +75,13 @@ class _ChatsState extends State<Chats> {
                         print("ooohhhhh");
                         return ListView.builder(
                           itemCount: snapshot.data.docs.length,
-                          shrinkWrap: true,
+                          //shrinkWrap: true,
                           physics: BouncingScrollPhysics(),
                           scrollDirection: Axis.horizontal,
                           padding: EdgeInsets.all(15),
                           itemBuilder: (BuildContext context, int index) {
+                            print("brims");
+                            print(snapshot.data.docs[index].data());
                             if (snapshot.data.docs[index]
                                         .data()["participant1"]
                                         .toString() ==
@@ -102,6 +97,8 @@ class _ChatsState extends State<Chats> {
                         );
                       }
                     } else if (snapshot.hasError) {
+                      print('error dectored');
+                      print(snapshot.error);
                       return Center(
                         child: Icon(Icons.error),
                       );
@@ -138,8 +135,8 @@ class _ChatsState extends State<Chats> {
                                     .toString() ==
                                 user.uid) {
                           print("it reach");
-                          return yourChats(
-                              snapshot.data.docs[index].data(), index,snapshot.data.docs[index].id);
+                          return yourChats(snapshot.data.docs[index].data(),
+                              index, snapshot.data.docs[index].id);
                         }
                         //else {
                         //  // print("father");
@@ -173,7 +170,7 @@ class _ChatsState extends State<Chats> {
     );
   }
 
-  Widget yourChats(Map<dynamic, dynamic> data, int index,String messageId ) {
+  Widget yourChats(Map<dynamic, dynamic> data, int index, String messageId) {
     String otherUser;
     String newMessage;
     String messageId;
@@ -219,22 +216,22 @@ class _ChatsState extends State<Chats> {
                               CupertinoActionSheetAction(
                                 child: Text('Yes'),
                                 onPressed: () async {
-                                     //print("tap");
-                                    Navigator.pop(context);
+                                  //print("tap");
+                                  Navigator.pop(context);
                                   var query = await FirebaseFirestore.instance
                                       .collection('chats')
                                       .doc(messageId)
                                       .collection("messages")
                                       .get();
-                                     print(query.size);
-                                     Future.forEach(query.docs, (doc)async{
-                                         await FirebaseFirestore.instance
+                                  print(query.size);
+                                  Future.forEach(query.docs, (doc) async {
+                                    await FirebaseFirestore.instance
                                         .collection('chats')
                                         .doc(messageId)
                                         .collection("messages")
                                         .doc(doc.id)
                                         .delete();
-                                     });
+                                  });
                                   // query.docs.forEach((doc) {
                                   //   // print("hii reach");
                                   //   // print(query);
@@ -250,7 +247,7 @@ class _ChatsState extends State<Chats> {
                                       .collection('chats')
                                       .doc(messageId)
                                       .delete();
-                                       //Navigator.of(context).pop();
+                                  //Navigator.of(context).pop();
                                 },
                               ),
                             ],

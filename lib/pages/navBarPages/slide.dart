@@ -32,13 +32,13 @@ class _SlideState extends State<Slide> {
   List<Widget> w = [];
   List<Users> uList = [];
   List<Color> color = [
-    Colors.blue,
-    Colors.amber,
-    Colors.pink,
-    Colors.purple,
-    Colors.green,
-    Colors.red,
-    Colors.yellow
+    Colors.blue[50],
+    Colors.amber[50],
+    Colors.pink[50],
+    Colors.purple[50],
+    Colors.green[50],
+    Colors.red[50],
+    Colors.yellow[50]
   ];
   User user;
   int selectedItem = 0;
@@ -114,6 +114,7 @@ class _SlideState extends State<Slide> {
   }
 
   Future<void> getBroadcast() async {
+    
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
@@ -128,7 +129,7 @@ class _SlideState extends State<Slide> {
       // double distanceInMeters = Geolocator.distanceBetween(
       //     position.latitude, position.longitude, b.latitiude, b.longitude);
       Widget x = Padding(
-        padding: EdgeInsets.only(top: 10, bottom: 10),
+        padding: EdgeInsets.all(20),
         child: Container(
             height: height * 0.4,
             width: width,
@@ -277,7 +278,7 @@ class _SlideState extends State<Slide> {
   void _modalBottomSheetMenu(String userId, String broadcast) {
      final textValidator = MultiValidator([
     RequiredValidator(errorText: 'Enter text'),
-    MaxLengthValidator(160, errorText: 'Not more than 160 characters'),
+    
   ]);
     bool loading = false;
     double radius = 0;
@@ -351,7 +352,7 @@ class _SlideState extends State<Slide> {
                           ),
                         ),
                         Text(
-                          "your comment would be sent as a brim",
+                          "your comment was sent",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             letterSpacing: 0.7,

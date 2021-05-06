@@ -277,45 +277,45 @@ class _EditProfileState extends State<EditProfile> {
                         ),
                       ),
                     ),
-                     Padding(
-                      padding: const EdgeInsets.only(left: 40, right: 40),
-                      child: ButtonTheme(
-                        height: 50,
-                        child: RaisedButton(
-                          onPressed: () {
+                    //  Padding(
+                    //   padding: const EdgeInsets.only(left: 40, right: 40),
+                    //   child: ButtonTheme(
+                    //     height: 50,
+                    //     child: RaisedButton(
+                    //       onPressed: () {
                             
-                          },
+                    //       },
 
-                          // borderSide: BorderSide(color: Colors.blue),
-                          shape: new RoundedRectangleBorder(
-                              borderRadius: new BorderRadius.circular(30.0)),
-                          color: Colors.red,
-                          // height: 30,
-                          // width: 100,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Container(),
-                              ),
-                              Icon(
-                                Icons.delete_forever,
-                                color: Colors.white,
-                              ),
-                              SizedBox(
-                                width: 20,
-                              ),
-                              Text(
-                                'Delete User',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              Expanded(
-                                child: Container(),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    //       // borderSide: BorderSide(color: Colors.blue),
+                    //       shape: new RoundedRectangleBorder(
+                    //           borderRadius: new BorderRadius.circular(30.0)),
+                    //       color: Colors.red,
+                    //       // height: 30,
+                    //       // width: 100,
+                    //       child: Row(
+                    //         children: [
+                    //           Expanded(
+                    //             child: Container(),
+                    //           ),
+                    //           Icon(
+                    //             Icons.delete_forever,
+                    //             color: Colors.white,
+                    //           ),
+                    //           SizedBox(
+                    //             width: 20,
+                    //           ),
+                    //           Text(
+                    //             'Delete User',
+                    //             style: TextStyle(color: Colors.white),
+                    //           ),
+                    //           Expanded(
+                    //             child: Container(),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),

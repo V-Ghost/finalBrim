@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:myapp/Models/CoOrdinates.dart';
 import 'package:myapp/Models/setting.dart';
 import 'package:myapp/main.dart';
-import 'package:myapp/pages/navBarPages/brimPage.dart';
+
 import 'package:myapp/pages/navBarPages/chats.dart';
 import 'package:myapp/pages/navBarPages/mapPage.dart';
 import 'package:myapp/pages/navBarPages/slide.dart';
@@ -52,7 +52,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   @override
   void initState() {
     user = FirebaseAuth.instance.currentUser;
-    
 
     WidgetsBinding.instance.addObserver(this);
 
@@ -73,6 +72,49 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       'lastChanged': DateTime.now().toUtc().toString()
     }).then((_) async {});
     DatabaseService(uid: user.uid).onlineUpdate();
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        var route = ModalRoute.of(context);
+        print("route name");
+        if (route != null) {
+          if (ModalRoute.of(context).settings.name.toLowerCase() != 'chats') {
+            Fluttertoast.showToast(
+                msg: message['notification']['body'],
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.TOP,
+                timeInSecForIosWeb: 3,
+                backgroundColor: Colors.purple,
+                textColor: Colors.white,
+                fontSize: 25.0);
+          }
+          print(ModalRoute.of(context).settings.name);
+        }
+        // final notification = message['notification'];
+        print(message);
+        print("onMessage: $message");
+        String n = message['notification']['body'];
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+        Navigator.push(
+          context,
+          CupertinoPageRoute(
+            builder: (context) => Chats(),
+          ),
+        );
+        //navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => Chats()));
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+        Navigator.push(
+          context,
+          CupertinoPageRoute(
+            builder: (context) => Chats(),
+          ),
+        );
+        //navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => Chats()));
+      },
+    );
     //DatabaseService(uid: user.uid).saveDeviceToken();
     super.initState();
   }

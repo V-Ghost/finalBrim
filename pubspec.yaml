@@ -53,7 +53,7 @@ dependencies:
   cloud_functions: ^0.7.2
   url_launcher: ^5.7.10
   country_code_picker: ^1.7.0
-  async: 
+  device_info: 
 
 dev_dependencies:
   flutter_test:

@@ -1,4 +1,5 @@
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:flutter/services.dart';
 import 'package:myapp/Models/CoOrdinates.dart';
 import 'package:myapp/Models/brim.dart';
 import 'package:myapp/Models/status.dart';
@@ -18,6 +19,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:intl/intl.dart';
 import 'package:myapp/Models/checker.dart';
+import 'package:device_info/device_info.dart';
+
 class DatabaseService {
   final String uid;
   DatabaseService({this.uid});
@@ -56,10 +59,8 @@ class DatabaseService {
       await storageReference.putFile(_image);
       _uploadedFileURL = await storageReference.getDownloadURL();
 
-     
       return _uploadedFileURL;
     } catch (error) {
-     
       return error;
     }
   }
@@ -135,22 +136,82 @@ class DatabaseService {
 
     //to get nearest user use the location node
   }
+ Map<String, dynamic> _readAndroidBuildData(AndroidDeviceInfo build) {
+    return <String, dynamic>{
+      'version.securityPatch': build.version.securityPatch,
+      'version.sdkInt': build.version.sdkInt,
+      'version.release': build.version.release,
+      'version.previewSdkInt': build.version.previewSdkInt,
+      'version.incremental': build.version.incremental,
+      'version.codename': build.version.codename,
+      'version.baseOS': build.version.baseOS,
+      'board': build.board,
+      'bootloader': build.bootloader,
+      'brand': build.brand,
+      'device': build.device,
+      'display': build.display,
+      'fingerprint': build.fingerprint,
+      'hardware': build.hardware,
+      'host': build.host,
+      'id': build.id,
+      'manufacturer': build.manufacturer,
+      'model': build.model,
+      'product': build.product,
+      'supported32BitAbis': build.supported32BitAbis,
+      'supported64BitAbis': build.supported64BitAbis,
+      'supportedAbis': build.supportedAbis,
+      'tags': build.tags,
+      'type': build.type,
+      'isPhysicalDevice': build.isPhysicalDevice,
+      'androidId': build.androidId,
+      'systemFeatures': build.systemFeatures,
+    };
+  }
 
+  Map<String, dynamic> _readIosDeviceInfo(IosDeviceInfo data) {
+    return <String, dynamic>{
+      'name': data.name,
+      'systemName': data.systemName,
+      'systemVersion': data.systemVersion,
+      'model': data.model,
+      'localizedModel': data.localizedModel,
+      'identifierForVendor': data.identifierForVendor,
+      'isPhysicalDevice': data.isPhysicalDevice,
+      'utsname.sysname:': data.utsname.sysname,
+      'utsname.nodename:': data.utsname.nodename,
+      'utsname.release:': data.utsname.release,
+      'utsname.version:': data.utsname.version,
+      'utsname.machine:': data.utsname.machine,
+    };
+  }
   Future<void> saveDeviceToken() async {
     final FirebaseMessaging _fcm = FirebaseMessaging();
-
+    DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+    Map<String, dynamic> deviceData = <String, dynamic>{};
     // Get the token for this device
     String fcmToken = await _fcm.getToken();
-
+    try {
+      if (Platform.isAndroid) {
+        deviceData = _readAndroidBuildData(await deviceInfoPlugin.androidInfo);
+      } else if (Platform.isIOS) {
+        deviceData = _readIosDeviceInfo(await deviceInfoPlugin.iosInfo);
+      }
+    } on PlatformException {
+      deviceData = <String, dynamic>{
+        'Error:': 'Failed to get platform version.'
+      };
+    }
+    
     // Save it to Firestore
     if (fcmToken != null) {
-      var tokens = userCollection.doc(uid).collection('tokens').doc("fcmToken");
+      var tokens = userCollection.doc(uid).collection('tokens').doc(fcmToken);
 
       await tokens.set({
         'token': fcmToken,
         'platform': Platform.operatingSystem,
         // optional
       });
+      await tokens.collection("deviceInfo").doc("DI").set(deviceData);
     }
   }
 
@@ -207,11 +268,11 @@ class DatabaseService {
     print("first showty");
     if (query.data() == null && query1.data() == null) {
       print("all null");
-       check.data = unique1;
-       check.check = false; 
+      check.data = unique1;
+      check.check = false;
     } else {
       if (query.data() != null) {
-          print("not null");
+        print("not null");
         print(check.data);
         if (query.data().containsKey("latestMessage")) {
           print("are friends");
@@ -220,23 +281,23 @@ class DatabaseService {
           //return true;
         } else {
           print("are not friends");
-            check.data = unique;
-         check.check = false; 
+          check.data = unique;
+          check.check = false;
         }
       }
       if (query1.data() != null) {
         if (query1.data().containsKey("latestMessage")) {
           print("are friends");
-            check.data = unique1;
+          check.data = unique1;
           check.check = true;
         } else {
           print("are not friends");
-           check.data = unique1;
-           check.check = false; 
+          check.data = unique1;
+          check.check = false;
         }
       }
     }
-   return check;
+    return check;
     // if (query1.data() == null) {
     //   return false;
     // }
@@ -343,8 +404,8 @@ class DatabaseService {
     users.forEach((key, value) async {
       DocumentSnapshot documentSnapshot =
           await FirebaseFirestore.instance.collection('users').doc(key).get();
-          print("wtf");
-          print(documentSnapshot.data());
+      print("wtf");
+      print(documentSnapshot.data());
       temp = Users.fromMap(documentSnapshot.data());
       users[key].bio = temp.bio;
       //if()
@@ -403,7 +464,7 @@ class DatabaseService {
     try {
       FirebaseFunctions functions = FirebaseFunctions.instance;
       HttpsCallable callable = functions.httpsCallable('noti');
-     
+
       if (type == "brim") {
         final HttpsCallableResult result = await callable.call(
           <String, dynamic>{
@@ -413,7 +474,6 @@ class DatabaseService {
             'type': type,
           },
         );
-       
       } else {
         final HttpsCallableResult result = await callable.call(
           <String, dynamic>{
@@ -422,7 +482,6 @@ class DatabaseService {
             'message': message,
           },
         );
-       
       }
     } on FirebaseFunctionsException catch (e) {
       print('caught firebase functions exception');

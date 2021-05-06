@@ -14,7 +14,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:path/path.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,8 +25,16 @@ void main() async {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  bool loggedIn = false;
+class MyApp extends StatefulWidget {
+ 
+
+  @override
+  State createState() => _MyApp();
+}
+class _MyApp extends State<MyApp> {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>(debugLabel:"navigator");
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+ bool loggedIn = false;
 
   Future<dynamic> intialize() async {
     // tz.initializeTimeZones();
@@ -46,8 +56,7 @@ class MyApp extends StatelessWidget {
       }
     });
   }
-
-  @override
+   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
@@ -65,6 +74,7 @@ class MyApp extends StatelessWidget {
              print(loggedIn);
             if (snapshot.hasError) {
               return MaterialApp(
+               // onGenerateRoute: CustomRouter.generateRoute,
                 debugShowCheckedModeBanner: false,
                 home: Scaffold(
                   body: Column(
@@ -134,5 +144,11 @@ class MyApp extends StatelessWidget {
             );
           }),
     );
+  }
+
+  @override
+  void initState() {
+    
+    
   }
 }

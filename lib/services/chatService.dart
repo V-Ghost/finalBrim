@@ -4,6 +4,7 @@ import 'package:myapp/Models/message.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ChatService {
   final String uid;
@@ -134,7 +135,10 @@ class ChatService {
       permit = "permit2";
     }
     try {
-      var query =  await FirebaseFirestore.instance.collection("chats").doc(messageId).get();
+      var query = await FirebaseFirestore.instance
+          .collection("chats")
+          .doc(messageId)
+          .get();
       // checkPermit(messageId);
       if (query.data()[permit] == true) {
         print("it be lie");
@@ -250,20 +254,41 @@ class ChatService {
   }
 
   Stream brimStream() {
+    User user = FirebaseAuth.instance.currentUser;
+    print("entered");
+    print(user.uid);
+     FirebaseFirestore.instance
+        .collection('chats')
+        .where('type', isEqualTo: 'brim')
+        .where('members', arrayContains: user.uid)
+        .get()
+        .then((query) {
+      query.docs.forEach((data) {
+        print("crooss");
+        print(uid);
+        print(data.data());
+      });
+    });
+
     return FirebaseFirestore.instance
-        .collection("chats").where('members', arrayContains: uid)
+        .collection("chats")
+        .where('members', arrayContains: user.uid)
         .orderBy("latest", descending: true)
         .snapshots();
   }
 
   Stream chatsStream() {
+       User user = FirebaseAuth.instance.currentUser;
+    print("entered");
     return FirebaseFirestore.instance
-        .collection("chats").where('members', arrayContains: uid)
-        .orderBy("latestMessage", descending: false)
+        .collection("chats")
+        .where('members', arrayContains: user.uid)
+        .orderBy("latestMessage", descending: true)
         .snapshots();
   }
 
   Stream getYourChats(String messageId) {
+    User user = FirebaseAuth.instance.currentUser;
     return FirebaseFirestore.instance
         .collection("chats")
         .doc(messageId)
